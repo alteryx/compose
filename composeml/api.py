@@ -4,18 +4,18 @@ import pandas as pd
 def on_slice(make_label, window, min_data, gap, n_examples):
     def df_to_labels(df, *args, **kwargs):
         labels = pd.Series()
-        start_time = df.index[0] + min_data
+        cutoff_time = df.index[0] + min_data
 
         for example in range(n_examples):
-            df = df[str(start_time):]
-            df_slice = df[:str(start_time + window)]
+            df = df[str(cutoff_time):]
+            df_slice = df[:str(cutoff_time + window)]
 
             label = make_label(df_slice, *args, **kwargs)
             if label is None or label is pd.np.nan:
                 continue
 
-            labels[start_time] = label
-            start_time += gap
+            labels[cutoff_time] = label
+            cutoff_time += gap
 
         return labels.rename_axis('time')
 
