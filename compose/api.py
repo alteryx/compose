@@ -1,83 +1,48 @@
-from compose import LabelByInstance
-
-# label all events
-# returns <instance id, label, time>
-def make_label_times(all_events, threshold=0):
-    return label_times
-
-compose = LabelByInstance(instance_column="customer_id",
-                          labeling_function=make_label_times)
-
-label_times = compose.label(df, threshold=10)
-
-
-
 import composeml as cp
 
-# label windows return label
-# label time and instance id implicit
-def make_label(window_events, threshold):
-    label = events["amount"].sum() > threshold
+
+def my_labeling_function(df_slice, arg_1):
+    """one slice of data inside of the prediction window for single instance of target entity"""
+    label = df_slice["cause"].contains("brakes").any()
     return label
 
+# todo name
+lm = cp.LabelMaker(target_entity="machine_id",
+                   time_index="timestamp",
+                   labeling_function=my_labeling_function,
+                   window_size="7 days")
 
-compose = cp.LabelByWindow(instance_column="customer_id",
-                           time_column="datetime",
-                           labeling_function=make_label,
-                           window_size="30 days",
-                           uses_cutoff_time=False, #if true passes cutoff_time kwargs
-                           drop_null_labels=True)
+# describe the parameters to search for the labels
+# returns a LabelTimes object, which is basically a pandas dataframe
+lt = lm.search(dataframe=full_df,
+               arg_1="blah",
+               gap="7 days",
+               minimum_data="20 days",
+               num_examples_per_instance=10,
+               ....)
 
-search_params = {
-    "min_data": ,
-    "num_examples_per_instance": ,
-    "window_size": "",
-    "start_from": "",
-    "cutoff_times": "",
-}
+lt.summarize() # prints out distribution of labels
 
-label_times = compose.label(df, threshold=10)
+lt.describe() # prints out all the settings used to make the labels
 
-
-# example with training_window
-# label time and instance id implicit
-def make_label(window_events, cutoff_time, threshold):
-    label = events["amount"].sum() > threshold
-    return label
+# functions to modify label times and return a new copy of label times
+lt2 = lt.threshold(10) # applies to label column
+lt3 = lt.apply_lead("7 days") # applies to time column
 
 
-compose = cp.LabelByWindow(instance_column="customer_id",
-                           time_column="datetime",
-                           labeling_function=make_label,
-                           window_size="30 days",
-                           training_data=
+# utilities to debug labeling functions
 
-search_params = {
-    "min_data": ,
-    "num_examples_per_instance": ,
-    "window_size": "",
-    "start_from": ""
-}
+# return a sample slice of data to help user debug
+# can take any of the arguments of search
+df_slice = lm.sample_slice(full_df, random_seed=5)
+my_labeling_function(df_slice)
 
-label_times = compose.label(df, threshold=10)
+"""Implementation Notes
 
-
-
+* subclass dataframe to be labeltimes (https://pandas.pydata.org/pandas-docs/stable/development/extending.html#subclassing-pandas-data-structures)
 
 """
-Design notes
-
-* Need time delta object
-* label time transforms - sample, filter,
-* subclass dataframe to be labeltimes
-* make a nice summarize function
-# should window size  go constructor or search params
 
 
-Misc
-- what to name library
-- what to important as
-
-"""
 
 
