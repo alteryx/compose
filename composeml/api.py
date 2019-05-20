@@ -3,16 +3,21 @@ import pandas as pd
 
 def on_slice(apply, window, min_data, gap, n_examples):
     def df_to_labels(df, *args, **kwargs):
-        labels = pd.Series(name='labels')
+        labels = pd.Series()
         start_time = df.index[0] + min_data
 
         for example in range(n_examples):
             df = df[str(start_time):]
             df_slice = df[:str(start_time + window)]
+
             label = apply(df_slice, *args, **kwargs)
-            # ... validate label ...
+            if label is None or label is pd.np.nan:
+                continue
+
             labels[start_time] = label
             start_time += gap
+
+        return labels.rename_axis('time')
 
     return df_to_labels
 
@@ -37,4 +42,5 @@ class LabelMaker:
         )
 
         labels = df.groupby(self.target_entity).apply(df_to_labels, *args, **kwargs)
+        labels = labels.to_frame(self.labeling_function.__name__)
         return labels

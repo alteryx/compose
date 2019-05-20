@@ -1,11 +1,11 @@
 from composeml import LabelMaker
 from featuretools.demo import load_mock_customer
 
-df = load_mock_customer(return_single_table=True)
+full_df = load_mock_customer(return_single_table=True)
 
 
 def my_labeling_function(df_slice):
-    label = df_slice["amount"].mean() > 100
+    label = df_slice["amount"].mean() > 80
     return label
 
 
@@ -17,7 +17,7 @@ lm = LabelMaker(
 )
 
 lt = lm.search(
-    df,
+    full_df,
     minimum_data="1h",
     num_examples_per_instance=2,
     gap="2h",
