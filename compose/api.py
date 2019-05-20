@@ -1,9 +1,9 @@
 import composeml as cp
 
 
-def my_labeling_function(df_slice, arg_1):
+def my_labeling_function(df_slice):
     """one slice of data inside of the prediction window for single instance of target entity"""
-    label = df_slice["cause"].contains("brakes").any()
+    label = df_slice["voltage"].mean()
     return label
 
 # todo name
@@ -15,11 +15,9 @@ lm = cp.LabelMaker(target_entity="machine_id",
 # describe the parameters to search for the labels
 # returns a LabelTimes object, which is basically a pandas dataframe
 lt = lm.search(dataframe=full_df,
-               arg_1="blah",
-               gap="7 days",
-               minimum_data="20 days",
-               num_examples_per_instance=10,
-               ....)
+               minimum_data="20 days", # minimum data before starting search
+               num_examples_per_instance=10, # examples per unique instance of target entity
+               gap="7 days") # time between examples
 
 lt.summarize() # prints out distribution of labels
 
