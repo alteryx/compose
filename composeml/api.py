@@ -1,0 +1,2 @@
+class LabelMaker:
+    pass
