@@ -22,3 +22,5 @@ lt = lm.search(
     num_examples_per_instance=2,
     gap="2h",
 )
+
+lt

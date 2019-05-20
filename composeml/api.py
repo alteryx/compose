@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def on_slice(apply, window, min_data, gap, n_examples):
+def on_slice(make_label, window, min_data, gap, n_examples):
     def df_to_labels(df, *args, **kwargs):
         labels = pd.Series()
         start_time = df.index[0] + min_data
@@ -10,7 +10,7 @@ def on_slice(apply, window, min_data, gap, n_examples):
             df = df[str(start_time):]
             df_slice = df[:str(start_time + window)]
 
-            label = apply(df_slice, *args, **kwargs)
+            label = make_label(df_slice, *args, **kwargs)
             if label is None or label is pd.np.nan:
                 continue
 
