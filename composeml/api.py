@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class LabelTimes(pd.DataFrame):
-    """A DataFrame that stores labels made by LabelMaker."""
+    """A DataFrame that stores the labels made by LabelMaker."""
     _metadata = ['settings']
 
     @property
@@ -10,15 +10,22 @@ class LabelTimes(pd.DataFrame):
         return LabelTimes
 
     def describe(self):
+        """Prints out the label distribution and the settings used to make the labels."""
         labels = self[self.settings['name']]
         distribution = labels.value_counts()
         print(distribution, end='\n\n')
         print(pd.Series(self.settings), end='\n\n')
 
     def copy(self):
-        label_times = super().copy()
-        label_times.settings = self.settings.copy()
-        return label_times
+        """
+        Makes a copy of this instance.
+
+        Returns:
+            labels (LabelTimes) : Copy of instance.
+        """
+        labels = super().copy()
+        labels.settings = self.settings.copy()
+        return labels
 
     def threshold(self, value, inplace=False):
         label_times = self if inplace else self.copy()
@@ -35,6 +42,7 @@ class LabelTimes(pd.DataFrame):
         label_times.reset_index(inplace=True)
         label_times['time'] = label_times['time'].sub(pd.Timedelta(lead))
         label_times.set_index(names, inplace=True)
+
         return label_times
 
 
@@ -71,7 +79,7 @@ class LabelMaker:
         Searches and extracts labels from a data frame.
 
         Args:
-            df (DataFrame) : Data frame to search and extract label times.
+            df (DataFrame) : Data frame to search and extract labels.
             minimum_data (str) : Minimum data before starting search.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
             gap (str) : Time between examples.
