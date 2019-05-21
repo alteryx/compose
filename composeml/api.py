@@ -8,13 +8,30 @@ class LabelTimes(pd.DataFrame):
     def _constructor(self):
         return LabelTimes
 
-    def summarize(self):
-        labels = self[self.columns[-1]]
-        distribution = labels.value_counts()
-        print(distribution, end='\n')
-
     def describe(self):
-        print(pd.Series(self.settings), end='\n')
+        labels = self[self.settings['name']]
+        distribution = labels.value_counts()
+        print(distribution, end='\n\n')
+        print(pd.Series(self.settings), end='\n\n')
+
+    def copy(self):
+        label_times = super().copy()
+        label_times.settings = self.settings.copy()
+        return label_times
+
+    def threshold(self, value, inplace=False):
+        label_times = self if inplace else self.copy()
+        name = label_times.settings['name']
+        label_times[name] = label_times[name].gt(value)
+        label_times.settings.update(threshold=value)
+        return label_times
+
+    def apply_lead(self, lead, inplace=False):
+        label_times = self if inplace else self.copy()
+        label_times.settings.update(lead=lead)
+        values = label_times.index.get_level_values('time') - pd.Timedelta(lead)
+        label_times.index.set_levels(values, level='time', inplace=True)
+        return label_times
 
 
 def on_slice(make_label, window, min_data, gap, n_examples):
@@ -62,8 +79,8 @@ class LabelMaker:
         labels = LabelTimes(labels)
 
         labels.settings = {
+            'name': self.labeling_function.__name__,
             'target_entity': self.target_entity,
-            'function': self.labeling_function.__name__,
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
             'window_size': self.window_size,
