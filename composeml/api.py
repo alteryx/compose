@@ -2,6 +2,7 @@ import pandas as pd
 
 
 class LabelTimes(pd.DataFrame):
+    """A DataFrame that stores labels made by LabelMaker."""
     _metadata = ['settings']
 
     @property
@@ -29,8 +30,11 @@ class LabelTimes(pd.DataFrame):
     def apply_lead(self, lead, inplace=False):
         label_times = self if inplace else self.copy()
         label_times.settings.update(lead=lead)
-        values = label_times.index.get_level_values('time') - pd.Timedelta(lead)
-        label_times.index.set_levels(values, level='time', inplace=True)
+
+        names = label_times.index.names
+        label_times.reset_index(inplace=True)
+        label_times['time'] = label_times['time'].sub(pd.Timedelta(lead))
+        label_times.set_index(names, inplace=True)
         return label_times
 
 
@@ -63,6 +67,20 @@ class LabelMaker:
         self.window_size = window_size
 
     def search(self, df, minimum_data, num_examples_per_instance, gap, *args, **kwargs):
+        """
+        Searches and extracts labels from a data frame.
+
+        Args:
+            df (DataFrame) : Data frame to search and extract label times.
+            minimum_data (str) : Minimum data before starting search.
+            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
+            gap (str) : Time between examples.
+            args : Positional arguments for labeling function.
+            kwargs : Keyword arguments for labeling function.
+
+        Returns:
+            labels (LabelTimes) : A data frame of the extracted labels.
+        """
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
