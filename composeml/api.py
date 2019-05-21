@@ -21,29 +21,49 @@ class LabelTimes(pd.DataFrame):
         Makes a copy of this instance.
 
         Returns:
-            labels (LabelTimes) : Copy of instance.
+            labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
         labels.settings = self.settings.copy()
         return labels
 
     def threshold(self, value, inplace=False):
-        label_times = self if inplace else self.copy()
-        name = label_times.settings['name']
-        label_times[name] = label_times[name].gt(value)
-        label_times.settings.update(threshold=value)
-        return label_times
+        """
+        Creates binary labels by testing whether the labels are above the threshold.
+
+        Args:
+            value (float) : Value of threshold.
+            inplace (bool) : Modify labels in place.
+
+        Returns:
+            labels (LabelTimes) : Instance of labels.
+        """
+        labels = self if inplace else self.copy()
+        name = labels.settings['name']
+        labels[name] = labels[name].gt(value)
+        labels.settings.update(threshold=value)
+        return labels
 
     def apply_lead(self, lead, inplace=False):
-        label_times = self if inplace else self.copy()
-        label_times.settings.update(lead=lead)
+        """
+        Shifts the label times earlier for predicting in advance.
 
-        names = label_times.index.names
-        label_times.reset_index(inplace=True)
-        label_times['time'] = label_times['time'].sub(pd.Timedelta(lead))
-        label_times.set_index(names, inplace=True)
+        Args:
+            lead (str) : Time to shift earlier.
+            inplace (bool) : Modify labels in place.
 
-        return label_times
+        Returns:
+            labels (LabelTimes) : Instance of labels.
+        """
+        labels = self if inplace else self.copy()
+        labels.settings.update(lead=lead)
+
+        names = labels.index.names
+        labels.reset_index(inplace=True)
+        labels['time'] = labels['time'].sub(pd.Timedelta(lead))
+        labels.set_index(names, inplace=True)
+
+        return labels
 
 
 def on_slice(make_label, window, min_data, gap, n_examples):
