@@ -1,6 +1,22 @@
 import pandas as pd
 
 
+class LabelTimes(pd.DataFrame):
+    _metadata = ['settings']
+
+    @property
+    def _constructor(self):
+        return LabelTimes
+
+    def summarize(self):
+        labels = self[self.columns[-1]]
+        distribution = labels.value_counts()
+        print(distribution, end='\n')
+
+    def describe(self):
+        print(pd.Series(self.settings), end='\n')
+
+
 def on_slice(make_label, window, min_data, gap, n_examples):
     def df_to_labels(df, *args, **kwargs):
         labels = pd.Series()
@@ -30,7 +46,7 @@ class LabelMaker:
         self.window_size = window_size
 
     def search(self, df, minimum_data, num_examples_per_instance, gap, *args, **kwargs):
-        if self.time_index != df.index:
+        if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
         df_to_labels = on_slice(
@@ -43,4 +59,15 @@ class LabelMaker:
 
         labels = df.groupby(self.target_entity).apply(df_to_labels, *args, **kwargs)
         labels = labels.to_frame(self.labeling_function.__name__)
+        labels = LabelTimes(labels)
+
+        labels.settings = {
+            'target_entity': self.target_entity,
+            'function': self.labeling_function.__name__,
+            'num_examples_per_instance': num_examples_per_instance,
+            'minimum_data': minimum_data,
+            'window_size': self.window_size,
+            'gap': gap,
+        }
+
         return labels
