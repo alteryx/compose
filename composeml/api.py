@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class LabelTimes(pd.DataFrame):
-    """A DataFrame that stores the labels made by LabelMaker."""
+    """A data frame containing labels made by a label maker."""
     _metadata = ['settings']
 
     @property
@@ -10,7 +10,7 @@ class LabelTimes(pd.DataFrame):
         return LabelTimes
 
     def describe(self):
-        """Prints out the label distribution and the settings used to make the labels."""
+        """Prints out label distribution and the settings used to make the labels."""
         labels = self[self.settings['name']]
         distribution = labels.value_counts()
         print(distribution, end='\n\n')
@@ -29,7 +29,7 @@ class LabelTimes(pd.DataFrame):
 
     def threshold(self, value, inplace=False):
         """
-        Creates binary labels by testing whether the labels are above the threshold.
+        Creates binary labels by testing if labels are above threshold.
 
         Args:
             value (float) : Value of threshold.
@@ -67,6 +67,19 @@ class LabelTimes(pd.DataFrame):
 
 
 def on_slice(make_label, window, min_data, gap, n_examples):
+    """
+    Returns a function that transforms a data frame to labels.
+
+    Args:
+        make_label (function) : Function that transforms a data slice to a label.
+        window (Timedelta) : Duration of each data slice.
+        min_data (Timedelta) : Minimum data before starting search.
+        n_examples (int) : Number of labels to make.
+        gap (Timedelta) : Time between examples.
+
+    Returns:
+        df_to_labels (function) : Function that transforms a data frame to labels.
+    """
     def df_to_labels(df, *args, **kwargs):
         labels = pd.Series()
         cutoff_time = df.index[0] + min_data
@@ -88,7 +101,17 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
 
 class LabelMaker:
+    """Automatically makes labels for prediction problems."""
     def __init__(self, target_entity, time_index, labeling_function, window_size):
+        """
+        Creates an instance of label maker.
+
+        Args:
+            target_entity (str) : Entity on which to make labels.
+            time_index (str): Name of time column in the data frame.
+            labeling_function (function) : Function that transforms a data slice to a label.
+            window_size (str) : Duration of each data slice.
+        """
         self.target_entity = target_entity
         self.time_index = time_index
         self.labeling_function = labeling_function
