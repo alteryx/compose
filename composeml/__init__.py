@@ -1,2 +1,2 @@
 # flake8:noqa
-from .api import LabelMaker
+from .label_maker import LabelMaker
