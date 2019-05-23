@@ -2,7 +2,12 @@ import pandas as pd
 
 
 class LabelTimes(pd.DataFrame):
-    """A data frame containing labels made by a label maker."""
+    """
+    A data frame containing labels made by a label maker.
+
+    Attributes:
+        settings
+    """
     _metadata = ['_settings']
 
     @property
@@ -35,8 +40,7 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
-        settings = getattr(self, 'settings', {})
-        labels.settings = settings.copy()
+        labels.settings = self.settings.copy()
         return labels
 
     def threshold(self, value, inplace=False):

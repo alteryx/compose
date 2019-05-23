@@ -1,5 +1,6 @@
-import pytest
 import pandas as pd
+import pytest
+
 from ..label_maker import LabelMaker
 from ..label_times import LabelTimes
 
@@ -121,3 +122,11 @@ def test_search_by_time(transactions, labels):
     )
 
     assert given_labels.equals(labels)
+
+
+def test_threshold(labels):
+    given_labels = labels.threshold(200)
+    answer = [True, False, True, False]
+    labels['my_labeling_function'] = answer
+    assert given_labels.equals(labels)
+    assert given_labels.settings.get('threshold') == 200
