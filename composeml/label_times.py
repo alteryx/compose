@@ -3,11 +3,22 @@ import pandas as pd
 
 class LabelTimes(pd.DataFrame):
     """A data frame containing labels made by a label maker."""
-    _metadata = ['settings']
+    _metadata = ['_settings']
 
     @property
     def _constructor(self):
         return LabelTimes
+
+    @property
+    def settings(self):
+        if not hasattr(self, '_settings'):
+            self._settings = {}
+
+        return self._settings
+
+    @settings.setter
+    def settings(self, value):
+        self._settings = value
 
     def describe(self):
         """Prints out label distribution and the settings used to make the labels."""
@@ -24,7 +35,8 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
-        labels.settings = self.settings.copy()
+        settings = getattr(self, 'settings', {})
+        labels.settings = settings.copy()
         return labels
 
     def threshold(self, value, inplace=False):
