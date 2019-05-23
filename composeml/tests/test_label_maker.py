@@ -69,7 +69,8 @@ def transactions():
 def test_search_by_time(transactions, labels):
     def my_labeling_function(df_slice):
         label = df_slice['amount'].sum()
-        return label
+        label = label or pd.np.nan
+        return label 
 
     lm = LabelMaker(
         target_entity='customer_id',
@@ -81,7 +82,7 @@ def test_search_by_time(transactions, labels):
     given_labels = lm.search(
         transactions,
         minimum_data='1min',
-        num_examples_per_instance=2,
+        num_examples_per_instance=4,
         gap='3min',
     )
 
