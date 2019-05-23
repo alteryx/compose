@@ -62,7 +62,6 @@ def transactions():
 
     dtype = {'transaction_time': 'datetime64[ns]'}
     df = pd.DataFrame.from_records(records).astype(dtype)
-    df = df.set_index('transaction_time')
 
     return df
 
@@ -121,12 +120,29 @@ def test_search_by_time(transactions, labels):
         gap='3min',
     )
 
-    assert given_labels.equals(labels)
+    pd.testing.assert_frame_equal(given_labels, labels)
 
 
 def test_threshold(labels):
     given_labels = labels.threshold(200)
     answer = [True, False, True, False]
     labels['my_labeling_function'] = answer
-    assert given_labels.equals(labels)
+
+    pd.testing.assert_frame_equal(given_labels, labels)
     assert given_labels.settings.get('threshold') == 200
+
+
+def test_lead(labels):
+    labels.apply_lead('10min', inplace=True)
+    assert labels.settings.get('lead') == '10min'
+    given_time = labels.index.get_level_values('time')
+
+    answer = [
+        '2014-01-01 00:35:00',
+        '2014-01-01 00:38:00',
+        '2013-12-31 23:51:00',
+        '2013-12-31 23:54:00',
+    ]
+
+    time = pd.DatetimeIndex(answer, name='time')
+    pd.testing.assert_index_equal(given_time, time)
