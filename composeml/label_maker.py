@@ -19,15 +19,15 @@ def on_slice(make_label, window, min_data, gap, n_examples):
     """
 
     def offset_time(index, value):
+        if index.empty:
+            return
+
         if isinstance(value, int):
             value += 1
             value = index[:value][-1]
             return str(value)
 
         elif isinstance(value, str):
-            if index.empty:
-                return
-
             value = pd.Timedelta(value)
             value = index[0] + value
             return str(value)
@@ -73,7 +73,7 @@ class LabelMaker:
             target_entity (str) : Entity on which to make labels.
             time_index (str): Name of time column in the data frame.
             labeling_function (function) : Function that transforms a data slice to a label.
-            window_size (str) : Duration of each data slice.
+            window_size (str or int) : Duration of each data slice.
         """
         self.target_entity = target_entity
         self.time_index = time_index
