@@ -49,7 +49,7 @@ def on_slice(make_label, window, min_data, gap, n_examples):
             label = make_label(df[:time], *args, **kwargs)
 
             not_none = label is not None
-            not_nan = label is pd.np.nan
+            not_nan = label is not pd.np.nan
             if not_none or not_nan:
                 labels[cutoff_time] = label
 
