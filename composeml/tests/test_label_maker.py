@@ -70,7 +70,7 @@ def test_search_by_time(transactions, labels):
     def my_labeling_function(df_slice):
         label = df_slice['amount'].sum()
         label = label or pd.np.nan
-        return label 
+        return label
 
     lm = LabelMaker(
         target_entity='customer_id',
@@ -87,3 +87,43 @@ def test_search_by_time(transactions, labels):
     )
 
     pd.testing.assert_frame_equal(given_labels, labels)
+
+
+def test_search_by_observations(transactions, labels):
+    def my_labeling_function(df_slice):
+        label = df_slice['amount'].sum()
+        return label
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=my_labeling_function,
+        window_size=2,
+    )
+
+    given_labels = lm.search(
+        transactions,
+        minimum_data=1,
+        num_examples_per_instance=2,
+        gap=3,
+    )
+
+    pd.testing.assert_frame_equal(given_labels, labels)
+
+
+def test_search_invalid_offset(transactions):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=None,
+        window_size=2,
+    )
+
+    text = 'time offset must be integer or string'
+    with pytest.raises(TypeError, match=text):
+        given_labels = lm.search(
+            transactions,
+            num_examples_per_instance=2,
+            minimum_data={},
+            gap={},
+        )

@@ -9,31 +9,55 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
     Args:
         make_label (function) : Function that transforms a data slice to a label.
-        window (Timedelta) : Duration of each data slice.
-        min_data (Timedelta) : Minimum data before starting search.
+        window (str or int) : Duration of each data slice.
+        min_data (str or int) : Minimum data before starting search.
         n_examples (int) : Number of labels to make.
-        gap (Timedelta) : Time between examples.
+        gap (str or int) : Time between examples.
 
     Returns:
         df_to_labels (function) : Function that transforms a data frame to labels.
     """
 
+    def offset_time(index, value):
+        if isinstance(value, int):
+            value += 1
+            value = index[:value][-1]
+            return str(value)
+
+        elif isinstance(value, str):
+            if index.empty:
+                return
+
+            value = pd.Timedelta(value)
+            value = index[0] + value
+            return str(value)
+
+        else:
+            raise TypeError('time offset must be integer or string')
+
     def df_to_labels(df, *args, **kwargs):
+        cutoff_time = offset_time(df.index, min_data)
         labels = pd.Series()
-        cutoff_time = df.index[0] + min_data
 
         for example in range(n_examples):
-            df = df[str(cutoff_time):]
-            df_slice = df[:str(cutoff_time + window)]
+            df = df[cutoff_time:]
 
-            label = make_label(df_slice, *args, **kwargs)
-            if label is None or label is pd.np.nan:
-                continue
+            time = offset_time(df.index, window)
+            if time is None:
+                break
 
-            labels[cutoff_time] = label
-            cutoff_time += gap
+            label = make_label(df[:time], *args, **kwargs)
 
-        return labels.rename_axis('time')
+            not_none = label is not None
+            not_nan = label is pd.np.nan
+            if not_none or not_nan:
+                labels[cutoff_time] = label
+
+            cutoff_time = offset_time(df.index, gap)
+
+        labels.index = labels.index.rename('time')
+        labels.index = labels.index.astype('datetime64[ns]')
+        return labels
 
     return df_to_labels
 
@@ -76,10 +100,10 @@ class LabelMaker:
 
         df_to_labels = on_slice(
             self.labeling_function,
-            min_data=pd.Timedelta(minimum_data),
-            window=pd.Timedelta(self.window_size),
-            gap=pd.Timedelta(gap),
+            min_data=minimum_data,
+            window=self.window_size,
             n_examples=num_examples_per_instance,
+            gap=gap,
         )
 
         labels = df.groupby(self.target_entity).apply(df_to_labels, *args, **kwargs)
