@@ -19,9 +19,6 @@ def on_slice(make_label, window, min_data, gap, n_examples):
     """
 
     def offset_time(index, value):
-        if index.empty:
-            return
-
         if isinstance(value, int):
             value += 1
             value = index[:value][-1]
@@ -42,10 +39,10 @@ def on_slice(make_label, window, min_data, gap, n_examples):
         for example in range(n_examples):
             df = df[cutoff_time:]
 
-            time = offset_time(df.index, window)
-            if time is None:
+            if df.empty:
                 break
 
+            time = offset_time(df.index, window)
             label = make_label(df[:time], *args, **kwargs)
 
             not_none = label is not None
