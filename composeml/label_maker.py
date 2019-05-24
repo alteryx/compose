@@ -103,7 +103,8 @@ class LabelMaker:
             gap=gap,
         )
 
-        labels = df.groupby(self.target_entity).apply(df_to_labels, *args, **kwargs)
+        labels = df.groupby(self.target_entity)
+        labels = labels.apply(df_to_labels, *args, **kwargs)
         labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)
 
