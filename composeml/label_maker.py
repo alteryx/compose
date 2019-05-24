@@ -50,7 +50,7 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
             not_none = label is not None
             not_nan = label is not pd.np.nan
-            if not_none or not_nan:
+            if not_none and not_nan:
                 labels[cutoff_time] = label
 
             cutoff_time = offset_time(df.index, gap)
