@@ -25,11 +25,51 @@ class LabelTimes(pd.DataFrame):
     def settings(self, value):
         self._settings = value
 
+    @property
+    def distribution(self):
+        name = self.settings['name']
+        target_entity = self.settings['target_entity']
+
+        labels = self.assign(count=1).groupby([target_entity, name])
+        distribution = labels['count'].count()
+        return distribution
+
+    def _plot_distribution(self, stacked=True):
+        name = self.settings['name']
+        distribution = self.distribution.unstack(name)
+
+        plot = distribution.plot(kind='bar', stacked=stacked)
+        plot.set_title('label_distribution')
+        plot.set_ylabel('count')
+        return plot
+
+    def _with_plots(self):
+        self.plot.count_by_time = self._plot_count_by_time
+        self.plot.distribution = self._plot_distribution
+        return self
+
+    @property
+    def count_by_time(self):
+        target_entity = self.settings['target_entity']
+        labels = self.assign(count=1).sort_index(level='time')
+        labels = labels.groupby(target_entity)
+        count = labels['count'].cumsum()
+        return count
+
+    def _plot_count_by_time(self):
+        target_entity = self.settings['target_entity']
+        count_by_time = self.count_by_time.unstack(target_entity).ffill()
+
+        plot = count_by_time.plot(kind='area')
+        plot.set_title(self.settings['name'])
+        plot.set_ylabel('count')
+        return plot
+
     def describe(self):
         """Prints out label distribution and the settings used to make the labels."""
         labels = self[self.settings['name']]
-        distribution = labels.value_counts()
-        print(distribution, end='\n\n')
+        print(labels.value_counts(), end='\n\n')
+        print(self.distribution, end='\n\n')
         print(pd.Series(self.settings), end='\n\n')
 
     def copy(self):
@@ -41,7 +81,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = super().copy()
         labels.settings = self.settings.copy()
-        return labels
+        return labels._with_plots()
 
     def threshold(self, value, inplace=False):
         """
@@ -58,7 +98,9 @@ class LabelTimes(pd.DataFrame):
         name = labels.settings['name']
         labels[name] = labels[name].gt(value)
         labels.settings.update(threshold=value)
-        return labels
+
+        if not inplace:
+            return labels
 
     def apply_lead(self, lead, inplace=False):
         """
@@ -79,4 +121,5 @@ class LabelTimes(pd.DataFrame):
         labels['time'] = labels['time'].sub(pd.Timedelta(lead))
         labels.set_index(names, inplace=True)
 
-        return labels
+        if not inplace:
+            return labels

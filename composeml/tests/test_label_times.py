@@ -34,7 +34,11 @@ def labels():
     df = df.set_index(['customer_id', 'time'])
 
     labels = LabelTimes(df)
-    labels.settings.update(name='my_labeling_function')
+    labels.settings = {
+        'name': 'my_labeling_function',
+        'target_entity': 'customer_id',
+    }
+
     return labels
 
 
@@ -48,7 +52,7 @@ def test_threshold(labels):
 
 
 def test_lead(labels):
-    labels.apply_lead('10min', inplace=True)
+    labels = labels.apply_lead('10min')
     assert labels.settings.get('lead') == '10min'
     given_time = labels.index.get_level_values('time')
 
