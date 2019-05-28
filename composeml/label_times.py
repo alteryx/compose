@@ -34,19 +34,14 @@ class LabelTimes(pd.DataFrame):
         distribution = labels['count'].count()
         return distribution
 
-    def _plot_distribution(self, stacked=True):
+    def _plot_distribution(self, **kwargs):
         name = self.settings['name']
         distribution = self.distribution.unstack(name)
 
-        plot = distribution.plot(kind='bar', stacked=stacked)
+        plot = distribution.plot(kind='bar', **kwargs)
         plot.set_title('label_distribution')
         plot.set_ylabel('count')
         return plot
-
-    def _with_plots(self):
-        self.plot.count_by_time = self._plot_count_by_time
-        self.plot.distribution = self._plot_distribution
-        return self
 
     @property
     def count_by_time(self):
@@ -56,19 +51,29 @@ class LabelTimes(pd.DataFrame):
         count = labels['count'].cumsum()
         return count
 
-    def _plot_count_by_time(self):
+    def _plot_count_by_time(self, **kwargs):
         target_entity = self.settings['target_entity']
         count_by_time = self.count_by_time.unstack(target_entity).ffill()
 
-        plot = count_by_time.plot(kind='area')
+        plot = count_by_time.plot(kind='area', **kwargs)
         plot.set_title(self.settings['name'])
         plot.set_ylabel('count')
         return plot
 
+    def _with_plots(self):
+        self.plot.count_by_time = self._plot_count_by_time
+        self.plot.distribution = self._plot_distribution
+        return self
+
     def describe(self):
         """Prints out label distribution and the settings used to make the labels."""
         labels = self[self.settings['name']]
-        print(labels.value_counts(), end='\n\n')
+        label_counts = labels.value_counts()
+        total = 'Total number of labels:  {}'
+        total = total.format(label_counts.sum())
+
+        print(total, end='\n\n')
+        print(label_counts, end='\n\n')
         print(self.distribution, end='\n\n')
         print(pd.Series(self.settings), end='\n\n')
 
