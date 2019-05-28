@@ -1,6 +1,9 @@
 import pandas as pd
+from tqdm import tqdm
 
 from .label_times import LabelTimes
+
+tqdm.pandas()
 
 
 def on_slice(make_label, window, min_data, gap, n_examples):
@@ -77,7 +80,7 @@ class LabelMaker:
         self.labeling_function = labeling_function
         self.window_size = window_size
 
-    def search(self, df, minimum_data, num_examples_per_instance, gap, *args, **kwargs):
+    def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
         """
         Searches and extracts labels from a data frame.
 
@@ -104,7 +107,9 @@ class LabelMaker:
         )
 
         labels = df.groupby(self.target_entity)
-        labels = labels.apply(df_to_labels, *args, **kwargs)
+        apply = labels.progress_apply if verbose else labels.apply
+
+        labels = apply(df_to_labels, *args, **kwargs)
         labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)
 
