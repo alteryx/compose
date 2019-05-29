@@ -14,11 +14,10 @@ jobs:
           key: python35-{{ checksum "requirements.txt" }}
           paths:
             - "venv_35"
-      - run: source venv_35/bin/activate && make lint
+      # - run: source venv_35/bin/activate && make lint
       - run: |
           source venv_35/bin/activate
           coverage erase
-          make optimized_test
           make testcoverage
 
 workflows:
