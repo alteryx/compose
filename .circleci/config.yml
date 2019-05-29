@@ -1,55 +1,47 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 jobs:
-  build:
+  "python-35":
+    working_directory: ~/compose-ml
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.1
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
+        - image: circleci/python:3.5
     steps:
       - checkout
-
-      # Download and cache dependencies
+      - run: virtualenv venv_35
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
-
+          key: python35-{{ checksum "requirements.txt" }}
+      - run: source venv_35/bin/activate && make installdeps
       - save_cache:
+          key: python35-{{ checksum "requirements.txt" }}
           paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+            - "venv_35"
+      - run: source venv_35/bin/activate && make lint
+      - run: |
+          source venv_35/bin/activate
+          coverage erase
+          make optimized_test
+  "python-27":
+    working_directory: ~/premium-primitives
+    docker:
+        - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run: virtualenv venv_27
+      - run: source venv_27/bin/activate && python generate_requirements.py
+      - restore_cache:
+          key: python27-{{ checksum "requirements.txt" }}
+      - run: source venv_27/bin/activate && make installdeps
+      - save_cache:
+          key: python27-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv_27"
+      - run: |
+          source venv_27/bin/activate
+          make clean
+          make optimized_test_py27
 
-      # run tests!
-      # this example uses Django's built-in test-runner
-      # other common Python testing frameworks include pytest and nose
-      # https://pytest.org
-      # https://nose.readthedocs.io
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            python manage.py test
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
+workflows:
+  version: 2
+  test_all_python_versions:
+    jobs:
+      - "python-35"
+      - "python-27"
