@@ -15,11 +15,11 @@ lint-fix:
 	isort --recursive composeml
 
 .PHONY: test
-test: lint
+test:
 	pytest composeml/tests
 
 .PHONY: testcoverage
-testcoverage: lint
+testcoverage:
 	pytest composeml/tests --cov=composeml
 
 .PHONY: installdeps
