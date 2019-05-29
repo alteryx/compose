@@ -7,20 +7,20 @@ clean:
 
 .PHONY: lint
 lint:
-	flake8 compose-ml && isort --check-only --recursive compose-ml
+	flake8 composeml && isort --check-only --recursive composeml
 
 .PHONY: lint-fix
 lint-fix:
-	autopep8 --in-place --recursive --max-line-length=100 --exclude="*/migrations/*" --select="E225,E303,E302,E203,E128,E231,E251,E271,E127,E126,E301,W291,W293,E226,E306,E221" compose-ml
-	isort --recursive compose-ml
+	autopep8 --in-place --recursive --max-line-length=100 --exclude="*/migrations/*" --select="E225,E303,E302,E203,E128,E231,E251,E271,E127,E126,E301,W291,W293,E226,E306,E221" composeml
+	isort --recursive composeml
 
 .PHONY: test
 test: lint
-	pytest compose-ml/tests
+	pytest composeml/tests
 
 .PHONY: testcoverage
 testcoverage: lint
-	pytest compose-ml/tests --cov=compose-ml
+	pytest composeml/tests --cov=composeml
 
 .PHONY: installdeps
 installdeps:
