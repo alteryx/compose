@@ -1,7 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 
-from .label_times import LabelTimes
+from composeml.label_times import LabelTimes
 
 tqdm.pandas(ncols=80)
 
