@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 from .label_times import LabelTimes
 
-tqdm.pandas(ncols=100)
+tqdm.pandas(ncols=80)
 
 
 def on_slice(make_label, window, min_data, gap, n_examples):
