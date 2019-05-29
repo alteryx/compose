@@ -7,13 +7,7 @@ jobs:
     steps:
       - checkout
       - run: virtualenv venv_35
-      - restore_cache:
-          key: python35-{{ checksum "requirements.txt" }}
       - run: source venv_35/bin/activate && make installdeps
-      - save_cache:
-          key: python35-{{ checksum "requirements.txt" }}
-          paths:
-            - "venv_35"
       # - run: source venv_35/bin/activate && make lint
       - run: |
           source venv_35/bin/activate
