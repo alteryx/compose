@@ -17,8 +17,7 @@ jobs:
       # - run: source venv_35/bin/activate && make lint
       - run: |
           source venv_35/bin/activate
-          coverage erase
-          make testcoverage
+          make test
 
 workflows:
   version: 2

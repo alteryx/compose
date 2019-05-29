@@ -18,10 +18,6 @@ lint-fix:
 test:
 	pytest composeml/tests
 
-.PHONY: testcoverage
-testcoverage:
-	pytest composeml/tests --cov=composeml
-
 .PHONY: installdeps
 installdeps:
 	pip install --upgrade pip
