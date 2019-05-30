@@ -6,9 +6,13 @@ jobs:
         - image: circleci/python:3.5
     steps:
       - checkout
-      - run: virtualenv venv_35
-      - run: source venv_35/bin/activate && make installdeps
-      - run: source venv_35/bin/activate && make lint
+      - run: |
+          virtualenv venv_35 -q
+          source venv_35/bin/activate
+          make installdeps
+      - run: |
+          source venv_35/bin/activate
+          make lint
       - run: |
           source venv_35/bin/activate
           coverage erase
