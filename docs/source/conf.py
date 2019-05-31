@@ -24,9 +24,9 @@ copyright = '2019, Feature Labs, Inc.'
 author = 'Feature Labs, Inc.'
 
 # The short X.Y version
-version = ''
+version = composeml.__version__
 # The full version, including alpha/beta/rc tags
-release = ''
+release = composeml.__version__
 
 
 # -- General configuration ---------------------------------------------------
