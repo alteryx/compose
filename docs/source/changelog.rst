@@ -1,4 +1,4 @@
 Changelog
 ---------
-**v0.1.0** May 31, 2019
+**v0.1.1** May 31, 2019
     * Initial Release
