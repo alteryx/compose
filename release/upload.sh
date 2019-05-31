@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Clone composeml repo
-git clone https://github.com/FeatureLabs/composeml.git /home/circleci/composeml
+# Clone compose-ml repo
+git clone https://github.com/FeatureLabs/compose-ml.git /home/circleci/compose-ml
 # Checkout specified commit
-cd /home/circleci/composeml
+cd /home/circleci/compose-ml
 git checkout "${1}"
 # Remove build artifacts
 rm -rf .eggs/ rm -rf dist/ rm -rf build/
