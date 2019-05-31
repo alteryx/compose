@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Clone featuretools_update_checker repo
-git clone https://github.com/FeatureLabs/featuretools_update_checker.git /home/circleci/featuretools_update_checker
+# Clone composeml repo
+git clone https://github.com/FeatureLabs/composeml.git /home/circleci/composeml
 # Checkout specified commit
-cd /home/circleci/featuretools_update_checker
+cd /home/circleci/composeml
 git checkout "${1}"
 # Remove build artifacts
 rm -rf .eggs/ rm -rf dist/ rm -rf build/
