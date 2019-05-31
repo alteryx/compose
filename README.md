@@ -1,7 +1,6 @@
 # ComposeML
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/compose-ml/tree/circle-ci.svg?style=shield&circle-token=46bfd96c474ed77feb778653c57615ea3bf0aa5b)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/circle-ci)
-
+[![CircleCI](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
 
 Compose is a Python library for prediction engineering. Compose enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
 ### Installation
