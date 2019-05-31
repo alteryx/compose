@@ -11,6 +11,7 @@ Welcome to Compose ML's documentation!
    :caption: Contents:
 
    api_reference
+   changelog
 
 Indices and tables
 ==================
