@@ -1,8 +1,20 @@
 API Reference
 =============
+
+Overview
+~~~~~~~~~~~~~
 .. currentmodule:: composeml
+
 .. autosummary::
-    :toctree: generated/
+   :nosignatures:
 
     LabelMaker
     LabelTimes
+
+
+
+.. autoclass:: LabelMaker
+    :members:
+
+.. autoclass:: LabelTimes
+    :members:
