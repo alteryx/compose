@@ -106,8 +106,8 @@ class LabelMaker:
 
         if verbose:
             bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-            bar_format += "Progress: {l_bar}{bar}| Calculated: {n}/{total} "
-            bar_format += self.target_entity
+            bar_format += "Progress: {l_bar}{bar}| "
+            bar_format += self.target_entity + ": {n}/{total} "
             tqdm.pandas(bar_format=bar_format)
 
         labels = df.groupby(self.target_entity)
