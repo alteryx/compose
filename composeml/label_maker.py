@@ -3,11 +3,6 @@ from tqdm import tqdm
 
 from composeml.label_times import LabelTimes
 
-# setup progress bar
-bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-bar_format += "Progress: {l_bar}{bar}| Calculated: {n}/{total} chunks"
-tqdm.pandas(bar_format=bar_format)
-
 
 def on_slice(make_label, window, min_data, gap, n_examples):
     """
@@ -109,15 +104,22 @@ class LabelMaker:
             gap=gap,
         )
 
+        name = self.labeling_function.__name__
+
+        if verbose:
+            bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
+            bar_format += "Progress: {l_bar}{bar}| Calculated: {n}/{total} " + name
+            tqdm.pandas(bar_format=bar_format)
+
         labels = df.groupby(self.target_entity)
         apply = labels.progress_apply if verbose else labels.apply
 
         labels = apply(df_to_labels, *args, **kwargs)
-        labels = labels.to_frame(self.labeling_function.__name__)
+        labels = labels.to_frame(name)
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {
-            'name': self.labeling_function.__name__,
+            'name': name,
             'target_entity': self.target_entity,
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
