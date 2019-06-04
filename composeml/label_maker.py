@@ -104,22 +104,21 @@ class LabelMaker:
             gap=gap,
         )
 
-        name = self.labeling_function.__name__
-
         if verbose:
             bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-            bar_format += "Progress: {l_bar}{bar}| Calculated: {n}/{total} " + name
+            bar_format += "Progress: {l_bar}{bar}| Calculated: {n}/{total} "
+            bar_format += self.target_entity
             tqdm.pandas(bar_format=bar_format)
 
         labels = df.groupby(self.target_entity)
         apply = labels.progress_apply if verbose else labels.apply
 
         labels = apply(df_to_labels, *args, **kwargs)
-        labels = labels.to_frame(name)
+        labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {
-            'name': name,
+            'name': self.labeling_function.__name__,
             'target_entity': self.target_entity,
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
