@@ -112,10 +112,14 @@ def test_search_by_observations(transactions, labels):
 
 
 def test_search_invalid_offset(transactions):
+    def my_labeling_function(df_slice):
+        label = df_slice['amount'].sum()
+        return label
+
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
-        labeling_function=None,
+        labeling_function=my_labeling_function,
         window_size=2,
     )
 
