@@ -153,9 +153,9 @@ class LabelTimes(pd.DataFrame):
         name = data.settings['name']
 
         if quantiles:
-            data[name] = pd.qcut(data[name], q=bins, labels=labels)
+            data[name] = pd.qcut(data[name].values, q=bins, labels=labels)
 
         else:
-            data[name] = pd.cut(data[name], bins=bins, labels=labels, right=right)
+            data[name] = pd.cut(data[name].values, bins=bins, labels=labels, right=right)
 
         return data
