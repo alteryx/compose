@@ -67,6 +67,20 @@ def test_lead(labels):
     pd.testing.assert_index_equal(given_time, time)
 
 
+def test_bins(labels):
+    given_labels = labels.bin(2)
+
+    answer = [
+        pd.Interval(157.5, 283.46, closed='right'),
+        pd.Interval(31.288, 157.5, closed='right'),
+        pd.Interval(157.5, 283.46, closed='right'),
+        pd.Interval(31.288, 157.5, closed='right'),
+    ]
+
+    labels['my_labeling_function'] = pd.Categorical(answer, ordered=True)
+    pd.testing.assert_frame_equal(given_labels, labels)
+
+
 def test_quantile_bins(labels):
     given_labels = labels.bin(2, quantiles=True)
 
