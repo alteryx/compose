@@ -135,10 +135,10 @@ class LabelTimes(pd.DataFrame):
 
         Args:
             bins (int or array) : The criteria to bin by.
+
                 * int : If `quantiles` is `False`, defines the number of equal-width bins.
                     The range is extended by .1% on each side to include the minimum and maximum values.
                     If `quantiles` is `True`, defines the number of quantiles (e.g. 10 for deciles, 4 for quartiles, etc.)
-
                 * array : If `quantiles` is `False`, defines the bin edges allowing for non-uniform width. No extension is done.
                     If `quantiles` is `True`, defines array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
