@@ -143,7 +143,7 @@ class LabelTimes(pd.DataFrame):
                     If `quantiles` is `True`, defines array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
             labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
-            right (bool) : Indicates whether bins includes the rightmost edge or not.
+            right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
             quantiles (bool) : Determines whether to use a quantile-based discretization function.
 
         Returns:
