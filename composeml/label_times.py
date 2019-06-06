@@ -128,3 +128,32 @@ class LabelTimes(pd.DataFrame):
 
         if not inplace:
             return labels
+
+    def bin(self, bins, labels=None, right=True):
+        """
+        Bin labels into discrete intervals.
+
+        Args:
+            bins (int or list or tuple) : The criteria to bin by.
+                * int : Defines the number of equal-width bins in the range of `x`. The
+                range of `x` is extended by .1% on each side to include the minimum
+                and maximum values of `x`.
+
+                * list : Defines the bin edges manually allowing for non-uniform
+                width. No extension of the range of `x` is done.
+
+                * tuple : Defines the bin edges using quantiles, e.g. (0, .25, .5, .75, 1.) for quartiles.
+
+        Returns:
+            LabelTimes : Instance of labels.
+        """
+        data = self.copy()
+        name = data.settings['name']
+
+        if isinstance(bins, tuple):
+            data[name] = pd.qcut(data[name], q=bins, labels=labels)
+
+        else:
+            data[name] = pd.cut(data[name], bins=bins, labels=labels, right=right)
+
+        return data
