@@ -129,20 +129,22 @@ class LabelTimes(pd.DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, labels=None, right=True):
+    def bin(self, bins, labels=None, right=True, quantiles=False):
         """
         Bin labels into discrete intervals.
 
         Args:
-            bins (int or list or tuple) : The criteria to bin by.
-                * int : Defines the number of equal-width bins in the range of `x`. The
-                range of `x` is extended by .1% on each side to include the minimum
-                and maximum values of `x`.
+            bins (int or array) : The criteria to bin by.
+                * int : If `quantiles` is `False`, defines the number of equal-width bins.
+                    The range is extended by .1% on each side to include the minimum and maximum values.
+                    If `quantiles` is `True`, defines the number of quantiles (e.g. 10 for deciles, 4 for quartiles, etc.)
 
-                * list : Defines the bin edges manually allowing for non-uniform
-                width. No extension of the range of `x` is done.
+                * array : If `quantiles` is `False`, defines the bin edges allowing for non-uniform width. No extension is done.
+                    If `quantiles` is `True`, defines array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
-                * tuple : Defines the bin edges using quantiles, e.g. (0, .25, .5, .75, 1.) for quartiles.
+            labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
+            right (bool) : Indicates whether bins includes the rightmost edge or not.
+            quantiles (bool) : Determines whether to use a quantile-based discretization function.
 
         Returns:
             LabelTimes : Instance of labels.
@@ -150,7 +152,7 @@ class LabelTimes(pd.DataFrame):
         data = self.copy()
         name = data.settings['name']
 
-        if isinstance(bins, tuple):
+        if quantiles:
             data[name] = pd.qcut(data[name], q=bins, labels=labels)
 
         else:
