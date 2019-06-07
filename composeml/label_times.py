@@ -201,7 +201,7 @@ class LabelTimes(pd.DataFrame):
                     2014-01-01 00:48:00                    0
         2           2014-01-01 00:01:00                    1
                     2014-01-01 00:04:00                    0
-        """
+        """ # noqa
         data = self.copy()
         name = data.settings['name']
 

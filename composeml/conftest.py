@@ -1,5 +1,6 @@
 # flake8:noqa
 import pytest
+
 from composeml.tests.test_label_times import labels
 
 
