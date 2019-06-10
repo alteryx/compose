@@ -129,7 +129,7 @@ class LabelTimes(pd.DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, labels=None, right=True, quantiles=False):
+    def bin(self, bins, quantiles=False, labels=None, right=True):
         """
         Bin labels into discrete intervals.
 
@@ -144,63 +144,62 @@ class LabelTimes(pd.DataFrame):
                     If `quantiles` is `False`, defines the bin edges allowing for non-uniform width. No extension is done.
                     If `quantiles` is `True`, defines the bin edges usings an array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
+            quantiles (bool) : Determines whether to use a quantile-based discretization function.
             labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
-            quantiles (bool) : Determines whether to use a quantile-based discretization function.
 
         Returns:
             LabelTimes : Instance of labels.
 
-        Examples
-        --------
-        .. _equal-widths:
+        Examples:
+            .. _equal-widths:
 
-        Using bins of `equal-widths`_:
+            Using bins of `equal-widths`_:
 
-        >>> labels.bin(2).head()
-                                        my_labeling_function
-        customer_id time                                    
-        1           2014-01-01 00:45:00      (157.5, 283.46]
-                    2014-01-01 00:48:00      (31.288, 157.5]
-        2           2014-01-01 00:01:00      (157.5, 283.46]
-                    2014-01-01 00:04:00      (31.288, 157.5]
+            >>> labels.bin(2).head()
+                                            my_labeling_function
+            customer_id time                                    
+            1           2014-01-01 00:45:00      (157.5, 283.46]
+                        2014-01-01 00:48:00      (31.288, 157.5]
+            2           2014-01-01 00:01:00      (157.5, 283.46]
+                        2014-01-01 00:04:00      (31.288, 157.5]
 
-        .. _custom-widths:
+            .. _custom-widths:
 
-        Using bins of `custom-widths`_:
+            Using bins of `custom-widths`_:
 
-        >>> bins = [0, 200, 400]
-        >>> labels.bin(bins).head()
-                                        my_labeling_function
-        customer_id time                                    
-        1           2014-01-01 00:45:00           (200, 400]
-                    2014-01-01 00:48:00             (0, 200]
-        2           2014-01-01 00:01:00           (200, 400]
-                    2014-01-01 00:04:00             (0, 200]
+            >>> bins = [0, 200, 400]
+            >>> labels.bin(bins).head()
+                                            my_labeling_function
+            customer_id time                                    
+            1           2014-01-01 00:45:00           (200, 400]
+                        2014-01-01 00:48:00             (0, 200]
+            2           2014-01-01 00:01:00           (200, 400]
+                        2014-01-01 00:04:00             (0, 200]
 
-        .. _quantile-based:
+            .. _quantile-based:
 
-        Using `quantile-based`_ bins:
+            Using `quantile-based`_ bins:
 
-        >>> labels.bin(4, quantiles=True).head() # (i.e. quartiles)
-                                                 my_labeling_function
-        customer_id time                                             
-        1           2014-01-01 00:45:00             (137.44, 241.062]
-                    2014-01-01 00:48:00              (43.848, 137.44]
-        2           2014-01-01 00:01:00             (241.062, 283.46]
-                    2014-01-01 00:04:00  (31.538999999999998, 43.848]
+            >>> labels.bin(4, quantiles=True).head() # (i.e. quartiles)
+                                                     my_labeling_function
+            customer_id time                                             
+            1           2014-01-01 00:45:00             (137.44, 241.062]
+                        2014-01-01 00:48:00              (43.848, 137.44]
+            2           2014-01-01 00:01:00             (241.062, 283.46]
+                        2014-01-01 00:04:00  (31.538999999999998, 43.848]
 
-        .. _labels:
+            .. _labels:
 
-        Assigning `labels`_ to bins:
+            Assigning `labels`_ to bins:
 
-        >>> labels.bin(2, labels=range(2)).head()
-                                        my_labeling_function
-        customer_id time                                    
-        1           2014-01-01 00:45:00                    1
-                    2014-01-01 00:48:00                    0
-        2           2014-01-01 00:01:00                    1
-                    2014-01-01 00:04:00                    0
+            >>> labels.bin(3, labels=['low', 'medium', 'high']).head()
+                                            my_labeling_function
+            customer_id time                                    
+            1           2014-01-01 00:45:00                 high
+                        2014-01-01 00:48:00                  low
+            2           2014-01-01 00:01:00                 high
+                        2014-01-01 00:04:00                  low
         """ # noqa
         data = self.copy()
         name = data.settings['name']
