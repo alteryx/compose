@@ -180,3 +180,4 @@ epub_exclude_files = ['search.html']
 # -- Extension configuration -------------------------------------------------
 
 autosummary_generate = ["api_reference.rst"]
+templates_path = ["_templates"]
