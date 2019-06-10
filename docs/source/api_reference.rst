@@ -1,8 +1,5 @@
 API Reference
 =============
-
-Overview
-~~~~~~~~~~~~~
 .. currentmodule:: composeml
 
 .. autosummary::
