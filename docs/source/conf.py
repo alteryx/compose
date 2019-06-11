@@ -16,17 +16,15 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import composeml
+from composeml import __version__ as version
 # -- Project information -----------------------------------------------------
 
 project = 'ComposeML'
 copyright = '2019, Feature Labs, Inc.'
 author = 'Feature Labs, Inc.'
 
-# The short X.Y version
-version = composeml.__version__
 # The full version, including alpha/beta/rc tags
-release = composeml.__version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------
