@@ -3,9 +3,9 @@
     :caption: Table of Contents
 
     self
-    getting_started
-    api_reference
-    changelog
+    table_of_contents/getting_started
+    table_of_contents/api_reference
+    table_of_contents/changelog
 
 
 Introduction
