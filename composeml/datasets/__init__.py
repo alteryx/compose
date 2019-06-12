@@ -1,5 +1,6 @@
-from pandas import read_csv
 from os import path
+
+from pandas import read_csv
 
 
 def _data():
