@@ -12,7 +12,9 @@
 Introduction
 ============
 
+Creating labels from raw data for a machine learning problem may be difficult and time consuming. This is where `ComposeML` helps by making it easier to quickly generate complex labels from raw data.
+
 What is ComposeML?
 ------------------
 
-**ComposeML** is a Python library for prediction engineering. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
+**ComposeML** is advanced software for automating the prediction engineering process. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
