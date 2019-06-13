@@ -18,11 +18,6 @@ def on_slice(make_label, window, min_data, gap, n_examples):
     Returns:
         df_to_labels (function) : Function that transforms a data frame to labels.
     """
-    for offset in [min_data, window, gap]:
-        if isinstance(offset, str):
-            value = pd.Timedelta(offset)
-            error = 'must be a valid time delta'
-            assert value is not pd.NaT, error
 
     def offset_time(index, value):
         if isinstance(value, int):
@@ -65,6 +60,13 @@ def on_slice(make_label, window, min_data, gap, n_examples):
     return df_to_labels
 
 
+def assert_valid_offset(value):
+    if isinstance(value, str):
+        offset = pd.Timedelta(value)
+        error = 'must be a valid time delta'
+        assert offset is not pd.NaT, error
+
+
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
@@ -83,6 +85,16 @@ class LabelMaker:
         self.labeling_function = labeling_function
         self.window_size = window_size
 
+    def _preprocess(self, df):
+        if df.index.name != self.time_index:
+            df = df.set_index(self.time_index)
+
+        if 'time' not in str(df.index.dtype):
+            df.index = df.index.astype('datetime64[ns]')
+
+        df = df.loc[df.index.notnull()]
+        return df
+
     def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
         """
         Searches and extracts labels from a data frame.
@@ -98,14 +110,12 @@ class LabelMaker:
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
         """
-        if df.index.name != self.time_index:
-            df = df.set_index(self.time_index)
+        df = self._preprocess(df)
 
-        if 'time' not in str(df.index.dtype):
-            df.index = df.index.astype('datetime64[ns]')
-
-        df = df.loc[df.index.notnull()]
         assert not df.empty, 'must have data along time index'
+        assert_valid_offset(minimum_data)
+        assert_valid_offset(self.window_size)
+        assert_valid_offset(gap)
 
         df_to_labels = on_slice(
             self.labeling_function,
