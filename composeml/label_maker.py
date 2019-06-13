@@ -96,6 +96,12 @@ class LabelMaker:
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
+        if 'time' not in str(df.index.dtype):
+            df = df.index.astype('datetime64[ns]')
+
+        df = df.loc[df.index.notnull()]
+        assert not df.empty, 'must have data along time index'
+
         df_to_labels = on_slice(
             self.labeling_function,
             min_data=minimum_data,
