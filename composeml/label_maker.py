@@ -18,6 +18,11 @@ def on_slice(make_label, window, min_data, gap, n_examples):
     Returns:
         df_to_labels (function) : Function that transforms a data frame to labels.
     """
+    for offset in [min_data, window, gap]:
+        if isinstance(offset, str):
+            value = pd.Timedelta(offset)
+            error = 'must be a valid time delta'
+            assert value is not pd.NaT, error
 
     def offset_time(index, value):
         if isinstance(value, int):
