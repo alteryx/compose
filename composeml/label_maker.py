@@ -97,7 +97,7 @@ class LabelMaker:
             df = df.set_index(self.time_index)
 
         if 'time' not in str(df.index.dtype):
-            df = df.index.astype('datetime64[ns]')
+            df.index = df.index.astype('datetime64[ns]')
 
         df = df.loc[df.index.notnull()]
         assert not df.empty, 'must have data along time index'
