@@ -34,8 +34,15 @@ def on_slice(make_label, window, min_data, gap, n_examples):
             raise TypeError('time offset must be integer or string')
 
     def df_to_labels(df, *args, **kwargs):
-        cutoff_time = offset_time(df.index, min_data)
         labels = pd.Series()
+
+        df = df.loc[df.index.notnull()]
+        df.sort_index(inplace=True)
+
+        if df.empty:
+            return labels
+
+        cutoff_time = offset_time(df.index, min_data)
 
         for example in range(n_examples):
             df = df[cutoff_time:]
@@ -92,7 +99,6 @@ class LabelMaker:
         if 'time' not in str(df.index.dtype):
             df.index = df.index.astype('datetime64[ns]')
 
-        df = df.loc[df.index.notnull()]
         return df
 
     def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
@@ -112,7 +118,6 @@ class LabelMaker:
         """
         df = self._preprocess(df)
 
-        assert not df.empty, 'must have data along time index'
         assert_valid_offset(minimum_data)
         assert_valid_offset(self.window_size)
         assert_valid_offset(gap)
@@ -135,6 +140,8 @@ class LabelMaker:
         apply = labels.progress_apply if verbose else labels.apply
 
         labels = apply(df_to_labels, *args, **kwargs)
+        assert not labels.empty, 'no labels found'
+
         labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)._with_plots()
 
