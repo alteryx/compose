@@ -141,8 +141,6 @@ class LabelMaker:
 
         labels = apply(df_to_labels, *args, **kwargs)
         assert not labels.empty, 'no labels found'
-
-        # labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {
