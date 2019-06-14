@@ -23,24 +23,24 @@ def on_slice(make_label, window, min_data, gap, n_examples):
         if isinstance(value, int):
             value += 1
             value = index[:value][-1]
-            return str(value)
+            return value
 
         elif isinstance(value, str):
             value = pd.Timedelta(value)
             value = index[0] + value
-            return str(value)
+            return value
 
         else:
             raise TypeError('time offset must be integer or string')
 
     def df_to_labels(df, *args, **kwargs):
-        labels = pd.Series()
+        labels = pd.Series(name=make_label.__name__)
 
         df = df.loc[df.index.notnull()]
         df.sort_index(inplace=True)
 
         if df.empty:
-            return labels
+            return labels.to_frame()
 
         cutoff_time = offset_time(df.index, min_data)
 
@@ -62,7 +62,7 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
         labels.index = labels.index.rename('time')
         labels.index = labels.index.astype('datetime64[ns]')
-        return labels
+        return labels.to_frame()
 
     return df_to_labels
 
@@ -142,7 +142,7 @@ class LabelMaker:
         labels = apply(df_to_labels, *args, **kwargs)
         assert not labels.empty, 'no labels found'
 
-        labels = labels.to_frame(self.labeling_function.__name__)
+        # labels = labels.to_frame(self.labeling_function.__name__)
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {
