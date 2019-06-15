@@ -12,7 +12,7 @@
 Introduction
 ============
 
-Creating labels from raw data for a machine learning problem may be difficult and time consuming. This is where `ComposeML` helps by making it easier to quickly generate complex labels from raw data.
+Creating labels from raw data for a machine learning problem is difficult and time consuming. This is where `ComposeML` helps by making it easier to quickly generate complex labels from raw data.
 
 What is ComposeML?
 ------------------
