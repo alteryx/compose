@@ -56,7 +56,7 @@ class LabelTimes(pd.DataFrame):
         count = count.ffill()
 
         plot = count.plot(kind='area', **kwargs)
-        plot.set_title(self.settings['name'])
+        plot.set_title('count_by_time')
         plot.set_ylabel('count')
         return plot
 
