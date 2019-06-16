@@ -27,35 +27,36 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def distribution(self):
-        name = self.settings['name']
-        target_entity = self.settings['target_entity']
-
-        labels = self.assign(count=1).groupby([target_entity, name])
+        labels = self.assign(count=1)
+        labels = labels.groupby(self.settings['name'])
         distribution = labels['count'].count()
         return distribution
 
     def _plot_distribution(self, **kwargs):
-        name = self.settings['name']
-        distribution = self.distribution.unstack(name)
-
-        plot = distribution.plot(kind='bar', **kwargs)
+        plot = self.distribution.plot(kind='bar', **kwargs)
         plot.set_title('label_distribution')
         plot.set_ylabel('count')
         return plot
 
     @property
     def count_by_time(self):
-        target_entity = self.settings['target_entity']
-        labels = self.assign(count=1).sort_index(level='time')
-        labels = labels.groupby(target_entity)
+        labels = self.assign(count=1)
+
+        labels = labels.sort_index(level='time')
+        labels = labels.reset_index()
+        keys = [self.settings['name'], 'time']
+        labels = labels.set_index(keys)
+
+        labels = labels.groupby(keys[0])
         count = labels['count'].cumsum()
         return count
 
     def _plot_count_by_time(self, **kwargs):
-        target_entity = self.settings['target_entity']
-        count_by_time = self.count_by_time.unstack(target_entity).ffill()
+        count = self.count_by_time
+        count = count.unstack(self.settings['name'])
+        count = count.ffill()
 
-        plot = count_by_time.plot(kind='area', **kwargs)
+        plot = count.plot(kind='area', **kwargs)
         plot.set_title(self.settings['name'])
         plot.set_ylabel('count')
         return plot
