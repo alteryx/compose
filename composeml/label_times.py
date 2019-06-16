@@ -42,8 +42,7 @@ class LabelTimes(pd.DataFrame):
     def count_by_time(self):
         labels = self.assign(count=1)
 
-        labels = labels.sort_index(level='time')
-        labels = labels.reset_index()
+        labels = labels.sort_values('time')
         keys = [self.settings['name'], 'time']
         labels = labels.set_index(keys)
 
@@ -121,11 +120,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels.settings.update(lead=lead)
-
-        names = labels.index.names
-        labels.reset_index(inplace=True)
         labels['time'] = labels['time'].sub(pd.Timedelta(lead))
-        labels.set_index(names, inplace=True)
 
         if not inplace:
             return labels

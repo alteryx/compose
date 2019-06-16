@@ -8,21 +8,25 @@ from ..label_times import LabelTimes
 def labels():
     records = [
         {
+            'label_id': 0,
             'customer_id': 1,
             'time': '2014-01-01 00:45:00',
             'my_labeling_function': 226.92999999999998
         },
         {
+            'label_id': 1,
             'customer_id': 1,
             'time': '2014-01-01 00:48:00',
             'my_labeling_function': 47.95
         },
         {
+            'label_id': 2,
             'customer_id': 2,
             'time': '2014-01-01 00:01:00',
             'my_labeling_function': 283.46000000000004
         },
         {
+            'label_id': 3,
             'customer_id': 2,
             'time': '2014-01-01 00:04:00',
             'my_labeling_function': 31.54
@@ -31,7 +35,9 @@ def labels():
 
     dtype = {'time': 'datetime64[ns]'}
     df = pd.DataFrame.from_records(records).astype(dtype)
-    df = df.set_index(['customer_id', 'time'])
+
+    df = df.set_index('label_id')
+    df = df[['customer_id', 'time', 'my_labeling_function']]
 
     labels = LabelTimes(df)
     labels.settings = {
@@ -54,7 +60,6 @@ def test_threshold(labels):
 def test_lead(labels):
     labels = labels.apply_lead('10min')
     assert labels.settings.get('lead') == '10min'
-    given_time = labels.index.get_level_values('time')
 
     answer = [
         '2014-01-01 00:35:00',
@@ -63,8 +68,10 @@ def test_lead(labels):
         '2013-12-31 23:54:00',
     ]
 
-    time = pd.DatetimeIndex(answer, name='time')
-    pd.testing.assert_index_equal(given_time, time)
+    time = pd.Series(answer, name='time', dtype='datetime64[ns]')
+    time = time.rename_axis('label_id')
+
+    pd.testing.assert_series_equal(labels.time, time)
 
 
 def test_describe(labels):
