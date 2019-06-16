@@ -178,5 +178,5 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
-autosummary_generate = ["table_of_contents/api_reference.rst"]
+autosummary_generate = ["toc/api_reference.rst"]
 templates_path = ["_templates"]
