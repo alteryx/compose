@@ -3,10 +3,10 @@
     :caption: Table of Contents
 
     self
-    toc/getting_started
-    toc/main_concepts
-    toc/api_reference
-    toc/changelog
+    getting_started
+    main_concepts
+    api_reference
+    changelog
 
 
 Introduction
