@@ -74,7 +74,7 @@ def assert_valid_offset(value):
         assert offset.total_seconds() >= 0, 'negative offset'
 
     else:
-        raise TypeError('unsupported offset type')
+        raise TypeError('invalid offset type')
 
 
 class LabelMaker:
@@ -140,10 +140,13 @@ class LabelMaker:
             tqdm.pandas(bar_format=bar_format)
 
         labels = df.groupby(self.target_entity)
-        apply = labels.progress_apply if verbose else labels.apply
 
+        apply = labels.progress_apply if verbose else labels.apply
         labels = apply(df_to_labels, *args, **kwargs)
-        assert not labels.empty, 'no labels found'
+
+        if labels.empty:
+            return LabelTimes()
+
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {

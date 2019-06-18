@@ -138,7 +138,7 @@ def test_search_with_negative_offset(transactions):
 
 
 def test_search_with_invalid_offset_type(transactions):
-    match = 'unsupported offset type'
+    match = 'invalid offset type'
 
     lm = LabelMaker(
         target_entity='customer_id',
@@ -154,3 +154,23 @@ def test_search_with_invalid_offset_type(transactions):
             minimum_data=[],
             gap=[],
         )
+
+
+def test_search_with_empty_labels(transactions):
+    transactions['transaction_time'] = pd.NaT
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=type(None),
+        window_size=2,
+    )
+
+    given_labels = lm.search(
+        transactions,
+        minimum_data=1,
+        num_examples_per_instance=2,
+        gap=3,
+    )
+
+    assert given_labels.empty
