@@ -16,10 +16,6 @@ lint-fix:
 
 .PHONY: test
 test:
-	pytest composeml/tests
-
-.PHONY: testcoverage
-testcoverage: lint
 	pytest composeml/tests --cov=composeml
 
 .PHONY: installdeps
