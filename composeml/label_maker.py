@@ -25,13 +25,10 @@ def on_slice(make_label, window, min_data, gap, n_examples):
             value = index[:value][-1]
             return value
 
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = pd.Timedelta(value)
             value = index[0] + value
             return value
-
-        else:
-            raise TypeError('time offset must be integer or string')
 
     def df_to_labels(df, *args, **kwargs):
         labels = pd.Series(name=make_label.__name__)
@@ -68,10 +65,16 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
 
 def assert_valid_offset(value):
-    if isinstance(value, str):
+    if isinstance(value, int):
+        assert value >= 0, 'negative offset'
+
+    elif isinstance(value, str):
         offset = pd.Timedelta(value)
-        error = 'must be a valid time delta'
-        assert offset is not pd.NaT, error
+        assert offset is not pd.NaT, 'invalid offset'
+        assert offset.total_seconds() >= 0, 'negative offset'
+
+    else:
+        raise TypeError('unsupported offset type')
 
 
 class LabelMaker:
