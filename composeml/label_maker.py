@@ -147,6 +147,7 @@ class LabelMaker:
         if labels.empty:
             return LabelTimes()
 
+        labels = labels.reset_index().rename_axis('label_id')
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {

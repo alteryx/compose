@@ -87,4 +87,4 @@ def test_distribution_plot(labels):
 def test_count_by_time_plot(labels):
     labels = labels.threshold(200)
     plot = labels.plot.count_by_time()
-    assert plot.get_title() == 'my_labeling_function'
+    assert plot.get_title() == 'count_by_time'
