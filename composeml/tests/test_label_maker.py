@@ -61,8 +61,7 @@ def transactions():
         },
     ]
 
-    dtype = {'transaction_time': 'datetime64[ns]'}
-    df = pd.DataFrame.from_records(records).astype(dtype)
+    df = pd.DataFrame.from_records(records)
     return df
 
 
@@ -111,23 +110,67 @@ def test_search_by_observations(transactions, labels):
     pd.testing.assert_frame_equal(given_labels, labels)
 
 
-def test_search_invalid_offset(transactions):
-    def my_labeling_function(df_slice):
-        label = df_slice['amount'].sum()
-        return label
+def test_search_with_negative_offset(transactions):
+    match = 'negative offset'
 
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
-        labeling_function=my_labeling_function,
+        labeling_function=None,
         window_size=2,
     )
 
-    text = 'time offset must be integer or string'
-    with pytest.raises(TypeError, match=text):
+    with pytest.raises(AssertionError, match=match):
         given_labels = lm.search(
             transactions,
             num_examples_per_instance=2,
-            minimum_data={},
-            gap={},
+            minimum_data=-1,
+            gap=-1,
         )
+
+    with pytest.raises(AssertionError, match=match):
+        given_labels = lm.search(
+            transactions,
+            num_examples_per_instance=2,
+            minimum_data='-1h',
+            gap='-1h',
+        )
+
+
+def test_search_with_invalid_offset_type(transactions):
+    match = 'invalid offset type'
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=None,
+        window_size=2,
+    )
+
+    with pytest.raises(TypeError, match=match):
+        given_labels = lm.search(
+            transactions,
+            num_examples_per_instance=2,
+            minimum_data=[],
+            gap=[],
+        )
+
+
+def test_search_with_empty_labels(transactions):
+    transactions['transaction_time'] = pd.NaT
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=type(None),
+        window_size=2,
+    )
+
+    given_labels = lm.search(
+        transactions,
+        minimum_data=1,
+        num_examples_per_instance=2,
+        gap=3,
+    )
+
+    assert given_labels.empty
