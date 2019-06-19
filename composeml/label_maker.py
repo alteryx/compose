@@ -23,19 +23,23 @@ def on_slice(make_label, window, min_data, gap, n_examples):
         if isinstance(value, int):
             value += 1
             value = index[:value][-1]
-            return str(value)
+            return value
 
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = pd.Timedelta(value)
             value = index[0] + value
-            return str(value)
-
-        else:
-            raise TypeError('time offset must be integer or string')
+            return value
 
     def df_to_labels(df, *args, **kwargs):
+        labels = pd.Series(name=make_label.__name__)
+
+        df = df.loc[df.index.notnull()]
+        df.sort_index(inplace=True)
+
+        if df.empty:
+            return labels.to_frame()
+
         cutoff_time = offset_time(df.index, min_data)
-        labels = pd.Series()
 
         for example in range(n_examples):
             df = df[cutoff_time:]
@@ -55,9 +59,22 @@ def on_slice(make_label, window, min_data, gap, n_examples):
 
         labels.index = labels.index.rename('time')
         labels.index = labels.index.astype('datetime64[ns]')
-        return labels
+        return labels.to_frame()
 
     return df_to_labels
+
+
+def assert_valid_offset(value):
+    if isinstance(value, int):
+        assert value >= 0, 'negative offset'
+
+    elif isinstance(value, str):
+        offset = pd.Timedelta(value)
+        assert offset is not pd.NaT, 'invalid offset'
+        assert offset.total_seconds() >= 0, 'negative offset'
+
+    else:
+        raise TypeError('invalid offset type')
 
 
 class LabelMaker:
@@ -78,6 +95,15 @@ class LabelMaker:
         self.labeling_function = labeling_function
         self.window_size = window_size
 
+    def _preprocess(self, df):
+        if df.index.name != self.time_index:
+            df = df.set_index(self.time_index)
+
+        if 'time' not in str(df.index.dtype):
+            df.index = df.index.astype('datetime64[ns]')
+
+        return df
+
     def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
         """
         Searches and extracts labels from a data frame.
@@ -93,8 +119,11 @@ class LabelMaker:
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
         """
-        if df.index.name != self.time_index:
-            df = df.set_index(self.time_index)
+        df = self._preprocess(df)
+
+        assert_valid_offset(minimum_data)
+        assert_valid_offset(self.window_size)
+        assert_valid_offset(gap)
 
         df_to_labels = on_slice(
             self.labeling_function,
@@ -111,10 +140,13 @@ class LabelMaker:
             tqdm.pandas(bar_format=bar_format)
 
         labels = df.groupby(self.target_entity)
-        apply = labels.progress_apply if verbose else labels.apply
 
+        apply = labels.progress_apply if verbose else labels.apply
         labels = apply(df_to_labels, *args, **kwargs)
-        labels = labels.to_frame(self.labeling_function.__name__)
+
+        if labels.empty:
+            return LabelTimes()
+
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {

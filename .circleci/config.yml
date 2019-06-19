@@ -17,6 +17,7 @@ jobs:
           source venv_35/bin/activate
           coverage erase
           make test
+          codecov
 
 workflows:
   version: 2
