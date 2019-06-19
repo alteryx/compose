@@ -2,6 +2,8 @@
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose-ml/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose-ml)
+[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](http://docs.compose.ml/en/latest/?badge=latest)
+
 
 ComposeML is a Python library for prediction engineering. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
 ### Installation
