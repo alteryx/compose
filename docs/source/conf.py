@@ -180,3 +180,6 @@ epub_exclude_files = ['search.html']
 
 autosummary_generate = ["api_reference.rst"]
 templates_path = ["_templates"]
+
+def setup(app):
+    app.add_stylesheet("style.css")
