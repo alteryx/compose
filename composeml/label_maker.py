@@ -137,7 +137,7 @@ class LabelMaker:
             bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
             bar_format += "Progress: {l_bar}{bar}| "
             bar_format += self.target_entity + ": {n}/{total} "
-            tqdm.pandas(bar_format=bar_format)
+            tqdm.pandas(bar_format=bar_format, ncols=90)
 
         labels = df.groupby(self.target_entity)
 
@@ -147,6 +147,7 @@ class LabelMaker:
         if labels.empty:
             return LabelTimes()
 
+        labels = labels.reset_index().rename_axis('label_id')
         labels = LabelTimes(labels)._with_plots()
 
         labels.settings = {

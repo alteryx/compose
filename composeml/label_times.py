@@ -27,36 +27,36 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def distribution(self):
-        name = self.settings['name']
-        target_entity = self.settings['target_entity']
-
-        labels = self.assign(count=1).groupby([target_entity, name])
+        labels = self.assign(count=1)
+        labels = labels.groupby(self.settings['name'])
         distribution = labels['count'].count()
         return distribution
 
     def _plot_distribution(self, **kwargs):
-        name = self.settings['name']
-        distribution = self.distribution.unstack(name)
-
-        plot = distribution.plot(kind='bar', **kwargs)
+        plot = self.distribution.plot(kind='bar', **kwargs)
         plot.set_title('label_distribution')
         plot.set_ylabel('count')
         return plot
 
     @property
     def count_by_time(self):
-        target_entity = self.settings['target_entity']
-        labels = self.assign(count=1).sort_index(level='time')
-        labels = labels.groupby(target_entity)
+        labels = self.assign(count=1)
+
+        labels = labels.sort_values('time')
+        keys = [self.settings['name'], 'time']
+        labels = labels.set_index(keys)
+
+        labels = labels.groupby(keys[0])
         count = labels['count'].cumsum()
         return count
 
     def _plot_count_by_time(self, **kwargs):
-        target_entity = self.settings['target_entity']
-        count_by_time = self.count_by_time.unstack(target_entity).ffill()
+        count = self.count_by_time
+        count = count.unstack(self.settings['name'])
+        count = count.ffill()
 
-        plot = count_by_time.plot(kind='area', **kwargs)
-        plot.set_title(self.settings['name'])
+        plot = count.plot(kind='area', **kwargs)
+        plot.set_title('count_by_time')
         plot.set_ylabel('count')
         return plot
 
@@ -120,11 +120,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels.settings.update(lead=lead)
-
-        names = labels.index.names
-        labels.reset_index(inplace=True)
         labels['time'] = labels['time'].sub(pd.Timedelta(lead))
-        labels.set_index(names, inplace=True)
 
         if not inplace:
             return labels

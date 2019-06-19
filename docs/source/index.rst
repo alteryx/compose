@@ -1,20 +1,20 @@
-.. Compose ML documentation master file, created by
-   sphinx-quickstart on Thu May 30 11:30:19 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to Compose ML's documentation!
-======================================
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :hidden:
+    :caption: Table of Contents
 
-   api_reference
-   changelog
+    self
+    getting_started
+    main_concepts
+    api_reference
+    changelog
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`search`
+Introduction
+============
+
+Creating labels from raw data for a machine learning problem is difficult and time consuming. This is where `ComposeML` helps by making it easier to quickly generate complex labels from raw data.
+
+What is ComposeML?
+------------------
+
+**ComposeML** is advanced software for automating the prediction engineering process. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
