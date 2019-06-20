@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from ..label_maker import LabelMaker
-from .test_label_times import labels
 
 
 @pytest.fixture

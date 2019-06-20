@@ -34,7 +34,7 @@ class LabelTimes(pd.DataFrame):
 
     def _plot_distribution(self, **kwargs):
         plot = self.distribution.plot(kind='bar', **kwargs)
-        plot.set_title('label_distribution')
+        plot.set_title('Label Distribution')
         plot.set_ylabel('count')
         return plot
 
@@ -56,7 +56,7 @@ class LabelTimes(pd.DataFrame):
         count = count.ffill()
 
         plot = count.plot(kind='area', **kwargs)
-        plot.set_title('count_by_time')
+        plot.set_title('Label Count vs. Time')
         plot.set_ylabel('count')
         return plot
 
