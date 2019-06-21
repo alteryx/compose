@@ -42,8 +42,8 @@ class LabelTimes(pd.DataFrame):
     def count_by_time(self):
         labels = self.assign(count=1)
 
-        labels = labels.sort_values('time')
-        keys = [self.settings['name'], 'time']
+        labels = labels.sort_values('cutoff_time')
+        keys = [self.settings['name'], 'cutoff_time']
         labels = labels.set_index(keys)
 
         labels = labels.groupby(keys[0])
@@ -120,7 +120,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels.settings.update(lead=lead)
-        labels['time'] = labels['time'].sub(pd.Timedelta(lead))
+        labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(lead))
 
         if not inplace:
             return labels
@@ -155,7 +155,7 @@ class LabelTimes(pd.DataFrame):
             >>> labels.bin(2).head(2).T
             label_id                                0                    1
             customer_id                             1                    1
-            time                  2014-01-01 00:45:00  2014-01-01 00:48:00
+            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function      (157.5, 283.46]      (31.288, 157.5]
 
             .. _custom-widths:
@@ -166,7 +166,7 @@ class LabelTimes(pd.DataFrame):
             >>> values.head(2).T
             label_id                                0                    1
             customer_id                             1                    1
-            time                  2014-01-01 00:45:00  2014-01-01 00:48:00
+            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function           (200, 400]             (0, 200]
 
             .. _quantile-based:
@@ -177,7 +177,7 @@ class LabelTimes(pd.DataFrame):
             >>> values.head(2).T
             label_id                                0                    1
             customer_id                             1                    1
-            time                  2014-01-01 00:45:00  2014-01-01 00:48:00
+            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function    (137.44, 241.062]     (43.848, 137.44]
 
             .. _labels:
@@ -188,7 +188,7 @@ class LabelTimes(pd.DataFrame):
             >>> values.head(2).T
             label_id                                0                    1
             customer_id                             1                    1
-            time                  2014-01-01 00:45:00  2014-01-01 00:48:00
+            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function                 high                  low
         """ # noqa
         data = self.copy()

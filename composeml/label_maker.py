@@ -106,7 +106,7 @@ class LabelMaker:
 
                 cutoff_time = offset_time(df.index, gap)
 
-            labels.index = labels.index.rename('time')
+            labels.index = labels.index.rename('cutoff_time')
             labels.index = labels.index.astype('datetime64[ns]')
             return labels.to_frame()
 

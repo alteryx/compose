@@ -23,10 +23,10 @@ def test_lead(labels):
         '2013-12-31 23:54:00',
     ]
 
-    time = pd.Series(answer, name='time', dtype='datetime64[ns]')
-    time = time.rename_axis('label_id')
+    cutoff_time = pd.Series(answer, name='cutoff_time', dtype='datetime64[ns]')
+    cutoff_time = cutoff_time.rename_axis('label_id')
 
-    pd.testing.assert_series_equal(labels.time, time)
+    pd.testing.assert_series_equal(labels['cutoff_time'], cutoff_time)
 
 
 def test_bins(labels):
