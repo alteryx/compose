@@ -191,13 +191,21 @@ class LabelTimes(pd.DataFrame):
             time                  2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function                 high                  low
         """ # noqa
-        data = self.copy()
-        name = data.settings['name']
+        label_times = self.copy()
+        name = label_times.settings['name']
+        values = label_times[name].values
 
         if quantiles:
-            data[name] = pd.qcut(data[name].values, q=bins, labels=labels)
+            label_times[name] = pd.qcut(values, q=bins, labels=labels)
 
         else:
-            data[name] = pd.cut(data[name].values, bins=bins, labels=labels, right=right)
+            label_times[name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
-        return data
+        label_times.settings.update({
+            'bins': bins,
+            'quantiles': quantiles,
+            'labels': labels,
+            'right': right,
+        })
+
+        return label_times
