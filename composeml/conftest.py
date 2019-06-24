@@ -5,6 +5,65 @@ from .label_times import LabelTimes
 
 
 @pytest.fixture(scope="module")
+def transactions():
+    records = [
+        {
+            'transaction_time': '2014-01-01 00:44:00',
+            'amount': 21.35,
+            'customer_id': 1
+        },
+        {
+            'transaction_time': '2014-01-01 00:45:00',
+            'amount': 108.11,
+            'customer_id': 1
+        },
+        {
+            'transaction_time': '2014-01-01 00:46:00',
+            'amount': 112.53,
+            'customer_id': 1
+        },
+        {
+            'transaction_time': '2014-01-01 00:47:00',
+            'amount': 6.29,
+            'customer_id': 1
+        },
+        {
+            'transaction_time': '2014-01-01 00:48:00',
+            'amount': 47.95,
+            'customer_id': 1
+        },
+        {
+            'transaction_time': '2014-01-01 00:00:00',
+            'amount': 127.64,
+            'customer_id': 2
+        },
+        {
+            'transaction_time': '2014-01-01 00:01:00',
+            'amount': 109.48,
+            'customer_id': 2
+        },
+        {
+            'transaction_time': '2014-01-01 00:02:00',
+            'amount': 95.06,
+            'customer_id': 2
+        },
+        {
+            'transaction_time': '2014-01-01 00:03:00',
+            'amount': 78.92,
+            'customer_id': 2
+        },
+        {
+            'transaction_time': '2014-01-01 00:04:00',
+            'amount': 31.54,
+            'customer_id': 2
+        },
+    ]
+
+    df = pd.DataFrame.from_records(records)
+    return df
+
+
+@pytest.fixture(scope="module")
 def labels():
     records = [
         {
