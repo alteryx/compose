@@ -34,18 +34,10 @@ def labels():
     ]
 
     dtype = {'time': 'datetime64[ns]'}
-    df = pd.DataFrame.from_records(records).astype(dtype)
-
-    df = df.set_index('label_id')
-    df = df[['customer_id', 'time', 'my_labeling_function']]
-
-    labels = LabelTimes(df)
-    labels.settings = {
-        'name': 'my_labeling_function',
-        'target_entity': 'customer_id',
-    }
-
-    return labels
+    values = pd.DataFrame(records).astype(dtype).set_index('label_id')
+    values = values[['customer_id', 'time', 'my_labeling_function']]
+    values = LabelTimes(values, name='my_labeling_function', target_entity='customer_id')
+    return values
 
 
 @pytest.fixture(autouse=True)

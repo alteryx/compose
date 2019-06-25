@@ -5,10 +5,12 @@ def test_bins(labels):
     labels = labels.copy()
     given_labels = labels.bin(2)
 
-    assert given_labels.settings.get('bins') == 2
-    assert given_labels.settings.get('quantiles') is False
-    assert given_labels.settings.get('labels') is None
-    assert given_labels.settings.get('right') is True
+    transform = given_labels.transforms[0]
+    assert transform['name'] == 'bin'
+    assert transform['bins'] == 2
+    assert transform['quantiles'] is False
+    assert transform['labels'] is None
+    assert transform['right'] is True
 
     answer = [
         pd.Interval(157.5, 283.46, closed='right'),
