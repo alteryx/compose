@@ -75,13 +75,13 @@ class LabelMaker:
         """
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
+        name = self.labeling_function.__name__
 
         def df_to_labels(df):
-            name = self.labeling_function.__name__
-            labels = pd.Series(name=name)
-
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
+
+            labels = pd.Series(name=name)
 
             if df.empty:
                 return labels.to_frame()
@@ -118,8 +118,6 @@ class LabelMaker:
         labels = df.groupby(self.target_entity)
         apply = labels.progress_apply if verbose else labels.apply
         labels = apply(df_to_labels, *args, **kwargs)
-
-        name = self.labeling_function.__name__
 
         if labels.empty:
             return LabelTimes(name=name, target_entity=self.target_entity)

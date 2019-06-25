@@ -80,7 +80,7 @@ class LabelTimes(pd.DataFrame):
             transform = transform.add_prefix('  - ')
             transform = transform.add_suffix(':')
             transform = transform.to_string()
-            header = '{}. {}\n'.format(step, name)
+            header = '{}. {}\n'.format(step + 1, name)
             print(header + transform, end='\n\n')
 
     def copy(self):
