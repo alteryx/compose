@@ -10,12 +10,23 @@ class LabelTimes(pd.DataFrame):
         target_entity
         transforms
     """
-    _metadata = ['name', 'target_entity', 'transforms']
+    _metadata = ['name', 'target_entity', 'settings', 'transforms']
 
-    def __init__(self, data, name=None, target_entity=None, transforms=None):
-        super().__init__(data=data)
+    def __init__(
+            self,
+            data=None,
+            name=None,
+            target_entity=None,
+            settings=None,
+            transforms=None,
+            *args,
+            **kwargs,
+    ):
+        super().__init__(data=data, *args, **kwargs)
+
         self.name = name
         self.target_entity = target_entity
+        self.settings = settings or {}
         self.transforms = transforms or []
 
     @property
@@ -61,15 +72,25 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        count = self[self.name].value_counts()
-        count['total'] = count.sum()
-        print(count.to_string(), end='\n\n')
+        print('Label Distribution\n' + '-' * 18, end='\n')
+        distribution = self[self.name].value_counts()
+        distribution.index = distribution.index.astype('str')
+        distribution['Total:'] = distribution.sum()
+        print(distribution.to_string(), end='\n\n\n')
 
-        for transform in self.transforms:
+        print('Settings\n' + '-' * 8, end='\n')
+        settings = pd.Series(self.settings)
+        print(settings.to_string(), end='\n\n\n')
+
+        print('Transforms\n' + '-' * 10, end='\n')
+        for step, transform in enumerate(self.transforms):
             transform = pd.Series(transform)
-            name = transform.pop('name')
-            transform = transform.rename_axis(name)
-            print(transform.to_string(), end='\n\n')
+            name = transform.pop('__name__')
+            transform = transform.add_prefix('  - ')
+            transform = transform.add_suffix(':')
+            transform = transform.to_string()
+            header = '{}. {}\n'.format(step, name)
+            print(header + transform, end='\n\n')
 
     def copy(self):
         """
@@ -79,6 +100,7 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
+        labels.transforms = labels.transforms.copy()
         return labels._with_plots()
 
     def threshold(self, value, inplace=False):
@@ -95,7 +117,7 @@ class LabelTimes(pd.DataFrame):
         labels = self if inplace else self.copy()
         labels[self.name] = labels[self.name].gt(value)
 
-        transform = {'name': 'threshold', 'value': value}
+        transform = {'__name__': 'threshold', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -115,7 +137,7 @@ class LabelTimes(pd.DataFrame):
         labels = self if inplace else self.copy()
         labels['time'] = labels['time'].sub(pd.Timedelta(value))
 
-        transform = {'name': 'lead', 'value': value}
+        transform = {'__name__': 'apply_lead', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -197,11 +219,12 @@ class LabelTimes(pd.DataFrame):
             label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
         transform = {
-            'name': 'bin',
+            '__name__': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
             'right': right,
         }
+
         label_times.transforms.append(transform)
         return label_times

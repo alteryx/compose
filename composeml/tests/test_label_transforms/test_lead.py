@@ -3,7 +3,10 @@ import pandas as pd
 
 def test_lead(labels):
     labels = labels.apply_lead('10min')
-    assert labels.settings.get('lead') == '10min'
+    transform = labels.transforms[0]
+
+    assert transform['__name__'] == 'apply_lead'
+    assert transform['value'] == '10min'
 
     answer = [
         '2014-01-01 00:35:00',
