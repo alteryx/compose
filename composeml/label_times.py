@@ -6,29 +6,26 @@ class LabelTimes(pd.DataFrame):
     A data frame containing labels made by a label maker.
 
     Attributes:
-        settings
+        name
+        target_entity
+        transforms
     """
-    _metadata = ['_settings']
+    _metadata = ['name', 'target_entity', 'transforms']
+
+    def __init__(self, data, name=None, target_entity=None, transforms=None):
+        super().__init__(data=data)
+        self.name = name
+        self.target_entity = target_entity
+        self.transforms = transforms or []
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
-    def settings(self):
-        if not hasattr(self, '_settings'):
-            self._settings = {}
-
-        return self._settings
-
-    @settings.setter
-    def settings(self, value):
-        self._settings = value
-
-    @property
     def distribution(self):
         labels = self.assign(count=1)
-        labels = labels.groupby(self.settings['name'])
+        labels = labels.groupby(self.name)
         distribution = labels['count'].count()
         return distribution
 
@@ -40,19 +37,16 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def count_by_time(self):
-        labels = self.assign(count=1)
-
-        labels = labels.sort_values('time')
-        keys = [self.settings['name'], 'time']
-        labels = labels.set_index(keys)
-
-        labels = labels.groupby(keys[0])
-        count = labels['count'].cumsum()
+        count = self.assign(count=1)
+        count = count.sort_values('time')
+        count = count.set_index([self.name, 'time'])
+        count = count.groupby(self.name)
+        count = count['count'].cumsum()
         return count
 
     def _plot_count_by_time(self, **kwargs):
         count = self.count_by_time
-        count = count.unstack(self.settings['name'])
+        count = count.unstack(self.name)
         count = count.ffill()
 
         plot = count.plot(kind='area', **kwargs)
@@ -66,16 +60,16 @@ class LabelTimes(pd.DataFrame):
         return self
 
     def describe(self):
-        """Prints out label distribution and the settings used to make the labels."""
-        labels = self[self.settings['name']]
-        label_counts = labels.value_counts()
-        total = 'Total number of labels:  {}'
-        total = total.format(label_counts.sum())
+        """Prints out label info with transform settings that reproduce labels."""
+        count = self[self.name].value_counts()
+        count['total'] = count.sum()
+        print(count.to_string(), end='\n\n')
 
-        print(total, end='\n\n')
-        print(label_counts, end='\n\n')
-        print(self.distribution, end='\n\n')
-        print(pd.Series(self.settings), end='\n\n')
+        for transform in self.transforms:
+            transform = pd.Series(transform)
+            name = transform.pop('name')
+            transform = transform.rename_axis(name)
+            print(transform.to_string(), end='\n\n')
 
     def copy(self):
         """
@@ -85,7 +79,6 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
-        labels.settings = self.settings.copy()
         return labels._with_plots()
 
     def threshold(self, value, inplace=False):
@@ -100,27 +93,30 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        name = labels.settings['name']
-        labels[name] = labels[name].gt(value)
-        labels.settings.update(threshold=value)
+        labels[self.name] = labels[self.name].gt(value)
+
+        transform = {'name': 'threshold', 'value': value}
+        labels.transforms.append(transform)
 
         if not inplace:
             return labels
 
-    def apply_lead(self, lead, inplace=False):
+    def apply_lead(self, value, inplace=False):
         """
         Shifts the label times earlier for predicting in advance.
 
         Args:
-            lead (str) : Time to shift earlier.
+            value (str) : Time to shift earlier.
             inplace (bool) : Modify labels in place.
 
         Returns:
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels.settings.update(lead=lead)
-        labels['time'] = labels['time'].sub(pd.Timedelta(lead))
+        labels['time'] = labels['time'].sub(pd.Timedelta(value))
+
+        transform = {'name': 'lead', 'value': value}
+        labels.transforms.append(transform)
 
         if not inplace:
             return labels
@@ -192,20 +188,20 @@ class LabelTimes(pd.DataFrame):
             my_labeling_function                 high                  low
         """ # noqa
         label_times = self.copy()
-        name = label_times.settings['name']
-        values = label_times[name].values
+        values = label_times[self.name].values
 
         if quantiles:
-            label_times[name] = pd.qcut(values, q=bins, labels=labels)
+            label_times[self.name] = pd.qcut(values, q=bins, labels=labels)
 
         else:
-            label_times[name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
-        label_times.settings.update({
+        transform = {
+            'name': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
             'right': right,
-        })
-
+        }
+        label_times.transforms.append(transform)
         return label_times
