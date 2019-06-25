@@ -12,16 +12,7 @@ class LabelTimes(pd.DataFrame):
     """
     _metadata = ['name', 'target_entity', 'settings', 'transforms']
 
-    def __init__(
-            self,
-            data=None,
-            name=None,
-            target_entity=None,
-            settings=None,
-            transforms=None,
-            *args,
-            **kwargs,
-    ):
+    def __init__(self, data=None, name=None, target_entity=None, settings=None, transforms=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
         self.name = name
