@@ -1,7 +1,7 @@
-from ..label_maker import LabelMaker
-
-import pytest
 import featuretools as ft
+import pytest
+
+from ..label_maker import LabelMaker
 
 
 def my_labeling_function(df_slice):
