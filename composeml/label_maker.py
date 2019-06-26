@@ -4,64 +4,16 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
-def on_slice(make_label, window, min_data, gap, n_examples):
-    """
-    Returns a function that transforms a data frame to labels.
+def offset_time(index, value):
+    if isinstance(value, int):
+        value += 1
+        value = index[:value][-1]
+        return value
 
-    Args:
-        make_label (function) : Function that transforms a data slice to a label.
-        window (str or int) : Duration of each data slice.
-        min_data (str or int) : Minimum data before starting search.
-        n_examples (int) : Number of labels to make.
-        gap (str or int) : Time between examples.
-
-    Returns:
-        df_to_labels (function) : Function that transforms a data frame to labels.
-    """
-
-    def offset_time(index, value):
-        if isinstance(value, int):
-            value += 1
-            value = index[:value][-1]
-            return value
-
-        if isinstance(value, str):
-            value = pd.Timedelta(value)
-            value = index[0] + value
-            return value
-
-    def df_to_labels(df, *args, **kwargs):
-        labels = pd.Series(name=make_label.__name__)
-
-        df = df.loc[df.index.notnull()]
-        df.sort_index(inplace=True)
-
-        if df.empty:
-            return labels.to_frame()
-
-        cutoff_time = offset_time(df.index, min_data)
-
-        for example in range(n_examples):
-            df = df[cutoff_time:]
-
-            if df.empty:
-                break
-
-            time = offset_time(df.index, window)
-            label = make_label(df[:time], *args, **kwargs)
-
-            not_none = label is not None
-            not_nan = label is not pd.np.nan
-            if not_none and not_nan:
-                labels[cutoff_time] = label
-
-            cutoff_time = offset_time(df.index, gap)
-
-        labels.index = labels.index.rename('time')
-        labels.index = labels.index.astype('datetime64[ns]')
-        return labels.to_frame()
-
-    return df_to_labels
+    if isinstance(value, str):
+        value = pd.Timedelta(value)
+        value = index[0] + value
+        return value
 
 
 def assert_valid_offset(value):
@@ -90,6 +42,8 @@ class LabelMaker:
             labeling_function (function) : Function that transforms a data slice to a label.
             window_size (str or int) : Duration of each data slice.
         """
+        assert_valid_offset(window_size)
+
         self.target_entity = target_entity
         self.time_index = time_index
         self.labeling_function = labeling_function
@@ -119,19 +73,38 @@ class LabelMaker:
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
         """
-        df = self._preprocess(df)
-
         assert_valid_offset(minimum_data)
-        assert_valid_offset(self.window_size)
         assert_valid_offset(gap)
+        name = self.labeling_function.__name__
 
-        df_to_labels = on_slice(
-            self.labeling_function,
-            min_data=minimum_data,
-            window=self.window_size,
-            n_examples=num_examples_per_instance,
-            gap=gap,
-        )
+        def df_to_labels(df):
+            df = df.loc[df.index.notnull()]
+            df.sort_index(inplace=True)
+
+            labels = pd.Series(name=name)
+
+            if df.empty:
+                return labels.to_frame()
+
+            cutoff_time = offset_time(df.index, minimum_data)
+
+            for example in range(num_examples_per_instance):
+                df = df[cutoff_time:]
+
+                if df.empty:
+                    break
+
+                window_end = offset_time(df.index, self.window_size)
+                label = self.labeling_function(df[:window_end], *args, **kwargs)
+
+                if not pd.isnull(label):
+                    labels[cutoff_time] = label
+
+                cutoff_time = offset_time(df.index, gap)
+
+            labels.index = labels.index.rename('cutoff_time')
+            labels.index = labels.index.astype('datetime64[ns]')
+            return labels.to_frame()
 
         if verbose:
             bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
@@ -139,24 +112,24 @@ class LabelMaker:
             bar_format += self.target_entity + ": {n}/{total} "
             tqdm.pandas(bar_format=bar_format, ncols=90)
 
+        df = self._preprocess(df)
         labels = df.groupby(self.target_entity)
-
         apply = labels.progress_apply if verbose else labels.apply
         labels = apply(df_to_labels, *args, **kwargs)
 
         if labels.empty:
-            return LabelTimes()
+            return LabelTimes(name=name, target_entity=self.target_entity)
 
-        labels = labels.reset_index().rename_axis('label_id')
-        labels = LabelTimes(labels)._with_plots()
+        labels = labels.reset_index()
+        labels = labels.rename_axis('label_id')
+        labels = LabelTimes(labels, name=name, target_entity=self.target_entity)
+        labels = labels._with_plots()
 
-        labels.settings = {
-            'name': self.labeling_function.__name__,
-            'target_entity': self.target_entity,
+        labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
             'window_size': self.window_size,
             'gap': gap,
-        }
+        })
 
         return labels
