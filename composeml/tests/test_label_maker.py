@@ -1,6 +1,5 @@
-import pytest
-
 import pandas as pd
+import pytest
 
 from ..label_maker import LabelMaker
 
