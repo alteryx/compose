@@ -1,7 +1,8 @@
-import pandas as pd
 import pytest
 
-from .label_times import LabelTimes
+import pandas as pd
+
+from composeml.label_times import LabelTimes
 
 
 @pytest.fixture(scope="module")
