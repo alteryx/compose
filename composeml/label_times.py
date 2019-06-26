@@ -6,29 +6,28 @@ class LabelTimes(pd.DataFrame):
     A data frame containing labels made by a label maker.
 
     Attributes:
-        settings
+        name
+        target_entity
+        transforms
     """
-    _metadata = ['_settings']
+    _metadata = ['name', 'target_entity', 'settings', 'transforms']
+
+    def __init__(self, data=None, name=None, target_entity=None, settings=None, transforms=None, *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+        self.name = name
+        self.target_entity = target_entity
+        self.settings = settings or {}
+        self.transforms = transforms or []
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
-    def settings(self):
-        if not hasattr(self, '_settings'):
-            self._settings = {}
-
-        return self._settings
-
-    @settings.setter
-    def settings(self, value):
-        self._settings = value
-
-    @property
     def distribution(self):
         labels = self.assign(count=1)
-        labels = labels.groupby(self.settings['name'])
+        labels = labels.groupby(self.name)
         distribution = labels['count'].count()
         return distribution
 
@@ -40,19 +39,16 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def count_by_time(self):
-        labels = self.assign(count=1)
-
-        labels = labels.sort_values('cutoff_time')
-        keys = [self.settings['name'], 'cutoff_time']
-        labels = labels.set_index(keys)
-
-        labels = labels.groupby(keys[0])
-        count = labels['count'].cumsum()
+        count = self.assign(count=1)
+        count = count.sort_values('cutoff_time')
+        count = count.set_index([self.name, 'cutoff_time'])
+        count = count.groupby(self.name)
+        count = count['count'].cumsum()
         return count
 
     def _plot_count_by_time(self, **kwargs):
         count = self.count_by_time
-        count = count.unstack(self.settings['name'])
+        count = count.unstack(self.name)
         count = count.ffill()
 
         plot = count.plot(kind='area', **kwargs)
@@ -66,16 +62,26 @@ class LabelTimes(pd.DataFrame):
         return self
 
     def describe(self):
-        """Prints out label distribution and the settings used to make the labels."""
-        labels = self[self.settings['name']]
-        label_counts = labels.value_counts()
-        total = 'Total number of labels:  {}'
-        total = total.format(label_counts.sum())
+        """Prints out label info with transform settings that reproduce labels."""
+        print('Label Distribution\n' + '-' * 18, end='\n')
+        distribution = self[self.name].value_counts()
+        distribution.index = distribution.index.astype('str')
+        distribution['Total:'] = distribution.sum()
+        print(distribution.to_string(), end='\n\n\n')
 
-        print(total, end='\n\n')
-        print(label_counts, end='\n\n')
-        print(self.distribution, end='\n\n')
-        print(pd.Series(self.settings), end='\n\n')
+        print('Settings\n' + '-' * 8, end='\n')
+        settings = pd.Series(self.settings)
+        print(settings.to_string(), end='\n\n\n')
+
+        print('Transforms\n' + '-' * 10, end='\n')
+        for step, transform in enumerate(self.transforms):
+            transform = pd.Series(transform)
+            name = transform.pop('__name__')
+            transform = transform.add_prefix('  - ')
+            transform = transform.add_suffix(':')
+            transform = transform.to_string()
+            header = '{}. {}\n'.format(step + 1, name)
+            print(header + transform, end='\n\n')
 
     def copy(self):
         """
@@ -85,7 +91,7 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Copy of labels.
         """
         labels = super().copy()
-        labels.settings = self.settings.copy()
+        labels.transforms = labels.transforms.copy()
         return labels._with_plots()
 
     def threshold(self, value, inplace=False):
@@ -100,27 +106,30 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        name = labels.settings['name']
-        labels[name] = labels[name].gt(value)
-        labels.settings.update(threshold=value)
+        labels[self.name] = labels[self.name].gt(value)
+
+        transform = {'__name__': 'threshold', 'value': value}
+        labels.transforms.append(transform)
 
         if not inplace:
             return labels
 
-    def apply_lead(self, lead, inplace=False):
+    def apply_lead(self, value, inplace=False):
         """
         Shifts the label times earlier for predicting in advance.
 
         Args:
-            lead (str) : Time to shift earlier.
+            value (str) : Time to shift earlier.
             inplace (bool) : Modify labels in place.
 
         Returns:
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels.settings.update(lead=lead)
-        labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(lead))
+        labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
+
+        transform = {'__name__': 'apply_lead', 'value': value}
+        labels.transforms.append(transform)
 
         if not inplace:
             return labels
@@ -192,20 +201,21 @@ class LabelTimes(pd.DataFrame):
             my_labeling_function                 high                  low
         """ # noqa
         label_times = self.copy()
-        name = label_times.settings['name']
-        values = label_times[name].values
+        values = label_times[self.name].values
 
         if quantiles:
-            label_times[name] = pd.qcut(values, q=bins, labels=labels)
+            label_times[self.name] = pd.qcut(values, q=bins, labels=labels)
 
         else:
-            label_times[name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
-        label_times.settings.update({
+        transform = {
+            '__name__': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
             'right': right,
-        })
+        }
 
+        label_times.transforms.append(transform)
         return label_times

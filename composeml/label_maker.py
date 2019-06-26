@@ -73,17 +73,15 @@ class LabelMaker:
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
         """
-        df = self._preprocess(df)
-
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
+        name = self.labeling_function.__name__
 
         def df_to_labels(df):
-            name = self.labeling_function.__name__
-            labels = pd.Series(name=name)
-
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
+
+            labels = pd.Series(name=name)
 
             if df.empty:
                 return labels.to_frame()
@@ -114,24 +112,24 @@ class LabelMaker:
             bar_format += self.target_entity + ": {n}/{total} "
             tqdm.pandas(bar_format=bar_format, ncols=90)
 
+        df = self._preprocess(df)
         labels = df.groupby(self.target_entity)
-
         apply = labels.progress_apply if verbose else labels.apply
         labels = apply(df_to_labels, *args, **kwargs)
 
         if labels.empty:
-            return LabelTimes()
+            return LabelTimes(name=name, target_entity=self.target_entity)
 
-        labels = labels.reset_index().rename_axis('label_id')
-        labels = LabelTimes(labels)._with_plots()
+        labels = labels.reset_index()
+        labels = labels.rename_axis('label_id')
+        labels = LabelTimes(labels, name=name, target_entity=self.target_entity)
+        labels = labels._with_plots()
 
-        labels.settings = {
-            'name': self.labeling_function.__name__,
-            'target_entity': self.target_entity,
+        labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
             'window_size': self.window_size,
             'gap': gap,
-        }
+        })
 
         return labels
