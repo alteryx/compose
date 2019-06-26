@@ -96,8 +96,8 @@ class LabelMaker:
                 if df.empty:
                     break
 
-                time = offset_time(df.index, self.window_size)
-                label = self.labeling_function(df[:time], *args, **kwargs)
+                window_end = offset_time(df.index, self.window_size)
+                label = self.labeling_function(df[:window_end], *args, **kwargs)
 
                 not_none = label is not None
                 not_nan = label is not pd.np.nan
