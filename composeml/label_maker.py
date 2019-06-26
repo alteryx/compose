@@ -99,9 +99,7 @@ class LabelMaker:
                 window_end = offset_time(df.index, self.window_size)
                 label = self.labeling_function(df[:window_end], *args, **kwargs)
 
-                not_none = label is not None
-                not_nan = label is not pd.np.nan
-                if not_none and not_nan:
+                if not pd.isnull(label):
                     labels[cutoff_time] = label
 
                 cutoff_time = offset_time(df.index, gap)
