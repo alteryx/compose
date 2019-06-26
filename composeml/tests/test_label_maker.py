@@ -1,5 +1,6 @@
-import pandas as pd
 import pytest
+
+import pandas as pd
 
 from ..label_maker import LabelMaker
 
@@ -11,6 +12,9 @@ def my_labeling_function(df_slice):
 
 
 def test_search_offset_mix_0(transactions, labels):
+    """
+    Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -29,6 +33,9 @@ def test_search_offset_mix_0(transactions, labels):
 
 
 def test_search_offset_mix_1(transactions, labels):
+    """
+    Test offset mix with window_size (relative), minimum_data (absolute), and gap (absolute).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -47,6 +54,9 @@ def test_search_offset_mix_1(transactions, labels):
 
 
 def test_search_offset_mix_2(transactions, labels):
+    """
+    Test offset mix with window_size (absolute), minimum_data (relative), and gap (absolute).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -65,6 +75,9 @@ def test_search_offset_mix_2(transactions, labels):
 
 
 def test_search_offset_mix_3(transactions, labels):
+    """
+    Test offset mix with window_size (absolute), minimum_data (absolute), and gap (relative).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -83,6 +96,9 @@ def test_search_offset_mix_3(transactions, labels):
 
 
 def test_search_offset_mix_4(transactions, labels):
+    """
+    Test offset mix with window_size (relative), minimum_data (relative), and gap (absolute).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -101,6 +117,9 @@ def test_search_offset_mix_4(transactions, labels):
 
 
 def test_search_offset_mix_5(transactions, labels):
+    """
+    Test offset mix with window_size (relative), minimum_data (absolute), and gap (relative).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -119,6 +138,9 @@ def test_search_offset_mix_5(transactions, labels):
 
 
 def test_search_offset_mix_6(transactions, labels):
+    """
+    Test offset mix with window_size (absolute), minimum_data (relative), and gap (relative).
+    """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
@@ -137,6 +159,9 @@ def test_search_offset_mix_6(transactions, labels):
 
 
 def test_search_offset_mix_7(transactions, labels):
+    """
+    Test offset mix with window_size (relative), minimum_data (relative), and gap (relative).
+    """
     def my_labeling_function(df_slice):
         label = df_slice['amount'].sum()
         return label
