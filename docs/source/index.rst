@@ -5,9 +5,9 @@
     self
     getting_started
     main_concepts
+    guides/index
     api_reference
     changelog
-
 
 Introduction
 ============
