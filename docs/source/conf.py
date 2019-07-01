@@ -40,6 +40,7 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
@@ -186,4 +187,4 @@ def setup(app):
 
 
 html_show_sphinx = False
-
+intersphinx_mapping = {'featuretools': ('https://docs.featuretools.com/', None)}
