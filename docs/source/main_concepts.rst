@@ -18,4 +18,4 @@ The labeling function will then transform the extracted data slice into a label.
     :width: 425px
     :align: center
 
-In cases where the labeling function returns continuous values, there are label transforms available to further process the labels into discrete values.
+In cases where the labeling function returned continuous values, there are label transforms available to further process the labels into discrete values.
