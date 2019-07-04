@@ -5,8 +5,6 @@
     self
     getting_started
     main_concepts
-    api_reference
-    changelog
 
 .. toctree::
     :caption: Guides
@@ -16,6 +14,12 @@
 
     guides/*
 
+.. toctree::
+    :caption: Resources
+    :hidden:
+
+    api_reference
+    changelog
 
 Creating labels from raw data for a machine learning problem is difficult and time consuming. This is where `ComposeML` helps by making it easier to quickly generate complex labels from raw data.
 
