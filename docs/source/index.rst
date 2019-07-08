@@ -3,6 +3,7 @@
     :hidden:
 
     self
+    install
     getting_started
     main_concepts
 
