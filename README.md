@@ -5,7 +5,8 @@
 [![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](http://docs.compose.ml/en/latest/?badge=latest)
 
 
-ComposeML is a Python library for prediction engineering. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
+[ComposeML](http://compose.ml) is a Python library for prediction engineering. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms. See the [documentation](http://docs.compose.ml) for more information.
+
 ### Installation
 ```shell
 pip install composeml
