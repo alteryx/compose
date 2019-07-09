@@ -32,7 +32,6 @@ Transform Methods
 
     LabelTimes.apply_lead
     LabelTimes.bin
-    LabelTimes.describe
     LabelTimes.threshold
 
 Plotting Methods
