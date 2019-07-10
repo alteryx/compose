@@ -4,6 +4,6 @@ workflow "PyPI Release" {
 }
 
 action "release" {
-  uses = "./release"
+  uses = "./release@github-actions"
   args = "$GITHUB_REF"
 }
