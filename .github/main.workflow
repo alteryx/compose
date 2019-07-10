@@ -1,11 +1,12 @@
-workflow "Publish" {
+workflow "Publish Release" {
   on = "push"
-  resolves = ["PyPI Release"]
+  resolves = ["Upload to PyPI"]
 }
 
-action "PyPI Release" {
+action "Upload to PyPI" {
   uses = "./release"
   env = {
     TAG  = "v0.1.3"
   }
+  args = ["$GITHUB_REPOSITORY", "$GITHUB_REF"]
 }
