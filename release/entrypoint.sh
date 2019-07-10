@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh -l
 
-echo "test"
+sh -c "echo $*"
