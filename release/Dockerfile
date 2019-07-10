@@ -8,4 +8,6 @@ LABEL "com.github.actions.color"="blue"
 LABEL "repository"="https://github.com/FeatureLabs/compose-ml"
 LABEL "maintainer"="support@featurelabs.com"
 
-ENTRYPOINT [ "sh", "-c", "echo $HOME" ]
+ADD upload.sh /upload.sh
+RUN ["chmod", "+x", "upload.sh"]
+ENTRYPOINT ["/upload.sh"]
