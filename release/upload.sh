@@ -4,7 +4,7 @@ published=$(python -c "
 import json
 file = open('$GITHUB_EVENT_PATH', 'r')
 event = json.load(file)
-published = event.get('action') == published
+published = event.get('action') == 'published'
 print(published)")
 
 echo $published
