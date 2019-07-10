@@ -1,3 +1,3 @@
-#!/bin/sh -l
+#!/bin/sh
 
-sh -c "echo $*"
+sh -c "docker $*"
