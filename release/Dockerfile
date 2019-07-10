@@ -8,5 +8,5 @@ LABEL "com.github.actions.color"="blue"
 LABEL "repository"="https://github.com/FeatureLabs/compose-ml"
 LABEL "maintainer"="support@featurelabs.com"
 
-ADD entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ADD upload.sh /upload.sh
+ENTRYPOINT ["/upload.sh"]
