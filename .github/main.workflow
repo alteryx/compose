@@ -1,9 +1,11 @@
-workflow "PyPI Release" {
+workflow "Publish" {
   on = "push"
-  resolves = ["release"]
+  resolves = ["PyPI Release"]
 }
 
-action "release" {
+action "PyPI Release" {
   uses = "./release"
-  args = "\"test\""
+  env = {
+    TAG  = "v0.1.3"
+  }
 }
