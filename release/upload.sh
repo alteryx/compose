@@ -1,10 +1,12 @@
 #!/bin/sh
 
-published=$(python -c "
+$published=$(python -c "
 import json
-file = open('$GITHUB_EVENT_PATH', 'r')
-event = json.load(file)
-published = event.get('action') == 'published'
+
+with open('$GITHUB_EVENT_PATH', 'r') as file:
+    event = json.load(file)
+    published = event.get('action') == 'published'
+
 print(published)")
 
 echo $published
