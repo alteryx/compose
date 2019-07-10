@@ -8,5 +8,4 @@ action "Upload to PyPI" {
   env = {
     TAG  = "v0.1.3"
   }
-  args = ["$GITHUB_REPOSITORY", "$GITHUB_REF"]
 }

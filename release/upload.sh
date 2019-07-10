@@ -1,10 +1,7 @@
 #!/bin/sh
-
-# Clone repository
-git clone "https://github.com/${1}.git" "$HOME/project"
+echo "REPO: $GITHUB_REPOSITORY, REF: $GITHUB_REF"
 
 # Checkout specified commit
-cd "$HOME/project"
 git checkout "$TAG"
 
 # Remove build artifacts
@@ -17,5 +14,5 @@ python setup.py sdist bdist_wheel
 pip install --user twine -q
 
 # Upload to pypi or testpypi
-echo "Upoading $TAG to pypitest ${2} ..."
+echo "Upoading $TAG to pypitest ..."
 # python -m twine upload dist/* -r "pypitest"
