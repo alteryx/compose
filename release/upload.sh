@@ -1,6 +1,6 @@
 #!/bin/sh
 
-$published=$(python -c "
+published=$(python -c "
 import json
 
 with open('$GITHUB_EVENT_PATH', 'r') as file:
