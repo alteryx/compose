@@ -13,8 +13,7 @@ print(published)
 END
 }
 
-# The function that uploads to PyPI
-function run {
+function upload_to_pypi {
     # Checkout specified commit
     git checkout "$TAG"
 
@@ -33,4 +32,4 @@ function run {
 }
 
 # If release was published then upload to PyPI
-if [ $(published) ]; then run; fi
+if [ $(published) ]; then upload_to_pypi; fi
