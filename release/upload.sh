@@ -30,7 +30,7 @@ upload_to_pypi () {
     pip install --user twine -q
 
     # Upload to pypi or testpypi
-    python -m twine upload dist/* --skip-existing \
+    python -m twine upload dist/* \
     --username $PYPI_USERNAME --password $PYPI_PASSWORD \
     --repository-url $TWINE_REPOSITORY_URL
 }
