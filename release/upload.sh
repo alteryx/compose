@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "ACTION: $(cat $GITHUB_EVENT_PATH | grep action)"
+
 published_on_github=$(python -c "
 import json
 
