@@ -1,14 +1,14 @@
 #!/bin/sh
 
-# Check if release was published on GitHub
-published_on_github=$(python -c "
+# Get action that triggered release event
+release=$(python -c "
 import json
 
 with open('$GITHUB_EVENT_PATH', 'r') as file:
     event = json.load(file)
-    published = event.get('action') == 'published'
+    release = event.get('action')
 
-print(published)
+print(release)
 ")
 
 upload_to_pypi () {
@@ -31,4 +31,4 @@ upload_to_pypi () {
 }
 
 # If release was published on GitHub then upload to PyPI
-if [ $published_on_github = "True" ]; then upload_to_pypi; fi
+if [ $release = "published" ]; then upload_to_pypi; fi
