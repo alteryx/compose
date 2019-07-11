@@ -13,7 +13,7 @@ print(release)
 
 upload_to_pypi () {
     # Checkout specified commit
-    git checkout "$GITHUB_REF"
+    git checkout tags/$GITHUB_REF
 
     # Remove build artifacts
     rm -rf .eggs/ rm -rf dist/ rm -rf build/
@@ -25,9 +25,10 @@ upload_to_pypi () {
     pip install --user twine -q
 
     # Upload to pypi or testpypi
-    echo "Uploading $GITHUB_REF to pypitest ..."
-    python -m twine upload dist/* -r "pypitest" \
-    --username $PYPI_USERNAME --password $PYPI_PASSWORD
+    echo "Uploading $GITHUB_REF to $TWINE_REPOSITORY_URL ..."
+    TWINE_USERNAME=$PYPI_USERNAME
+    TWINE_PASSWORD=$PYPI_PASSWORD
+    twine upload dist/*
 }
 
 # If release was published on GitHub then upload to PyPI
