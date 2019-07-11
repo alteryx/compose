@@ -11,16 +11,16 @@ upload_to_pypi () {
     rm -rf .eggs/ rm -rf dist/ rm -rf build/
 
     # Create distributions
-    python setup.py sdist bdist_wheel -q
+    python setup.py -q sdist bdist_wheel
 
     # Install twine, module used to upload to pypi
     pip install --user twine -q
 
     # Upload to pypi or testpypi
     echo "Uploading $tag to $TWINE_REPOSITORY_URL ..."
-    TWINE_USERNAME=$PYPI_USERNAME
-    TWINE_PASSWORD=$PYPI_PASSWORD
-    python -m twine upload dist/*
+    python -m twine upload dist/* \
+    --username $PYPI_USERNAME --password $PYPI_PASSWORD \
+    --repository-url $TWINE_REPOSITORY_URL
 }
 
 # Get action that triggered release event
