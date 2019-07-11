@@ -29,8 +29,8 @@ upload_to_pypi () {
     # Install twine, module used to upload to pypi
     pip install --user twine -q
 
-    # Upload to pypi or testpypi
-    python -m twine upload dist/* --verbose \
+    # Upload to pypi or testpypi, overwrite if files already exist.
+    python -m twine upload dist/* --skip-existing --verbose \
     --username $PYPI_USERNAME --password $PYPI_PASSWORD \
     --repository-url $TWINE_REPOSITORY_URL
 }
