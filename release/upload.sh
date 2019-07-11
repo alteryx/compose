@@ -1,28 +1,36 @@
 #!/bin/sh
 
-published=$(python -c "
+# Check if release was published
+function published {
+python - <<END
 import json
 
 with open('$GITHUB_EVENT_PATH', 'r') as file:
     event = json.load(file)
     published = event.get('action') == 'published'
 
-print(published)")
+print(published)
+END
+}
 
-echo $published
+# The function that uploads to PyPI
+function upload {
+    # Checkout specified commit
+    git checkout "$TAG"
 
-# # Checkout specified commit
-# git checkout "$TAG"
+    # Remove build artifacts
+    rm -rf .eggs/ rm -rf dist/ rm -rf build/
 
-# # Remove build artifacts
-# rm -rf .eggs/ rm -rf dist/ rm -rf build/
+    # Create distributions
+    python setup.py sdist bdist_wheel
 
-# # Create distributions
-# python setup.py sdist bdist_wheel
+    # Install twine, module used to upload to pypi
+    pip install --user twine -q
 
-# # Install twine, module used to upload to pypi
-# pip install --user twine -q
+    # Upload to pypi or testpypi
+    echo "Upoading $TAG to pypitest ..."
+    # python -m twine upload dist/* -r "pypitest"
+}
 
-# # Upload to pypi or testpypi
-# echo "Upoading $TAG to pypitest ..."
-# # python -m twine upload dist/* -r "pypitest"
+# If release was published then upload to PyPI
+if [ $(published) ]; then upload; fi
