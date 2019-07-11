@@ -29,4 +29,4 @@ upload_to_pypi () {
 }
 
 # If release was published then upload to PyPI
-if [ $published_on_github = "True" ]; then upload_to_pypi; fi
+if [ $published_on_github = "False" ]; then upload_to_pypi; fi
