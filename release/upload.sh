@@ -1,8 +1,6 @@
 #!/bin/sh
 
-# Check if release was published
-function published {
-python - <<END
+published_on_github=$(python -c "
 import json
 
 with open('$GITHUB_EVENT_PATH', 'r') as file:
@@ -10,8 +8,7 @@ with open('$GITHUB_EVENT_PATH', 'r') as file:
     published = event.get('action') == 'published'
 
 print(published)
-END
-}
+")
 
 function upload_to_pypi {
     # Checkout specified commit
@@ -32,4 +29,4 @@ function upload_to_pypi {
 }
 
 # If release was published then upload to PyPI
-if [ $(published) ]; then upload_to_pypi; fi
+if [ $published_on_github ]; then upload_to_pypi; fi
