@@ -1,6 +1,6 @@
 #!/bin/sh
 
-published=$(python -c "
+published_on_github=$(python -c "
 import json
 
 with open('$GITHUB_EVENT_PATH', 'r') as file:
@@ -29,4 +29,4 @@ upload_to_pypi () {
 }
 
 # If release was published then upload to PyPI
-if [ $published = "True" ]; then upload_to_pypi; fi
+if [ $published_on_github = "True" ]; then upload_to_pypi; fi
