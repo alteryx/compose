@@ -10,7 +10,7 @@ with open('$GITHUB_EVENT_PATH', 'r') as file:
 print(published)
 ")
 
-function upload_to_pypi {
+upload_to_pypi () {
     # Checkout specified commit
     git checkout "$TAG"
 
@@ -29,4 +29,4 @@ function upload_to_pypi {
 }
 
 # If release was published then upload to PyPI
-if [ $published_on_github ]; then upload_to_pypi; fi
+if [ $published_on_github ]; then upload_to_pypi; fi;
