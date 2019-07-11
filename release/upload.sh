@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo "ACTION: $(cat $GITHUB_EVENT_PATH | grep action)"
-
 published_on_github=$(python -c "
 import json
 
@@ -11,6 +9,8 @@ with open('$GITHUB_EVENT_PATH', 'r') as file:
 
 print(published)
 ")
+
+echo "VALUE: $published_on_github"
 
 upload_to_pypi () {
     # Checkout specified commit
@@ -31,4 +31,7 @@ upload_to_pypi () {
 }
 
 # If release was published then upload to PyPI
-if [ $published_on_github ]; then upload_to_pypi; fi;
+if [ "$published_on_github" = "true" ]
+then
+    upload_to_pypi
+fi
