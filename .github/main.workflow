@@ -1,11 +1,9 @@
 workflow "Release" {
-  on = "push"
+  on = "release"
   resolves = ["PyPI"]
 }
 
 action "PyPI" {
   uses = "./release"
-  env = {
-    TAG  = "v0.1.3"
-  }
+  secrets = ["PYPI_USERNAME", "PYPI_PASSWORD"]
 }
