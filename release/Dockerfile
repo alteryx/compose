@@ -1,7 +1,7 @@
 FROM python:3.7.3
 
 LABEL "com.github.actions.name"="PyPI"
-LABEL "com.github.actions.description"="Upload to PyPI on release."
+LABEL "com.github.actions.description"="Upload the release to PyPI when published on GitHub."
 LABEL "com.github.actions.icon"="package"
 LABEL "com.github.actions.color"="blue"
 
