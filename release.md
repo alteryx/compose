@@ -1,6 +1,6 @@
 # Release Process
 ## Prerequisites
-The environment variables `PYPI_USERNAME` and `PYPI_PASSWORD` must be already set in the repository as secrets. To add these variables, go to Secrets in the Settings of the repostiory.
+The environment variables `PYPI_USERNAME` and `PYPI_PASSWORD` must be already set in the repository as secrets. To add these variables, go to Secrets in the Settings of the repository.
 
 ## Create Release Branch
 1. Branch off of master and name the branch the release version number (e.g. v0.1.2)
