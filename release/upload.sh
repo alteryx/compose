@@ -1,16 +1,39 @@
-#!/bin/bash
+#!/bin/sh
 
-# Clone compose-ml repo
-git clone https://github.com/FeatureLabs/compose-ml.git /home/circleci/compose-ml
-# Checkout specified commit
-cd /home/circleci/compose-ml
-git checkout "${1}"
-# Remove build artifacts
-rm -rf .eggs/ rm -rf dist/ rm -rf build/
-# Create distributions
-python setup.py sdist bdist_wheel
-# Install twine, module used to upload to pypi
-pip install --user twine
-# Upload to pypi or testpypi
-echo "Upoading to ${2:-pypi} . . ."
-python -m twine upload dist/* -r "${2:-pypi}"
+# Get tag from environment
+tag=$(basename $GITHUB_REF)
+
+# Get action that triggered release event
+action=$(python -c "
+import json
+
+with open('$GITHUB_EVENT_PATH', 'r') as file:
+    event = json.load(file)
+    action = event.get('action')
+
+print(action)
+")
+
+echo "Release $tag was $action on GitHub ..."
+
+upload_to_pypi () {
+    # Checkout specified tag
+    git checkout tags/$tag
+
+    # Remove build artifacts
+    rm -rf .eggs/ rm -rf dist/ rm -rf build/
+
+    # Create distributions
+    python setup.py -q sdist bdist_wheel
+
+    # Install twine, module used to upload to pypi
+    pip install --user twine -q
+
+    # Upload to pypi or testpypi, overwrite if files already exist.
+    python -m twine upload dist/* --skip-existing --verbose \
+    --username $PYPI_USERNAME --password $PYPI_PASSWORD \
+    --repository-url $TWINE_REPOSITORY_URL
+}
+
+# If release was published on GitHub then upload to PyPI
+if [ $action = "published" ]; then upload_to_pypi; fi
