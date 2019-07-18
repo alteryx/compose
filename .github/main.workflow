@@ -1,5 +1,5 @@
 workflow "Release" {
-  on = "release"
+  on = "push"
   resolves = ["PyPI"]
 }
 

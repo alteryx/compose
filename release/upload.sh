@@ -15,6 +15,7 @@ print(action)
 ")
 
 echo "Release $tag was $action on GitHub ..."
+echo "$PYPI_USERNAME"
 
 upload_to_pypi () {
     # Checkout specified tag
@@ -36,4 +37,4 @@ upload_to_pypi () {
 }
 
 # If release was published on GitHub then upload to PyPI
-if [ $action = "published" ]; then upload_to_pypi; fi
+# if [ $action = "published" ]; then upload_to_pypi; fi
