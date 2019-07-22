@@ -115,7 +115,7 @@ class LabelMaker:
         bar_format += self.target_entity + ": {n}/{total} "
         total = labels.ngroups * num_examples_per_instance
 
-        progress_bar = tqdm(total=total, bar_format=bar_format, ncols=90, disable=not verbose)
+        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose)
         labels = labels.apply(df_to_labels, progress_bar=progress_bar)
 
         n = progress_bar.total - progress_bar.n
