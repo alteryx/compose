@@ -77,11 +77,15 @@ class LabelMaker:
         assert_valid_offset(gap)
         name = self.labeling_function.__name__
 
-        def df_to_labels(df):
+        def df_to_labels(df, progress_bar=None):
+            labels = pd.Series(name=name)
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
-            labels = pd.Series(name=name)
+            if progress_bar is not None:
+                less_than_total = progress_bar.n < progress_bar.total
+                not_done = not progress_bar.total or less_than_total
+                progress_bar.update(n=1 if not_done else 0)
 
             if df.empty:
                 return labels.to_frame()
@@ -106,16 +110,17 @@ class LabelMaker:
             labels.index = labels.index.astype('datetime64[ns]')
             return labels.to_frame()
 
+        df = self._preprocess(df)
+        labels = df.groupby(self.target_entity)
+        progress_bar = None
+
         if verbose:
             bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
             bar_format += "Progress: {l_bar}{bar}| "
             bar_format += self.target_entity + ": {n}/{total} "
-            tqdm.pandas(bar_format=bar_format, ncols=90)
+            progress_bar = tqdm(total=labels.ngroups, bar_format=bar_format, ncols=90)
 
-        df = self._preprocess(df)
-        labels = df.groupby(self.target_entity)
-        apply = labels.progress_apply if verbose else labels.apply
-        labels = apply(df_to_labels, *args, **kwargs)
+        labels = labels.apply(df_to_labels, progress_bar=progress_bar, *args, **kwargs)
 
         if labels.empty:
             return LabelTimes(name=name, target_entity=self.target_entity)
