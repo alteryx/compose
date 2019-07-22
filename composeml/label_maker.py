@@ -83,9 +83,8 @@ class LabelMaker:
             df.sort_index(inplace=True)
 
             if progress_bar is not None:
-                less_than_total = progress_bar.n < progress_bar.total
-                not_done = not progress_bar.total or less_than_total
-                progress_bar.update(n=1 if not_done else 0)
+                not_done = progress_bar.n < progress_bar.total
+                progress_bar.update(n=int(not_done))
 
             if df.empty:
                 return labels.to_frame()
