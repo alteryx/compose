@@ -77,14 +77,10 @@ class LabelMaker:
         assert_valid_offset(gap)
         name = self.labeling_function.__name__
 
-        def df_to_labels(df, progress_bar=None):
+        def df_to_labels(df, progress_bar):
             labels = pd.Series(name=name)
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
-
-            if progress_bar is not None:
-                not_done = progress_bar.n < progress_bar.total
-                progress_bar.update(n=int(not_done))
 
             if df.empty:
                 return labels.to_frame()
@@ -104,6 +100,8 @@ class LabelMaker:
                     labels[cutoff_time] = label
 
                 cutoff_time = offset_time(df.index, gap)
+                not_done = progress_bar.n < progress_bar.total
+                progress_bar.update(n=int(not_done))
 
             labels.index = labels.index.rename('cutoff_time')
             labels.index = labels.index.astype('datetime64[ns]')
@@ -111,15 +109,17 @@ class LabelMaker:
 
         df = self._preprocess(df)
         labels = df.groupby(self.target_entity)
-        progress_bar = None
 
-        if verbose:
-            bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-            bar_format += "Progress: {l_bar}{bar}| "
-            bar_format += self.target_entity + ": {n}/{total} "
-            progress_bar = tqdm(total=labels.ngroups, bar_format=bar_format, ncols=90)
+        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
+        bar_format += "Progress: {l_bar}{bar}| "
+        bar_format += self.target_entity + ": {n}/{total} "
+        total = labels.ngroups * num_examples_per_instance
 
-        labels = labels.apply(df_to_labels, progress_bar=progress_bar, *args, **kwargs)
+        progress_bar = tqdm(total=total, bar_format=bar_format, ncols=90, disable=not verbose)
+        labels = labels.apply(df_to_labels, progress_bar=progress_bar)
+
+        n = progress_bar.total - progress_bar.n
+        progress_bar.update(n=n)
 
         if labels.empty:
             return LabelTimes(name=name, target_entity=self.target_entity)
