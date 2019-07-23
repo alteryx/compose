@@ -121,7 +121,6 @@ class LabelMaker:
 
         labels_per_group = []
         for key, df in groups:
-            df.rename_axis(key, axis=1, inplace=True)
             labels = df_to_labels(df, progress_bar=progress_bar)
             labels = labels.to_frame(name=name)
             labels[self.target_entity] = key
