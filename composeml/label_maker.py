@@ -1,4 +1,4 @@
-import sys
+from sys import stdout
 
 import pandas as pd
 from tqdm import tqdm
@@ -77,15 +77,14 @@ class LabelMaker:
         """
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
-        name = self.labeling_function.__name__
 
         def df_to_labels(df, progress_bar):
-            labels = pd.Series(name=name)
+            labels = pd.Series()
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
             if df.empty:
-                return labels.to_frame()
+                return labels
 
             cutoff_time = offset_time(df.index, minimum_data)
 
@@ -93,6 +92,8 @@ class LabelMaker:
                 df = df[cutoff_time:]
 
                 if df.empty:
+                    skipped_iterations = num_examples_per_instance - example
+                    progress_bar.update(n=skipped_iterations)
                     break
 
                 window_end = offset_time(df.index, self.window_size)
@@ -102,38 +103,40 @@ class LabelMaker:
                     labels[cutoff_time] = label
 
                 cutoff_time = offset_time(df.index, gap)
-                not_done = progress_bar.n < progress_bar.total
-                progress_bar.update(n=int(not_done))
+                progress_bar.update(n=1)
 
             labels.index = labels.index.rename('cutoff_time')
             labels.index = labels.index.astype('datetime64[ns]')
-            return labels.to_frame()
+            return labels
 
         df = self._preprocess(df)
-        labels = df.groupby(self.target_entity)
+        groups = df.groupby(self.target_entity)
+        name = self.labeling_function.__name__
 
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
-        total = labels.ngroups * num_examples_per_instance
+        total = groups.ngroups * num_examples_per_instance
+        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
 
-        progress_bar = tqdm(
-            total=total,
-            bar_format=bar_format,
-            disable=not verbose,
-            file=sys.stdout,
-        )
+        labels_per_group = []
+        for key, df in groups:
+            df.rename_axis(key, axis=1, inplace=True)
+            labels = df_to_labels(df, progress_bar=progress_bar)
+            labels = labels.to_frame(name=name)
+            labels[self.target_entity] = key
+            labels_per_group.append(labels)
 
-        labels = labels.apply(df_to_labels, progress_bar=progress_bar)
-        n = progress_bar.total - progress_bar.n
-        progress_bar.update(n=n)
+        labels = pd.concat(labels_per_group, axis=0, sort=False)
 
         if labels.empty:
             return LabelTimes(name=name, target_entity=self.target_entity)
 
-        labels = labels.reset_index()
-        labels = labels.rename_axis('label_id')
-        labels = LabelTimes(labels, name=name, target_entity=self.target_entity)
+        labels.reset_index(inplace=True)
+        labels.rename_axis('label_id', inplace=True)
+
+        sort = [self.target_entity, 'cutoff_time', name]
+        labels = LabelTimes(labels[sort], name=name, target_entity=self.target_entity)
         labels = labels._with_plots()
 
         labels.settings.update({
