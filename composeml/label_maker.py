@@ -6,6 +6,7 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
+# TODO If offset time is not in index, return None.
 def offset_time(index, value):
     if isinstance(value, int):
         value += 1
@@ -78,12 +79,14 @@ class LabelMaker:
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
 
+        # TODO Reference progress bar outside df_to_labels.
         def df_to_labels(df, progress_bar):
             labels = pd.Series()
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
             if df.empty:
+                # TODO Also update progress bar for skipped iterations
                 return labels
 
             cutoff_time = offset_time(df.index, minimum_data)
@@ -92,6 +95,7 @@ class LabelMaker:
                 df = df[cutoff_time:]
 
                 if df.empty:
+                    # TODO Also apply when cutoff time is None.
                     skipped_iterations = num_examples_per_instance - example
                     progress_bar.update(n=skipped_iterations)
                     break
@@ -126,6 +130,7 @@ class LabelMaker:
             labels[self.target_entity] = key
             labels_per_group.append(labels)
 
+        progress_bar.close()
         labels = pd.concat(labels_per_group, axis=0, sort=False)
 
         if labels.empty:
