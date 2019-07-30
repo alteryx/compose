@@ -16,8 +16,8 @@ transactions.head()
 
 month_begin = pd.offsets.MonthBegin()
 expire_date = transactions['membership_expire_date']
-transactions['lead_time'] = expire_date.apply(month_begin.rollback)
-transactions[['msno', 'lead_time', 'membership_expire_date']].head()
+transactions['cutoff_time'] = expire_date.apply(month_begin.rollback)
+transactions[['msno', 'cutoff_time', 'membership_expire_date']].head()
 
 
 def inactive_membership(transactions):
@@ -30,7 +30,7 @@ def inactive_membership(transactions):
 
 label_maker = cp.LabelMaker(
     target_entity='msno',
-    time_index='lead_time',
+    time_index='cutoff_time',
     labeling_function=inactive_membership,
     window_size=2,
 )
