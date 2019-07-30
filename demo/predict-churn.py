@@ -14,21 +14,23 @@ transactions = pd.read_csv(
 )
 transactions.head()
 
+month_begin = pd.offsets.MonthBegin()
+expire_date = transactions['membership_expire_date']
+transactions['lead_time'] = expire_date.apply(month_begin.rollback)
+transactions[['msno', 'lead_time', 'membership_expire_date']].head()
+
 
 def inactive_membership(transactions):
     if len(transactions) != 2: return
-
-    membership_expire_date = transactions['membership_expire_date']
-    membership_expire_date = membership_expire_date.iloc[0]
-
-    next_transaction_date = transactions.index[1]
+    membership_expire_date = transactions['membership_expire_date'].iloc[0]
+    next_transaction_date = transactions['transaction_date'].iloc[1]
     inactive = next_transaction_date - membership_expire_date
     return inactive
 
 
 label_maker = cp.LabelMaker(
     target_entity='msno',
-    time_index='transaction_date',
+    time_index='lead_time',
     labeling_function=inactive_membership,
     window_size=2,
 )
@@ -44,7 +46,6 @@ label_times.head()
 
 one_month = pd.Timedelta('31d')
 is_churn = label_times.threshold(one_month)
-is_churn = is_churn.apply_lead(one_month)
 is_churn.head()
 
 is_churn.describe()
