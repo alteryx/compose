@@ -7,12 +7,15 @@ BASE_DIR = 's3://customer-churn-spark/'
 PARTITION_DIR = BASE_DIR + 'p' + PARTITION
 transactions = f'{PARTITION_DIR}/transactions.csv'
 
+# +
 transactions = pd.read_csv(
     transactions,
     parse_dates=['transaction_date', 'membership_expire_date'],
     infer_datetime_format=True,
 )
+
 transactions.head()
+# -
 
 month_begin = pd.offsets.MonthBegin()
 expire_date = transactions['membership_expire_date']
@@ -20,12 +23,18 @@ transactions['lead_time'] = expire_date.apply(month_begin.rollback)
 transactions[['msno', 'lead_time', 'membership_expire_date']].head()
 
 
-def inactive_membership(transactions):
-    if len(transactions) != 2: return
+def inactive_membership(transactions, now):
     membership_expire_date = transactions['membership_expire_date'].iloc[0]
-    next_transaction_date = transactions['transaction_date'].iloc[1]
-    inactive = next_transaction_date - membership_expire_date
-    return inactive
+    next_transaction_exists = len(transactions) > 1
+
+    if next_transaction_exists:
+        next_transaction_date = transactions['transaction_date'].iloc[1]
+        elapsed = next_transaction_date - membership_expire_date
+
+    else:
+        elapsed = now - membership_expire_date
+
+    return elapsed
 
 
 label_maker = cp.LabelMaker(
@@ -35,14 +44,20 @@ label_maker = cp.LabelMaker(
     window_size=2,
 )
 
+# +
+now = pd.Timestamp.now()
+
 label_times = label_maker.search(
     transactions,
     minimum_data=0,
     num_examples_per_instance=2,
     gap=1,
     verbose=True,
+    now=now,
 )
+
 label_times.head()
+# -
 
 one_month = pd.Timedelta('31d')
 is_churn = label_times.threshold(one_month)
