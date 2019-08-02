@@ -1,10 +1,10 @@
+from inspect import signature
 from sys import stdout
 
 import pandas as pd
 from tqdm import tqdm
 
 from composeml.label_times import LabelTimes
-from inspect import signature
 
 
 # TODO If offset time is not in index, return None.
