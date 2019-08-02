@@ -228,6 +228,19 @@ class LabelTimes(pd.DataFrame):
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None):
+        """
+        Return a random sample of labels.
+
+        Args:
+            n (int or dict) : Sample labels by count. A dictionary returns
+                the number of samples per label. Cannot be used with frac.
+            frac (float or dict) : Sample labels by fractions. A dictionary returns
+                the fraction of samples per label. Cannot be used with n.
+            random_state (int) : Seed for the random number generator.
+
+        Returns:
+            LabelTimes : Random sample of labels.
+        """
         if isinstance(n, int):
             sample = super().sample(n=n, random_state=random_state)
             return sample
