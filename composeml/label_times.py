@@ -219,3 +219,34 @@ class LabelTimes(pd.DataFrame):
 
         label_times.transforms.append(transform)
         return label_times
+
+    def sample(self, n=None, frac=None):
+        if isinstance(n, int):
+            return super().sample(n=n)
+
+        if isinstance(n, dict):
+            sample_per_label = []
+            for label, n, in n.items():
+                is_label = self[self.name].eq(label)
+                label = self.loc[self.index[is_label]]
+                sample_per_label.append(label.sample(n=n))
+
+            labels = pd.concat(sample_per_label, axis=0, sort=False)
+            return labels
+
+        if isinstance(frac, float):
+            n = int(len(self) * frac)
+            return super().sample(n=n)
+
+        if isinstance(frac, dict):
+            distribution = self.distribution
+
+            sample_per_label = []
+            for label, frac, in frac.items():
+                is_label = self[self.name].eq(label)
+                n = int(distribution[label] * frac)
+                label = self.loc[self.index[is_label]]
+                sample_per_label.append(label.sample(n=n))
+
+            labels = pd.concat(sample_per_label, axis=0, sort=False)
+            return labels
