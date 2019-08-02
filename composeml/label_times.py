@@ -235,7 +235,7 @@ class LabelTimes(pd.DataFrame):
             n (int or dict) : Sample labels by count. A dictionary returns
                 the number of samples per label. Cannot be used with frac.
             frac (float or dict) : Sample labels by fractions. A dictionary returns
-                the fraction of samples per label. Cannot be used with n.
+                the fraction of the count per label. Cannot be used with n.
             random_state (int) : Seed for the random number generator.
 
         Returns:
