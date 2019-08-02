@@ -71,7 +71,11 @@ class LabelTimes(pd.DataFrame):
 
         print('Settings\n' + '-' * 8, end='\n')
         settings = pd.Series(self.settings)
-        print(settings.to_string(), end='\n\n\n')
+
+        if settings.empty:
+            print('No settings', end='\n\n\n')
+        else:
+            print(settings.to_string(), end='\n\n\n')
 
         print('Transforms\n' + '-' * 10, end='\n')
         for step, transform in enumerate(self.transforms):
@@ -82,6 +86,9 @@ class LabelTimes(pd.DataFrame):
             transform = transform.to_string()
             header = '{}. {}\n'.format(step + 1, name)
             print(header + transform, end='\n\n')
+
+        if len(self.transforms) == 0:
+            print('No transforms applied', end='\n\n')
 
     def copy(self):
         """
