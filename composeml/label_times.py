@@ -235,8 +235,7 @@ class LabelTimes(pd.DataFrame):
         if isinstance(n, dict):
             sample_per_label = []
             for label, n, in n.items():
-                is_label = self[self.name].eq(label)
-                label = self.loc[self.index[is_label]]
+                label = self[self[self.name] == label]
                 sample = label.sample(n=n, random_state=random_state)
                 sample_per_label.append(sample)
 
@@ -244,19 +243,14 @@ class LabelTimes(pd.DataFrame):
             return labels
 
         if isinstance(frac, float):
-            n = int(len(self) * frac)
-            sample = super().sample(n=n, random_state=random_state)
+            sample = super().sample(frac=frac, random_state=random_state)
             return sample
 
         if isinstance(frac, dict):
-            distribution = self.distribution
-
             sample_per_label = []
             for label, frac, in frac.items():
-                is_label = self[self.name].eq(label)
-                n = int(distribution[label] * frac)
-                label = self.loc[self.index[is_label]]
-                sample = label.sample(n=n, random_state=random_state)
+                label = self[self[self.name] == label]
+                sample = label.sample(frac=frac, random_state=random_state)
                 sample_per_label.append(sample)
 
             labels = pd.concat(sample_per_label, axis=0, sort=False)
