@@ -4,7 +4,6 @@ import pandas as pd
 from tqdm import tqdm
 
 from composeml.label_times import LabelTimes
-from functools import partial
 from inspect import signature
 
 
@@ -80,6 +79,7 @@ class LabelMaker:
         """
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
+        assert 'window' not in kwargs, 'window is a reserved argument'
 
         df = self._preprocess(df)
         groups = df.groupby(self.target_entity)
