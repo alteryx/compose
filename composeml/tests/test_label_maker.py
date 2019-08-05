@@ -245,7 +245,7 @@ def test_search_empty_labels(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='transaction_time',
-        labeling_function=type(None),
+        labeling_function=lambda x: None,
         window_size=2,
     )
 
