@@ -135,7 +135,6 @@ class LabelMaker:
             labels[self.target_entity] = key
             labels_per_group.append(labels)
 
-        progress_bar.close()
         labels = pd.concat(labels_per_group, axis=0, sort=False)
 
         if labels.empty:
