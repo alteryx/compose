@@ -161,6 +161,7 @@ def test_search_offset_mix_7(transactions, labels):
     """
     Test offset mix with window_size (relative), minimum_data (relative), and gap (relative).
     """
+
     def my_labeling_function(df_slice):
         label = df_slice['amount'].sum()
         return label
@@ -240,6 +241,7 @@ def test_search_offset_invalid_type(transactions):
 
 
 def test_search_empty_labels(transactions):
+    transactions = transactions.copy()
     transactions['transaction_time'] = pd.NaT
 
     lm = LabelMaker(
@@ -257,3 +259,24 @@ def test_search_empty_labels(transactions):
     )
 
     assert given_labels.empty
+
+
+def test_search_window_param(transactions):
+    def labeling_function(df, window):
+        assert len(window) == 2
+        assert isinstance(window[0], pd.Timestamp)
+        assert isinstance(window[1], pd.Timestamp)
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=labeling_function,
+        window_size=2,
+    )
+
+    lm.search(
+        transactions,
+        minimum_data=0,
+        num_examples_per_instance=2,
+        gap=1,
+    )
