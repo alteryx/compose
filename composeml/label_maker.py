@@ -1,4 +1,3 @@
-from inspect import signature
 from sys import stdout
 
 import pandas as pd
@@ -78,14 +77,10 @@ class LabelMaker:
         """
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
-        assert 'window' not in kwargs, 'window is a reserved argument'
 
         df = self._preprocess(df)
         groups = df.groupby(self.target_entity)
-
         name = self.labeling_function.__name__
-        parameters = signature(self.labeling_function).parameters
-        window_in_parameters = 'window' in parameters
 
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
@@ -112,10 +107,6 @@ class LabelMaker:
                     break
 
                 window_end = offset_time(df.index, self.window_size)
-
-                if window_in_parameters:
-                    kwargs['window'] = (cutoff_time, window_end)
-
                 label = self.labeling_function(df[:window_end], *args, **kwargs)
 
                 if not pd.isnull(label):
