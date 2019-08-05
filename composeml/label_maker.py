@@ -7,7 +7,6 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
-# TODO If offset time is not in index, return None.
 def offset_time(index, value):
     if isinstance(value, int):
         value += 1
@@ -100,7 +99,6 @@ class LabelMaker:
             df.sort_index(inplace=True)
 
             if df.empty:
-                # TODO Also update progress bar for skipped iterations
                 return labels
 
             cutoff_time = offset_time(df.index, minimum_data)
@@ -109,7 +107,6 @@ class LabelMaker:
                 df = df[cutoff_time:]
 
                 if df.empty:
-                    # TODO Also apply when cutoff time is None.
                     skipped_iterations = num_examples_per_instance - example
                     progress_bar.update(n=skipped_iterations)
                     break
