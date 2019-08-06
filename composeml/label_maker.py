@@ -95,7 +95,10 @@ class LabelMaker:
             cutoff_time = offset_time(df.index, minimum_data)
 
             for example in range(num_examples_per_instance):
-                if cutoff_time is None: break
+                if cutoff_time is None:
+                    n = num_examples_per_instance - example
+                    progress_bar.update(n=n)
+                    break
 
                 df = df[cutoff_time:]
                 window = offset_time(df.index, self.window_size)
