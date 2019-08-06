@@ -12,9 +12,9 @@ def offset_time(index, value):
         return None if out_of_bounds else index[value]
 
     if isinstance(value, str):
-        value = pd.Timedelta(value)
-        value += index[0]
-        return value
+        value = index[0] + pd.Timedelta(value)
+        out_of_bounds = index[-1] < value
+        return None if out_of_bounds else value
 
 
 def assert_valid_offset(value):
@@ -59,7 +59,7 @@ class LabelMaker:
 
         return df
 
-    def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
+    def search(self, df, num_examples_per_instance, gap=1, minimum_data=0, verbose=True, *args, **kwargs):
         """
         Searches and extracts labels from a data frame.
 
@@ -92,21 +92,14 @@ class LabelMaker:
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
-            if df.empty:
-                return labels
-
             cutoff_time = offset_time(df.index, minimum_data)
 
             for example in range(num_examples_per_instance):
+                if cutoff_time is None: break
+
                 df = df[cutoff_time:]
-
-                if cutoff_time is None or df.empty:
-                    skipped_iterations = num_examples_per_instance - example
-                    progress_bar.update(n=skipped_iterations)
-                    break
-
-                window_end = offset_time(df.index, self.window_size)
-                label = self.labeling_function(df[:window_end], *args, **kwargs)
+                window = offset_time(df.index, self.window_size)
+                label = self.labeling_function(df[:window], *args, **kwargs)
 
                 if not pd.isnull(label):
                     labels[cutoff_time] = label
