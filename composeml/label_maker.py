@@ -78,7 +78,17 @@ class LabelMaker:
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
 
-        def df_to_labels(df, progress_bar):
+        df = self._preprocess(df)
+        groups = df.groupby(self.target_entity)
+        name = self.labeling_function.__name__
+
+        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
+        bar_format += "Progress: {l_bar}{bar}| "
+        bar_format += self.target_entity + ": {n}/{total} "
+        total = groups.ngroups * num_examples_per_instance
+        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
+
+        def df_to_labels(df):
             labels = pd.Series()
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
@@ -109,23 +119,14 @@ class LabelMaker:
             labels.index = labels.index.astype('datetime64[ns]')
             return labels
 
-        df = self._preprocess(df)
-        groups = df.groupby(self.target_entity)
-        name = self.labeling_function.__name__
-
-        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-        bar_format += "Progress: {l_bar}{bar}| "
-        bar_format += self.target_entity + ": {n}/{total} "
-        total = groups.ngroups * num_examples_per_instance
-        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
-
         labels_per_group = []
         for key, df in groups:
-            labels = df_to_labels(df, progress_bar=progress_bar)
+            labels = df_to_labels(df)
             labels = labels.to_frame(name=name)
             labels[self.target_entity] = key
             labels_per_group.append(labels)
 
+        progress_bar.close()
         labels = pd.concat(labels_per_group, axis=0, sort=False)
 
         if labels.empty:
