@@ -88,12 +88,11 @@ class LabelMaker:
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
 
         def df_to_labels(df):
-            labels = pd.Series()
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
-
             cutoff_time = offset_time(df.index, minimum_data)
 
+            labels = pd.Series()
             for example in range(num_examples_per_instance):
                 if cutoff_time is None:
                     n = num_examples_per_instance - example
