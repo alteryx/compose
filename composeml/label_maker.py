@@ -8,13 +8,12 @@ from composeml.label_times import LabelTimes
 
 def offset_time(index, value):
     if isinstance(value, int):
-        value += 1
-        value = index[:value][-1]
-        return value
+        out_of_bounds = len(index) <= value
+        return None if out_of_bounds else index[value]
 
     if isinstance(value, str):
         value = pd.Timedelta(value)
-        value = index[0] + value
+        value += index[0]
         return value
 
 
@@ -101,7 +100,7 @@ class LabelMaker:
             for example in range(num_examples_per_instance):
                 df = df[cutoff_time:]
 
-                if df.empty:
+                if cutoff_time is None or df.empty:
                     skipped_iterations = num_examples_per_instance - example
                     progress_bar.update(n=skipped_iterations)
                     break
@@ -115,8 +114,8 @@ class LabelMaker:
                 cutoff_time = offset_time(df.index, gap)
                 progress_bar.update(n=1)
 
-            labels.index = labels.index.rename('cutoff_time')
             labels.index = labels.index.astype('datetime64[ns]')
+            labels.index.rename('cutoff_time', inplace=True)
             return labels
 
         labels_per_group = []
