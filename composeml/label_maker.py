@@ -9,12 +9,20 @@ from composeml.label_times import LabelTimes
 def offset_time(index, value):
     if isinstance(value, int):
         out_of_bounds = len(index) <= value
-        return None if out_of_bounds else index[value]
+
+        if out_of_bounds:
+            return None
+        else:
+            return index[value]
 
     if isinstance(value, str):
         value = index[0] + pd.Timedelta(value)
         out_of_bounds = index[-1] < value
-        return None if out_of_bounds else value
+
+        if out_of_bounds:
+            return None
+        else:
+            return value
 
 
 def assert_valid_offset(value):
