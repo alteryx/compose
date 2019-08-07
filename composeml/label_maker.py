@@ -124,16 +124,18 @@ class LabelMaker:
         labels_per_group = []
         for key, df in groups:
             labels = df_to_labels(df)
-            labels = labels.to_frame(name=name)
-            labels[self.target_entity] = key
-            labels_per_group.append(labels)
+
+            if not labels.empty:
+                labels = labels.to_frame(name=name)
+                labels[self.target_entity] = key
+                labels_per_group.append(labels)
 
         progress_bar.close()
-        labels = pd.concat(labels_per_group, axis=0, sort=False)
 
-        if labels.empty:
+        if len(labels_per_group) == 0:
             return LabelTimes(name=name, target_entity=self.target_entity)
 
+        labels = pd.concat(labels_per_group, axis=0, sort=False)
         labels.reset_index(inplace=True)
         labels.rename_axis('label_id', inplace=True)
 
