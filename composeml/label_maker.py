@@ -98,7 +98,7 @@ class LabelMaker:
 
         return df
 
-    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False):
+    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False, verbose=True):
         # assert_valid_offset(minimum_data)
         # assert_valid_offset(gap)
 
@@ -148,6 +148,9 @@ class LabelMaker:
 
                 if edges:
                     window = window, (start, stop)
+
+                if verbose:
+                    print('[{}, {}) gap'.format(start, stop), end='\n\n')
 
                 yield window
 
