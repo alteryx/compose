@@ -33,17 +33,28 @@ def iterate_by_time(index, offset, start=None):
         if elapsed < interval:
             continue
 
+        yield start, start + offset
+
         fast_forward = interval * int(elapsed / interval)
         fast_forward = pd.Timedelta(f'{fast_forward}s')
-
-        yield start, start + offset
         start += fast_forward
+
+    if start + offset > index[-1]:
+        yield start, start + offset
 
 
 def iterate_by_range(index, offset):
-    for i in index:
+    length = index.size - 1
+
+    for i in range(length):
         if i % offset == 0:
-            yield i, i + offset
+            j = i + offset
+
+            if j > length:
+                yield index[i], index[-1]
+                break
+
+            yield index[i], index[j]
 
 
 def offset_time(index, value):
@@ -87,9 +98,12 @@ class LabelMaker:
 
         return df
 
-    def slice(self, df, minimum_data=None, gap=1, edges=False):
-        assert_valid_offset(minimum_data)
-        assert_valid_offset(gap)
+    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False):
+        # assert_valid_offset(minimum_data)
+        # assert_valid_offset(gap)
+
+        if gap is None:
+            gap = self.window_size
 
         df = self._preprocess_(df)
         groups = df.groupby(self.target_entity)
@@ -97,29 +111,37 @@ class LabelMaker:
         for key, df in groups:
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
-            index = df.index
 
-            if isinstance(minimum_data, str):
-                start = pd.tseries.frequencies.to_offset(minimum_data)
+            index = df.index
+            start = minimum_data
+
+            if isinstance(start, int):
+                index = index[start:]
+                start = index[0]
+
+            if isinstance(start, str):
+                start = pd.tseries.frequencies.to_offset(start)
                 start += index[0]
 
+            if isinstance(start, pd.Timestamp):
                 index = index[index >= start]
-
-            if isinstance(minimum_data, int):
-                index = index[minimum_data:]
 
             if index.empty:
                 continue
 
             if isinstance(gap, int):
-                window = iterate_by_range(index, offset=gap)
-
+                gaps = iterate_by_range(index, offset=gap)
             else:
-                gap = pd.tseries.frequencies.to_offset(gap)
-                window = iterate_by_time(index, offset=gap)
+                offset = pd.tseries.frequencies.to_offset(gap)
+                gaps = iterate_by_time(index, offset=offset, start=start)
 
-            for start, stop in window:
+            n_examples = 0
+
+            for start, stop in gaps:
                 window = df[start:stop]
+
+                if window.empty:
+                    continue
 
                 if window.index[-1] == stop:
                     window = window[:-1]
@@ -128,6 +150,11 @@ class LabelMaker:
                     window = window, (start, stop)
 
                 yield window
+
+                n_examples += 1
+
+                if n_examples >= num_examples_per_instance:
+                    break
 
     def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
         """
