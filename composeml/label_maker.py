@@ -6,18 +6,6 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
-def offset_time(index, value):
-    if isinstance(value, int):
-        value += 1
-        value = index[:value][-1]
-        return value
-
-    if isinstance(value, str):
-        value = pd.Timedelta(value)
-        value = index[0] + value
-        return value
-
-
 def assert_valid_offset(value):
     if isinstance(value, int):
         assert value >= 0, 'negative offset'
@@ -29,6 +17,45 @@ def assert_valid_offset(value):
 
     else:
         raise TypeError('invalid offset type')
+
+
+def iterate_by_time(index, offset, start=None):
+    if start is None:
+        start = index[0]
+
+    for time in index:
+        elapsed = time - start
+        elapsed = elapsed.total_seconds()
+
+        interval = (start + offset) - start
+        interval = interval.total_seconds()
+
+        if elapsed < interval:
+            continue
+
+        fast_forward = interval * int(elapsed / interval)
+        fast_forward = pd.Timedelta(f'{fast_forward}s')
+
+        yield start, start + offset
+        start += fast_forward
+
+
+def iterate_by_range(index, offset):
+    for i in index:
+        if i % offset == 0:
+            yield i, i + offset
+
+
+def offset_time(index, value):
+    if isinstance(value, int):
+        value += 1
+        value = index[:value][-1]
+        return value
+
+    if isinstance(value, str):
+        value = pd.Timedelta(value)
+        value = index[0] + value
+        return value
 
 
 class LabelMaker:
@@ -51,7 +78,7 @@ class LabelMaker:
         self.labeling_function = labeling_function
         self.window_size = window_size
 
-    def _preprocess(self, df):
+    def _preprocess_(self, df):
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
@@ -59,6 +86,48 @@ class LabelMaker:
             df.index = df.index.astype('datetime64[ns]')
 
         return df
+
+    def slice(self, df, minimum_data=None, gap=1, edges=False):
+        assert_valid_offset(minimum_data)
+        assert_valid_offset(gap)
+
+        df = self._preprocess_(df)
+        groups = df.groupby(self.target_entity)
+
+        for key, df in groups:
+            df = df.loc[df.index.notnull()]
+            df.sort_index(inplace=True)
+            index = df.index
+
+            if isinstance(minimum_data, str):
+                start = pd.tseries.frequencies.to_offset(minimum_data)
+                start += index[0]
+
+                index = index[index >= start]
+
+            if isinstance(minimum_data, int):
+                index = index[minimum_data:]
+
+            if index.empty:
+                continue
+
+            if isinstance(gap, int):
+                window = iterate_by_range(index, offset=gap)
+
+            else:
+                gap = pd.tseries.frequencies.to_offset(gap)
+                window = iterate_by_time(index, offset=gap)
+
+            for start, stop in window:
+                window = df[start:stop]
+
+                if window.index[-1] == stop:
+                    window = window[:-1]
+
+                if edges:
+                    window = window, (start, stop)
+
+                yield window
 
     def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
         """
@@ -78,7 +147,7 @@ class LabelMaker:
         assert_valid_offset(minimum_data)
         assert_valid_offset(gap)
 
-        df = self._preprocess(df)
+        df = self._preprocess_(df)
         groups = df.groupby(self.target_entity)
         name = self.labeling_function.__name__
 
