@@ -6,6 +6,24 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
+def is_type(type, string):
+    """Return whether the string can be interpreted as a type.
+
+    Args:
+        type (type) : Type to apply on string.
+        string (str) : String to check if can be type.
+
+    Returns:
+        bool : Whether string can be type.
+    """
+    try:
+        type(string)
+        return True
+
+    except ValueError:
+        return False
+
+
 def iterate_by_range(index, offset):
     for i in range(index.size):
         if i % offset == 0:
@@ -71,35 +89,44 @@ class LabelMaker:
 
         return df
 
-    def _process_min_data(self, min_data, index):
-        if min_data is None:
-            min_data = index[0]
-
+    def _process_min_data(self, df, min_data):
         if isinstance(min_data, int):
             error = 'minimum data must be greater than zero'
             assert min_data > 0, error
-            index = index[min_data:]
 
-            if index.empty:
-                return None, index
+            df = df.loc[df.index[min_data:]]
 
-            min_data = index[0]
+            if df.empty:
+                return None, df
 
-        if isinstance(min_data, str):
-            min_data = pd.tseries.frequencies.to_offset(min_data)
-            error = 'minimum data must be greater than zero'
-            assert min_data.n > 0, error
-            min_data += index[0]
+            min_data = df.index[0]
 
-        if isinstance(min_data, pd.Timestamp) and min_data != index[0]:
-            index = index[index >= min_data]
+        elif isinstance(min_data, str):
+            if is_type(type=pd.tseries.frequencies.to_offset, string=min_data):
+                min_data = pd.tseries.frequencies.to_offset(min_data)
 
-            if index.empty:
-                return None, index
+                error = 'minimum data must be greater than zero'
+                assert min_data.n > 0, error
+
+                min_data += df.index[0]
+
+            if is_type(type=pd.Timestamp, string=min_data):
+                min_data = pd.Timestamp(min_data)
+
+        else:
+            if not isinstance(min_data, pd.Timestamp):
+                raise ValueError('invalid minimum data')
+
+        if min_data != df.index[0]:
+            df = df[df.index >= min_data]
+
+            if df.empty:
+                return None, df
 
         error = 'minimum data must be an integer, string, or timestamp'
         assert isinstance(min_data, pd.Timestamp), error
-        return min_data, index
+
+        return df, min_data
 
     def _process_offset(self, offset, name):
         if isinstance(offset, int):
@@ -107,20 +134,22 @@ class LabelMaker:
             assert offset > 0, error
 
         elif isinstance(offset, str):
+            error = f'{name} must be a string offset'
+            assert is_type(type=pd.tseries.frequencies.to_offset, string=offset), error
             offset = pd.tseries.frequencies.to_offset(offset)
+
             error = f'{name} must be greater than zero'
             assert offset.n > 0, error
 
         else:
-            if not issubclass(offset, pd.tseries.offsets.BaseOffset):
-                raise ValueError(f'invalid {name}')
+            raise ValueError(f'invalid {name}')
 
         return offset
 
-    def _process_slice(self, df, cutoff_time, gap_size, gap_end):
+    def _process_slice(self, df, cutoff_time, gap_end):
         df = df[cutoff_time:]
 
-        if gap_size == self.window_size:
+        if self.gap_size == self.window_size:
             window_end = gap_end
         else:
             if isinstance(self.window_size, int):
@@ -150,7 +179,7 @@ class LabelMaker:
         if gap is None:
             gap = self.window_size
 
-        self.gap_size = self._process_offset(gap, name='gap')
+        self.gap_size = self._process_offset(gap, name='gap size')
 
         df = self._process_df(df)
 
@@ -158,28 +187,26 @@ class LabelMaker:
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
-            if df.index.empty:
+            if df.empty:
                 continue
 
-            cutoff_time, index = self._process_min_data(min_data=minimum_data, index=df.index)
+            if minimum_data is None:
+                minimum_data = df.index[0]
 
-            if index.empty:
+            df, cutoff_time = self._process_min_data(df=df, min_data=minimum_data)
+
+            if df.empty:
                 continue
 
             if isinstance(self.gap_size, int):
-                intervals = iterate_by_range(index=index, offset=self.gap_size)
+                intervals = iterate_by_range(index=df.index, offset=self.gap_size)
             else:
-                intervals = iterate_by_time(index=index, offset=self.gap_size, start=cutoff_time)
+                intervals = iterate_by_time(index=df.index, offset=self.gap_size, start=cutoff_time)
 
             n_examples = 0
 
             for cutoff_time, gap_end in intervals:
-                df_slice, window_end = self._process_slice(
-                    df=df,
-                    cutoff_time=cutoff_time,
-                    gap_size=self.gap_size,
-                    gap_end=gap_end,
-                )
+                df_slice, window_end = self._process_slice(df=df, cutoff_time=cutoff_time, gap_end=gap_end)
 
                 if df_slice.empty:
                     continue
@@ -253,7 +280,8 @@ class LabelMaker:
 
             progress_bar.update(n=1)
 
-        progress_bar.update(n=num_examples_per_instance - progress_bar.n)
+        n = num_examples_per_instance - progress_bar.n
+        progress_bar.update(n=n)
         progress_bar.close()
 
         labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
