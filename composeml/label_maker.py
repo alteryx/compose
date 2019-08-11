@@ -6,17 +6,16 @@ from tqdm import tqdm
 from composeml.label_times import LabelTimes
 
 
-def assert_valid_offset(value):
-    if isinstance(value, int):
-        assert value >= 0, 'negative offset'
+def iterate_by_range(index, offset):
+    for i in range(index.size):
+        if i % offset == 0:
+            j = i + offset
 
-    elif isinstance(value, str):
-        offset = pd.Timedelta(value)
-        assert offset is not pd.NaT, 'invalid offset'
-        assert offset.total_seconds() >= 0, 'negative offset'
+            if j >= index.size:
+                yield index[i], None
+                break
 
-    else:
-        raise TypeError('invalid offset type')
+            yield index[i], index[j]
 
 
 def iterate_by_time(index, offset, start=None):
@@ -43,32 +42,6 @@ def iterate_by_time(index, offset, start=None):
         yield start, start + offset
 
 
-def iterate_by_range(index, offset):
-    length = index.size - 1
-
-    for i in range(length):
-        if i % offset == 0:
-            j = i + offset
-
-            if j > length:
-                yield index[i], index[-1]
-                break
-
-            yield index[i], index[j]
-
-
-def offset_time(index, value):
-    if isinstance(value, int):
-        value += 1
-        value = index[:value][-1]
-        return value
-
-    if isinstance(value, str):
-        value = pd.Timedelta(value)
-        value = index[0] + value
-        return value
-
-
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
@@ -82,14 +55,14 @@ class LabelMaker:
             labeling_function (function) : Function that transforms a data slice to a label.
             window_size (str or int) : Duration of each data slice.
         """
-        assert_valid_offset(window_size)
-
+        # assert_valid_offset(window_size)
         self.target_entity = target_entity
         self.time_index = time_index
         self.labeling_function = labeling_function
-        self.window_size = window_size
+        self.window_size = self._process_offset(window_size, name='window size')
+        self.gap_size = None
 
-    def _preprocess_(self, df):
+    def _process_df(self, df):
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
@@ -98,68 +71,138 @@ class LabelMaker:
 
         return df
 
-    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False, verbose=True):
-        # assert_valid_offset(minimum_data)
-        # assert_valid_offset(gap)
+    def _process_min_data(self, min_data, index):
+        if min_data is None:
+            min_data = index[0]
+
+        if isinstance(min_data, int):
+            error = 'minimum data must be greater than zero'
+            assert min_data > 0, error
+            index = index[min_data:]
+
+            if index.empty:
+                return None, index
+
+            min_data = index[0]
+
+        if isinstance(min_data, str):
+            min_data = pd.tseries.frequencies.to_offset(min_data)
+            error = 'minimum data must be greater than zero'
+            assert min_data.n > 0, error
+            min_data += index[0]
+
+        if isinstance(min_data, pd.Timestamp) and min_data != index[0]:
+            index = index[index >= min_data]
+
+            if index.empty:
+                return None, index
+
+        error = 'minimum data must be an integer, string, or timestamp'
+        assert isinstance(min_data, pd.Timestamp), error
+        return min_data, index
+
+    def _process_offset(self, offset, name):
+        if isinstance(offset, int):
+            error = f'{name} must be greater than zero'
+            assert offset > 0, error
+
+        elif isinstance(offset, str):
+            offset = pd.tseries.frequencies.to_offset(offset)
+            error = f'{name} must be greater than zero'
+            assert offset.n > 0, error
+
+        else:
+            if not issubclass(offset, pd.tseries.offsets.BaseOffset):
+                raise ValueError(f'invalid {name}')
+
+        return offset
+
+    def _process_slice(self, df, cutoff_time, gap_size, gap_end):
+        df = df[cutoff_time:]
+
+        if gap_size == self.window_size:
+            window_end = gap_end
+        else:
+            if isinstance(self.window_size, int):
+                if self.window_size >= df.index.size:
+                    window_end = None
+                else:
+                    window_end = df.index[self.window_size]
+            else:
+                window_end = cutoff_time + self.window_size
+
+        df_slice = df[:window_end]
+
+        if df_slice.empty:
+            return df_slice, window_end
+
+        # exclude last row to avoid overlap
+        is_overlap = df_slice.index[-1] == window_end
+        if df_slice.size > 1 and is_overlap:
+            df_slice = df_slice[:-1]
+
+        return df_slice, window_end
+
+    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False, verbose=False):
+        if num_examples_per_instance == -1:
+            num_examples_per_instance = float('inf')
 
         if gap is None:
             gap = self.window_size
 
-        df = self._preprocess_(df)
-        groups = df.groupby(self.target_entity)
+        self.gap_size = self._process_offset(gap, name='gap')
 
-        for key, df in groups:
+        df = self._process_df(df)
+
+        for key, df in df.groupby(self.target_entity):
             df = df.loc[df.index.notnull()]
             df.sort_index(inplace=True)
 
-            index = df.index
-            start = minimum_data
+            if df.index.empty:
+                continue
 
-            if isinstance(start, int):
-                index = index[start:]
-                start = index[0]
-
-            if isinstance(start, str):
-                start = pd.tseries.frequencies.to_offset(start)
-                start += index[0]
-
-            if isinstance(start, pd.Timestamp):
-                index = index[index >= start]
+            cutoff_time, index = self._process_min_data(min_data=minimum_data, index=df.index)
 
             if index.empty:
                 continue
 
-            if isinstance(gap, int):
-                gaps = iterate_by_range(index, offset=gap)
+            if isinstance(self.gap_size, int):
+                intervals = iterate_by_range(index=index, offset=self.gap_size)
             else:
-                offset = pd.tseries.frequencies.to_offset(gap)
-                gaps = iterate_by_time(index, offset=offset, start=start)
+                intervals = iterate_by_time(index=index, offset=self.gap_size, start=cutoff_time)
 
             n_examples = 0
 
-            for start, stop in gaps:
-                window = df[start:stop]
+            for cutoff_time, gap_end in intervals:
+                df_slice, window_end = self._process_slice(
+                    df=df,
+                    cutoff_time=cutoff_time,
+                    gap_size=self.gap_size,
+                    gap_end=gap_end,
+                )
 
-                if window.empty:
+                if df_slice.empty:
                     continue
 
-                if window.index[-1] == stop:
-                    window = window[:-1]
-
-                if edges:
-                    window = window, (start, stop)
+                n_examples += 1
 
                 if verbose:
-                    print('[{}, {}) gap'.format(start, stop), end='\n\n')
+                    info = pd.Series()
+                    info[self.target_entity] = key
+                    info['slice'] = n_examples
+                    info['window'] = '[{}, {})'.format(cutoff_time, window_end)
+                    info['gap'] = '[{}, {})'.format(cutoff_time, gap_end)
+                    print(info.to_string(), end='\n\n')
 
-                yield window
+                if edges:
+                    df_slice = df_slice, (cutoff_time, window_end)
 
-                n_examples += 1
+                yield df_slice
 
                 if n_examples >= num_examples_per_instance:
                     break
 
-    def search(self, df, minimum_data, num_examples_per_instance, gap, verbose=True, *args, **kwargs):
+    def search(self, df, num_examples_per_instance, minimum_data=None, gap=None, verbose=True, *args, **kwargs):
         """
         Searches and extracts labels from a data frame.
 
@@ -174,75 +217,57 @@ class LabelMaker:
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
         """
-        assert_valid_offset(minimum_data)
-        assert_valid_offset(gap)
-
-        df = self._preprocess_(df)
-        groups = df.groupby(self.target_entity)
-        name = self.labeling_function.__name__
-
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
-        total = groups.ngroups * num_examples_per_instance
-        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
 
-        def df_to_labels(df):
-            labels = pd.Series()
-            df = df.loc[df.index.notnull()]
-            df.sort_index(inplace=True)
+        if num_examples_per_instance == -1 or num_examples_per_instance == float('inf'):
+            total = None
+            disable = True
+        else:
+            n_groups = df.groupby(self.target_entity).ngroups
+            total = n_groups * num_examples_per_instance
+            disable = not verbose
 
-            if df.empty:
-                return labels
+        progress_bar = tqdm(total=total, bar_format=bar_format, disable=disable, file=stdout)
+        name = self.labeling_function.__name__
+        labels = []
 
-            cutoff_time = offset_time(df.index, minimum_data)
+        slices = self.slice(
+            df=df,
+            num_examples_per_instance=num_examples_per_instance,
+            minimum_data=minimum_data,
+            gap=gap,
+            edges=True,
+            verbose=False,
+        )
 
-            for example in range(num_examples_per_instance):
-                df = df[cutoff_time:]
+        for df, edges in slices:
+            cutoff_time, window_end = edges
+            label = self.labeling_function(df, *args, **kwargs)
 
-                if df.empty:
-                    skipped_iterations = num_examples_per_instance - example
-                    progress_bar.update(n=skipped_iterations)
-                    break
+            if not pd.isnull(label):
+                key = df[self.target_entity].iloc[0]
+                label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
+                labels.append(label)
 
-                window_end = offset_time(df.index, self.window_size)
-                label = self.labeling_function(df[:window_end], *args, **kwargs)
+            progress_bar.update(n=1)
 
-                if not pd.isnull(label):
-                    labels[cutoff_time] = label
-
-                cutoff_time = offset_time(df.index, gap)
-                progress_bar.update(n=1)
-
-            labels.index = labels.index.rename('cutoff_time')
-            labels.index = labels.index.astype('datetime64[ns]')
-            return labels
-
-        labels_per_group = []
-        for key, df in groups:
-            labels = df_to_labels(df)
-            labels = labels.to_frame(name=name)
-            labels[self.target_entity] = key
-            labels_per_group.append(labels)
-
+        progress_bar.update(n=num_examples_per_instance - progress_bar.n)
         progress_bar.close()
-        labels = pd.concat(labels_per_group, axis=0, sort=False)
+
+        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
+        labels = labels.rename_axis('id', axis=0)
+        labels = labels._with_plots()
 
         if labels.empty:
-            return LabelTimes(name=name, target_entity=self.target_entity)
-
-        labels.reset_index(inplace=True)
-        labels.rename_axis('label_id', inplace=True)
-
-        sort = [self.target_entity, 'cutoff_time', name]
-        labels = LabelTimes(labels[sort], name=name, target_entity=self.target_entity)
-        labels = labels._with_plots()
+            return labels
 
         labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
             'window_size': self.window_size,
-            'gap': gap,
+            'gap': self.gap_size,
         })
 
         return labels
