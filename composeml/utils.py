@@ -1,4 +1,4 @@
-def is_type(type, string):
+def can_be_type(type, string):
     """Return whether the string can be interpreted as a type.
 
     Args:

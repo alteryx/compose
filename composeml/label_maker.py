@@ -4,10 +4,68 @@ import pandas as pd
 from tqdm import tqdm
 
 from composeml.label_times import LabelTimes
-from composeml.utils import is_type
+from composeml.utils import can_be_type
+
+
+def cutoff_data(df, threshold):
+    """Cuts off data before the threshold.
+
+    Args:
+        df (DataFrame) : Data frame to cutoff data.
+        threshold (int or str or Timestamp) : Threshold to apply on data.
+            If integer, the threshold will be the time at `n + 1` in the index.
+            If string, the threshold can be an offset or timestamp.
+            An offset will be applied relative to the first time in the index.
+
+    Returns:
+        DataFrame, Timestamp : Returns the data frame and the applied cutoff time.
+    """
+
+    if isinstance(threshold, int):
+        assert threshold > 0, 'threshold must be greater than zero'
+        df = df.loc[df.index[threshold:]]
+
+        if df.empty:
+            return df, None
+
+        cutoff_time = df.index[0]
+
+    elif isinstance(threshold, str):
+        if can_be_type(type=pd.tseries.frequencies.to_offset, string=threshold):
+            threshold = pd.tseries.frequencies.to_offset(threshold)
+            assert threshold.n > 0, 'threshold must be greater than zero'
+            cutoff_time = df.index[0] + threshold
+
+        elif can_be_type(type=pd.Timestamp, string=threshold):
+            cutoff_time = pd.Timestamp(threshold)
+
+        else:
+            raise ValueError('invalid threshold')
+
+    else:
+        is_timestamp = isinstance(threshold, pd.Timestamp)
+        assert is_timestamp, 'invalid threshold'
+        cutoff_time = threshold
+
+    if cutoff_time != df.index[0]:
+        df = df[df.index >= cutoff_time]
+
+        if df.empty:
+            return df, None
+
+    return df, cutoff_time
 
 
 def iterate_by_range(index, offset):
+    """Generates intervals of an index.
+
+    Args:
+        index (DatetimeIndex) : Index to iterate.
+        offset (int) : Size of the interval.
+
+    Returns:
+        iterable : Start and stop for each interval.
+    """
     for i in range(index.size):
         if i % offset == 0:
             j = i + offset
@@ -20,6 +78,17 @@ def iterate_by_range(index, offset):
 
 
 def iterate_by_time(index, offset, start=None):
+    """Generates intervals of a time index.
+
+    Args:
+        index (DatetimeIndex) : Index to iterate.
+        offset (offset) : Size of the interval.
+        start (Timestamp) : Start time to base intervals on.
+            Default value is the first time in the index.
+
+    Returns:
+        iterable : Start time and stop time for each interval.
+    """
     if start is None:
         start = index[0]
 
@@ -43,51 +112,22 @@ def iterate_by_time(index, offset, start=None):
         yield start, start + offset
 
 
-def cutoff_data(df, threshold):
-    if isinstance(threshold, int):
-        assert threshold > 0, 'threshold must be greater than zero'
-        df = df.loc[df.index[threshold:]]
-
-        if df.empty:
-            return df, None
-
-        cutoff_time = df.index[0]
-
-    elif isinstance(threshold, str):
-        if is_type(type=pd.tseries.frequencies.to_offset, string=threshold):
-            threshold = pd.tseries.frequencies.to_offset(threshold)
-            assert threshold.n > 0, 'threshold must be greater than zero'
-            cutoff_time = df.index[0] + threshold
-
-        elif is_type(type=pd.Timestamp, string=threshold):
-            cutoff_time = pd.Timestamp(threshold)
-
-        else:
-            raise ValueError('invalid threshold')
-
-    else:
-        cutoff_time = threshold
-
-    is_timestamp = isinstance(cutoff_time, pd.Timestamp)
-    assert is_timestamp, 'invalid threshold'
-
-    if cutoff_time != df.index[0]:
-        df = df[df.index >= cutoff_time]
-
-        if df.empty:
-            return df, None
-
-    return df, cutoff_time
-
-
 def to_offset(value):
+    """Converts a value into a valid offset.
+
+    Args:
+        value (int or str) : Value of offset.
+
+    Returns:
+        offset : Valid offset.
+    """
     if isinstance(value, int):
         assert value > 0, 'offset must be greater than zero'
         offset = value
 
     elif isinstance(value, str):
         error = 'offset must be a valid string'
-        assert is_type(type=pd.tseries.frequencies.to_offset, string=value), error
+        assert can_be_type(type=pd.tseries.frequencies.to_offset, string=value), error
         offset = pd.tseries.frequencies.to_offset(value)
         assert offset.n > 0, 'offset must be greater than zero'
 
@@ -115,16 +155,16 @@ class LabelMaker:
         self.window_size = to_offset(window_size)
         self.gap_size = None
 
-    def set_index(self, df):
-        if df.index.name != self.time_index:
-            df = df.set_index(self.time_index)
+    def get_intervals(self, df, min_data=None):
+        """Bins the index into intervals based on the gap size.
 
-        if 'time' not in str(df.index.dtype):
-            df.index = df.index.astype('datetime64[ns]')
+        Args:
+            df (DataFrame) : Data frame to get intervals.
+            min_data (int or str or Timestamp) : Threshold to cutoff data.
 
-        return df
-
-    def get_intervals(self, df, min_data):
+        Returns:
+            DataFrame, iterable : Returns the data frame and generated intervals.
+        """
         df = df.loc[df.index.notnull()]
         df.sort_index(inplace=True)
 
@@ -142,23 +182,38 @@ class LabelMaker:
         if isinstance(self.gap_size, int):
             intervals = iterate_by_range(index=df.index, offset=self.gap_size)
         else:
+            is_offset = issubclass(type(self.gap_size), pd.tseries.offsets.BaseOffset)
+            assert is_offset, 'invalid gap size'
             intervals = iterate_by_time(index=df.index, offset=self.gap_size, start=cutoff_time)
 
         return df, intervals
 
     def get_slice(self, df, cutoff_time, gap_end):
+        """Gets a data slice based on the window size and the edges of an interval.
+
+        Args:
+            df (DataFrame) : Data frame to get slice.
+            cutoff_time (Timestamp) : The inclusive start time of an interval.
+            gap_end (Timestamp) : The exclusive stop time of an interval.
+
+        Returns:
+            DataFrame, Timestamp : Returns a data slice and the window stop time.
+        """
         df = df[cutoff_time:]
 
-        if self.gap_size == self.window_size:
+        if self.window_size == self.gap_size:
             window_end = gap_end
-        else:
-            if isinstance(self.window_size, int):
-                if self.window_size >= df.index.size:
-                    window_end = None
-                else:
-                    window_end = df.index[self.window_size]
+
+        elif isinstance(self.window_size, int):
+            if self.window_size >= df.index.size:
+                window_end = None
             else:
-                window_end = cutoff_time + self.window_size
+                window_end = df.index[self.window_size]
+
+        else:
+            is_offset = issubclass(type(self.window_size), pd.tseries.offsets.BaseOffset)
+            assert is_offset, 'invalid window size'
+            window_end = cutoff_time + self.window_size
 
         df_slice = df[:window_end]
 
@@ -186,11 +241,11 @@ class LabelMaker:
         Returns:
             DataFrame : Slice of data.
         """
-        if num_examples_per_instance == -1:
-            num_examples_per_instance = float('inf')
-
         self.gap_size = to_offset(gap or self.window_size)
         df = self.set_index(df)
+
+        if num_examples_per_instance == -1:
+            num_examples_per_instance = float('inf')
 
         for key, df in df.groupby(self.target_entity):
             df, intervals = self.get_intervals(df=df, min_data=minimum_data)
@@ -227,7 +282,7 @@ class LabelMaker:
                     break
 
     def search(self, df, num_examples_per_instance, minimum_data=None, gap=None, verbose=True, *args, **kwargs):
-        """Searches and extracts labels from data.
+        """Searches and extracts labels from the data.
 
         Args:
             df (DataFrame) : Data frame to search and extract labels.
@@ -296,3 +351,20 @@ class LabelMaker:
         })
 
         return labels
+
+    def set_index(self, df):
+        """Sets the time index in a data frame (if not already set).
+
+        Args:
+            df (DataFrame) : Data frame to set time index in.
+
+        Returns:
+            DataFrame : Data frame with time index set.
+        """
+        if df.index.name != self.time_index:
+            df = df.set_index(self.time_index)
+
+        if 'time' not in str(df.index.dtype):
+            df.index = df.index.astype('datetime64[ns]')
+
+        return df
