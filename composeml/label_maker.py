@@ -4,24 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from composeml.label_times import LabelTimes
-
-
-def is_type(type, string):
-    """Return whether the string can be interpreted as a type.
-
-    Args:
-        type (type) : Type to apply on string.
-        string (str) : String to check if can be type.
-
-    Returns:
-        bool : Whether string can be type.
-    """
-    try:
-        type(string)
-        return True
-
-    except ValueError:
-        return False
+from composeml.utils import is_type
 
 
 def iterate_by_range(index, offset):
@@ -60,12 +43,65 @@ def iterate_by_time(index, offset, start=None):
         yield start, start + offset
 
 
+def cutoff_data(df, threshold):
+    if isinstance(threshold, int):
+        assert threshold > 0, 'threshold must be greater than zero'
+        df = df.loc[df.index[threshold:]]
+
+        if df.empty:
+            return df, None
+
+        cutoff_time = df.index[0]
+
+    elif isinstance(threshold, str):
+        if is_type(type=pd.tseries.frequencies.to_offset, string=threshold):
+            threshold = pd.tseries.frequencies.to_offset(threshold)
+            assert threshold.n > 0, 'threshold must be greater than zero'
+            cutoff_time = df.index[0] + threshold
+
+        elif is_type(type=pd.Timestamp, string=threshold):
+            cutoff_time = pd.Timestamp(threshold)
+
+        else:
+            raise ValueError('invalid threshold')
+
+    else:
+        cutoff_time = threshold
+
+    is_timestamp = isinstance(cutoff_time, pd.Timestamp)
+    assert is_timestamp, 'invalid threshold'
+
+    if cutoff_time != df.index[0]:
+        df = df[df.index >= cutoff_time]
+
+        if df.empty:
+            return df, None
+
+    return df, cutoff_time
+
+
+def to_offset(value):
+    if isinstance(value, int):
+        assert value > 0, 'offset must be greater than zero'
+        offset = value
+
+    elif isinstance(value, str):
+        error = 'offset must be a valid string'
+        assert is_type(type=pd.tseries.frequencies.to_offset, string=value), error
+        offset = pd.tseries.frequencies.to_offset(value)
+        assert offset.n > 0, 'offset must be greater than zero'
+
+    else:
+        raise ValueError('invalid offset')
+
+    return offset
+
+
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
     def __init__(self, target_entity, time_index, labeling_function, window_size):
-        """
-        Creates an instance of label maker.
+        """Creates an instance of label maker.
 
         Args:
             target_entity (str) : Entity on which to make labels.
@@ -73,14 +109,13 @@ class LabelMaker:
             labeling_function (function) : Function that transforms a data slice to a label.
             window_size (str or int) : Duration of each data slice.
         """
-        # assert_valid_offset(window_size)
         self.target_entity = target_entity
         self.time_index = time_index
         self.labeling_function = labeling_function
-        self.window_size = self._process_offset(window_size, name='window size')
+        self.window_size = to_offset(window_size)
         self.gap_size = None
 
-    def _process_df(self, df):
+    def set_index(self, df):
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
@@ -89,64 +124,29 @@ class LabelMaker:
 
         return df
 
-    def _process_min_data(self, df, min_data):
-        if isinstance(min_data, int):
-            error = 'minimum data must be greater than zero'
-            assert min_data > 0, error
+    def get_intervals(self, df, min_data):
+        df = df.loc[df.index.notnull()]
+        df.sort_index(inplace=True)
 
-            df = df.loc[df.index[min_data:]]
+        if df.empty:
+            return df, None
 
-            if df.empty:
-                return None, df
-
+        if min_data is None:
             min_data = df.index[0]
 
-        elif isinstance(min_data, str):
-            if is_type(type=pd.tseries.frequencies.to_offset, string=min_data):
-                min_data = pd.tseries.frequencies.to_offset(min_data)
+        df, cutoff_time = cutoff_data(df=df, threshold=min_data)
 
-                error = 'minimum data must be greater than zero'
-                assert min_data.n > 0, error
+        if df.empty:
+            return df, None
 
-                min_data += df.index[0]
-
-            if is_type(type=pd.Timestamp, string=min_data):
-                min_data = pd.Timestamp(min_data)
-
+        if isinstance(self.gap_size, int):
+            intervals = iterate_by_range(index=df.index, offset=self.gap_size)
         else:
-            if not isinstance(min_data, pd.Timestamp):
-                raise ValueError('invalid minimum data')
+            intervals = iterate_by_time(index=df.index, offset=self.gap_size, start=cutoff_time)
 
-        if min_data != df.index[0]:
-            df = df[df.index >= min_data]
+        return df, intervals
 
-            if df.empty:
-                return None, df
-
-        error = 'minimum data must be an integer, string, or timestamp'
-        assert isinstance(min_data, pd.Timestamp), error
-
-        return df, min_data
-
-    def _process_offset(self, offset, name):
-        if isinstance(offset, int):
-            error = f'{name} must be greater than zero'
-            assert offset > 0, error
-
-        elif isinstance(offset, str):
-            error = f'{name} must be a string offset'
-            assert is_type(type=pd.tseries.frequencies.to_offset, string=offset), error
-            offset = pd.tseries.frequencies.to_offset(offset)
-
-            error = f'{name} must be greater than zero'
-            assert offset.n > 0, error
-
-        else:
-            raise ValueError(f'invalid {name}')
-
-        return offset
-
-    def _process_slice(self, df, cutoff_time, gap_end):
+    def get_slice(self, df, cutoff_time, gap_end):
         df = df[cutoff_time:]
 
         if self.gap_size == self.window_size:
@@ -167,46 +167,41 @@ class LabelMaker:
 
         # exclude last row to avoid overlap
         is_overlap = df_slice.index[-1] == window_end
+
         if df_slice.size > 1 and is_overlap:
             df_slice = df_slice[:-1]
 
         return df_slice, window_end
 
     def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, edges=False, verbose=False):
+        """Generates data slices.
+
+        Args:
+            df (DataFrame) : Data frame to create slices on.
+            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
+            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
+            gap (str) : Time between examples. Default value is window size.
+            edges (bool) : Whether to return the start time (cutoff time) and stop time of the window.
+
+        Returns:
+            DataFrame : Slice of data.
+        """
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
 
-        if gap is None:
-            gap = self.window_size
-
-        self.gap_size = self._process_offset(gap, name='gap size')
-
-        df = self._process_df(df)
+        self.gap_size = to_offset(gap or self.window_size)
+        df = self.set_index(df)
 
         for key, df in df.groupby(self.target_entity):
-            df = df.loc[df.index.notnull()]
-            df.sort_index(inplace=True)
+            df, intervals = self.get_intervals(df=df, min_data=minimum_data)
 
             if df.empty:
                 continue
-
-            if minimum_data is None:
-                minimum_data = df.index[0]
-
-            df, cutoff_time = self._process_min_data(df=df, min_data=minimum_data)
-
-            if df.empty:
-                continue
-
-            if isinstance(self.gap_size, int):
-                intervals = iterate_by_range(index=df.index, offset=self.gap_size)
-            else:
-                intervals = iterate_by_time(index=df.index, offset=self.gap_size, start=cutoff_time)
 
             n_examples = 0
 
             for cutoff_time, gap_end in intervals:
-                df_slice, window_end = self._process_slice(df=df, cutoff_time=cutoff_time, gap_end=gap_end)
+                df_slice, window_end = self.get_slice(df=df, cutoff_time=cutoff_time, gap_end=gap_end)
 
                 if df_slice.empty:
                     continue
@@ -214,12 +209,14 @@ class LabelMaker:
                 n_examples += 1
 
                 if verbose:
-                    info = pd.Series()
-                    info[self.target_entity] = key
-                    info['slice'] = n_examples
-                    info['window'] = '[{}, {})'.format(cutoff_time, window_end)
-                    info['gap'] = '[{}, {})'.format(cutoff_time, gap_end)
-                    print(info.to_string(), end='\n\n')
+                    info = {
+                        self.target_entity: key,
+                        'slice': n_examples,
+                        'window': f'[{cutoff_time}, {window_end})',
+                        'gap': f'[{cutoff_time}, {gap_end})',
+                    }
+                    info = pd.Series(info).to_string()
+                    print(info, end='\n\n')
 
                 if edges:
                     df_slice = df_slice, (cutoff_time, window_end)
@@ -230,16 +227,16 @@ class LabelMaker:
                     break
 
     def search(self, df, num_examples_per_instance, minimum_data=None, gap=None, verbose=True, *args, **kwargs):
-        """
-        Searches and extracts labels from a data frame.
+        """Searches and extracts labels from data.
 
         Args:
             df (DataFrame) : Data frame to search and extract labels.
-            minimum_data (str) : Minimum data before starting search.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
+            minimum_data (str) : Minimum data before starting search.
             gap (str) : Time between examples.
-            args : Positional arguments for labeling function.
-            kwargs : Keyword arguments for labeling function.
+            verbose (bool) : Whether to render progress bar.
+            *args : Positional arguments for labeling function.
+            **kwargs : Keyword arguments for labeling function.
 
         Returns:
             labels (LabelTimes) : A data frame of the extracted labels.
