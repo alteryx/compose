@@ -56,6 +56,18 @@ def cutoff_data(df, threshold):
     return df, cutoff_time
 
 
+def is_offset(value):
+    """Checks whether a value is an offset.
+
+    Args:
+        value (any) : Value to check.
+
+    Returns:
+        Bool : Whether value is an offset.
+    """
+    return issubclass(type(value), pd.tseries.offsets.BaseOffset)
+
+
 def iterate_by_range(index, offset):
     """Generates intervals of an index.
 
@@ -77,21 +89,17 @@ def iterate_by_range(index, offset):
             yield index[i], index[j]
 
 
-def iterate_by_time(index, offset, start=None):
+def iterate_by_time(index, offset, start):
     """Generates intervals of a time index.
 
     Args:
         index (DatetimeIndex) : Index to iterate.
         offset (offset) : Size of the interval.
         start (Timestamp) : Start time to base intervals on.
-            Default value is the first time in the index.
 
     Returns:
         iterable : Start time and stop time for each interval.
     """
-    if start is None:
-        start = index[0]
-
     for time in index:
         elapsed = time - start
         elapsed = elapsed.total_seconds()
@@ -113,10 +121,10 @@ def iterate_by_time(index, offset, start=None):
 
 
 def to_offset(value):
-    """Converts a value into a valid offset.
+    """Converts a value to an offset and validates the offset.
 
     Args:
-        value (int or str) : Value of offset.
+        value (int or str or offset) : Value of offset.
 
     Returns:
         offset : Valid offset.
@@ -132,7 +140,9 @@ def to_offset(value):
         assert offset.n > 0, 'offset must be greater than zero'
 
     else:
-        raise ValueError('invalid offset')
+        assert is_offset(value), 'invalid offset'
+        assert value.n > 0, 'offset must be greater than zero'
+        offset = value
 
     return offset
 
@@ -156,7 +166,7 @@ class LabelMaker:
         self.gap_size = None
 
     def get_intervals(self, df, min_data=None):
-        """Bins the index into intervals based on the gap size.
+        """Generate intervals on an index based on the gap size.
 
         Args:
             df (DataFrame) : Data frame to get intervals.
@@ -182,8 +192,7 @@ class LabelMaker:
         if isinstance(self.gap_size, int):
             intervals = iterate_by_range(index=df.index, offset=self.gap_size)
         else:
-            is_offset = issubclass(type(self.gap_size), pd.tseries.offsets.BaseOffset)
-            assert is_offset, 'invalid gap size'
+            assert is_offset(self.gap_size), 'invalid gap size'
             intervals = iterate_by_time(index=df.index, offset=self.gap_size, start=cutoff_time)
 
         return df, intervals
@@ -211,8 +220,7 @@ class LabelMaker:
                 window_end = df.index[self.window_size]
 
         else:
-            is_offset = issubclass(type(self.window_size), pd.tseries.offsets.BaseOffset)
-            assert is_offset, 'invalid window size'
+            assert is_offset(self.window_size), 'invalid window size'
             window_end = cutoff_time + self.window_size
 
         df_slice = df[:window_end]
@@ -241,7 +249,10 @@ class LabelMaker:
         Returns:
             DataFrame : Slice of data.
         """
-        self.gap_size = to_offset(gap or self.window_size)
+        if gap is None:
+            gap = self.window_size
+
+        self.gap_size = to_offset(gap)
         df = self.set_index(df)
 
         if num_examples_per_instance == -1:
@@ -282,7 +293,7 @@ class LabelMaker:
                     break
 
     def search(self, df, num_examples_per_instance, minimum_data=None, gap=None, verbose=True, *args, **kwargs):
-        """Searches and extracts labels from the data.
+        """Searches the data to calculates labels.
 
         Args:
             df (DataFrame) : Data frame to search and extract labels.
@@ -294,18 +305,17 @@ class LabelMaker:
             **kwargs : Keyword arguments for labeling function.
 
         Returns:
-            labels (LabelTimes) : A data frame of the extracted labels.
+            LabelTimes : Calculated labels with cutoff times.
         """
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
+        n_groups = df.groupby(self.target_entity).ngroups
+        total = n_groups * num_examples_per_instance
 
         if num_examples_per_instance == -1 or num_examples_per_instance == float('inf'):
-            total = None
             disable = True
         else:
-            n_groups = df.groupby(self.target_entity).ngroups
-            total = n_groups * num_examples_per_instance
             disable = not verbose
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=disable, file=stdout)
@@ -332,8 +342,7 @@ class LabelMaker:
 
             progress_bar.update(n=1)
 
-        n = num_examples_per_instance - progress_bar.n
-        progress_bar.update(n=n)
+        progress_bar.update(n=total - progress_bar.n)
         progress_bar.close()
 
         labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
