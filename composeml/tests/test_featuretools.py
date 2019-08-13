@@ -1,6 +1,5 @@
-import pytest
-
 import featuretools as ft
+import pytest
 
 from composeml import LabelMaker
 
