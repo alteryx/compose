@@ -113,7 +113,7 @@ def iterate_by_time(index, offset, start):
         yield start, start + offset
 
         fast_forward = interval * int(elapsed / interval)
-        fast_forward = pd.Timedelta(f'{fast_forward}s')
+        fast_forward = pd.Timedelta('{}s'.format(fast_forward))
         start += fast_forward
 
     if start + offset > index[-1]:
@@ -278,8 +278,8 @@ class LabelMaker:
                     info = {
                         self.target_entity: key,
                         'slice': n_examples,
-                        'window': f'[{cutoff_time}, {window_end})',
-                        'gap': f'[{cutoff_time}, {gap_end})',
+                        'window': '[{}, {})'.format(cutoff_time, window_end),
+                        'gap': '[{}, {})'.format(cutoff_time, gap_end),
                     }
                     info = pd.Series(info).to_string()
                     print(info, end='\n\n')
