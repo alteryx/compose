@@ -1,5 +1,5 @@
 <p align="center">
-    <img style="margin: 50px;" width=50% src="docs/source/images/compose.png" alt="Compose" />
+    <img style="margin: 100px;" width=50% src="docs/source/images/compose.png" alt="Compose" />
 </p>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
@@ -58,7 +58,7 @@ label_maker = cp.LabelMaker(
 )
 ```
 ### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](file:///C:/Users/Owner/code/feature-labs/compose/docs/build/html/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search).
+Next, we automatically search and extract the labels by using [`LabelMaker.search`](http://docs.compose.ml/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search).
 
 ```python
 labels = label_maker.search(
