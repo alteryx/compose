@@ -1,5 +1,5 @@
 <p align="center">
-    <img style="margin: 100px;" width=50% src="docs/source/images/compose.png" alt="Compose" />
+    <img style="margin: 50px;" width=50% src="docs/source/images/compose.png" alt="Compose" />
 </p>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
