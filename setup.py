@@ -9,7 +9,7 @@ setup(
     url='http://compose.ml',
     install_requires=open('requirements.txt').readlines(),
     tests_require=open('test-requirements.txt').readlines(),
-    long_description=open('README.md').readlines(),
+    long_description=open('README.md').read(),
     packages=find_packages(),
     package_data={'composeml': ['datasets/*.csv']},
     include_package_data=True,
