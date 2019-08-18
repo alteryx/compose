@@ -9,4 +9,4 @@ def transactions():
 
 
 def test_transactions(transactions):
-    assert len(transactions) == 150
+    assert len(transactions) == 100
