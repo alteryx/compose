@@ -97,7 +97,7 @@ label_id
 4                   1 2014-01-08 08:54:02        False
 ```
 
-Additionally, the label times are shifted 1 hour earlier for predicting in advance.
+Additionally, the label times are shifted one hour earlier for predicting in advance.
 
 ```python
 labels = labels.apply_lead('1h')
