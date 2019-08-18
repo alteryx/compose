@@ -145,13 +145,42 @@ Transforms
   - value:    1h
 ```
 
+## Testing & Development
+The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
+
+## Support
+The Feature Labs open source community is happy to provide support to users of Compose. Project support can be found in four places depending on the type of question:
+
+1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml) with the `composeml` tag.
+2. For bugs, issues, or feature requests start a Github [issue](https://github.com/FeatureLabs/compose/issues).
+3. For discussion regarding development on the core library, use [Slack](https://featuretools.slack.com/messages/CKP6D0KUP).
+4. For everything else, the core developers can be reached by email at [help@featurelabs.com](mailto:help@featurelabs.com).
+
+## Citing Compose
+Compose is built upon a newly defined part of the machine learning process - prediction engineering. If you use Compose please consider citing this paper:
+James Max Kanter, Gillespie, Owen, Kalyan Veeramachaneni. [Label, Segment,Featurize: a cross domain framework for prediction engineering.](https://dai.lids.mit.edu/wp-content/uploads/2017/10/Pred_eng1.pdf) IEEE DSAA 2016.
+
+BibTeX entry:
+
+```
+@inproceedings{kanter2016label,
+  title={Label, segment, featurize: a cross domain framework for prediction engineering},
+  author={Kanter, James Max and Gillespie, Owen and Veeramachaneni, Kalyan},
+  booktitle={2016 IEEE International Conference on Data Science and Advanced Analytics (DSAA)},
+  pages={430--439},
+  year={2016},
+  organization={IEEE}
+}
+```
+
+## Acknowledgements 
+Compose open source has been developed by Feature Labs engineering team. The open source development has been supported in part by DARPA’s Data driven discovery of models program (D3M). 
+
 ## Feature Labs
 <a href="https://www.featurelabs.com/">
     <img src="http://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
 </a>
 
-Compose is an open source project created by [Feature Labs](https://www.featurelabs.com/). To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
-
-### Contact
-
-Any questions can be directed to help@featurelabs.com
+Compose is an open source project created by Feature Labs. We developed Compose to enable flexible definition of the machine learning task. Read more about our rationale behind automating and developing this stage of the machine learning process here. 
+ 
+To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
