@@ -4,8 +4,28 @@ import pandas as pd
 
 
 def add_time(df):
+    def apply(user):
+        user.sort_values('order_id', inplace=True)
+        user.days_since_prior_order.fillna(1, inplace=True)
+        orders = user.groupby('order_id')
+
+        prior_order = orders.days_since_prior_order.first()
+        prior_order = prior_order.cumsum().apply('{:.0f}d'.format)
+        prior_order = prior_order.apply(pd.Timedelta)
+        prior_order = prior_order.add(pd.Timestamp('2010-01-01'))
+
+        return prior_order
+
+    return df.groupby('user_id').apply(apply)
+
+
+def add_time(df):
     df.reset_index(drop=True)
     df["order_time"] = np.nan
+
+    df.days_since_prior_order = df.days_since_prior_order.fillna(0)
+    df.order_hour_of_day = df.order_hour_of_day.fillna(0)
+
     days_since = df.columns.tolist().index("days_since_prior_order")
     hour_of_day = df.columns.tolist().index("order_hour_of_day")
     order_time = df.columns.tolist().index("order_time")
@@ -39,6 +59,6 @@ def load_orders(data_dir, nrows=None):
     products = pd.read_csv(path)
 
     df = order_products.merge(products).merge(departments)
-    df = df.merge(orders).pipe(add_time)
-    df.set_index('order_time', inplace=True)
+    df = df.merge(orders)  # .pipe(add_time)
+    # df.set_index('order_time', inplace=True)
     return df
