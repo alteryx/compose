@@ -1,9 +1,12 @@
-# ComposeML
+<p align="center">
+    <img style="margin: 25px" width=50% src="docs/source/images/compose.png" alt="Compose" />
+</p>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose-ml/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose-ml)
 [![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](http://docs.compose.ml/en/latest/?badge=latest)
-
+[![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
+[![StackOverflow](http://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 
 [ComposeML](http://compose.ml) is a Python library for prediction engineering. ComposeML enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms. See the [documentation](http://docs.compose.ml) for more information.
 
