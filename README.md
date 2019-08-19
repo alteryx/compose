@@ -4,8 +4,8 @@
 <br>
 <br>
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
-[![codecov](https://codecov.io/gh/FeatureLabs/compose-ml/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose-ml)
+[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/master)
+[![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
 [![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](http://docs.compose.ml/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](http://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
