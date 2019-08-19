@@ -47,6 +47,7 @@ def test_search_offset_mix_0(transactions):
         num_examples_per_instance=2,
         minimum_data='30min',
         gap='2h',
+        drop_empty=True,
         verbose=False,
     )
 
@@ -359,7 +360,7 @@ def test_search_empty_labels(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=lambda: None,
+        labeling_function=lambda df: None,
         window_size=2,
     )
 
@@ -388,9 +389,10 @@ def test_slice(transactions):
         num_examples_per_instance=2,
         minimum_data='30min',
         gap='2h',
-        edges=True,
+        metadata=True,
         verbose=True,
     )
 
-    for df, edges in slices:
-        assert df.index[0] == edges[0]
+    for df, metadata in slices:
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(metadata, dict)
