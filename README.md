@@ -1,6 +1,8 @@
 <p align="center">
-    <img style="margin: 50px;" width=50% src="docs/source/images/compose.png" alt="Compose" />
+    <img width=50% src="docs/source/images/compose.png" alt="Compose" />
 </p>
+<br>
+<br>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose-ml/tree/master)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose-ml/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose-ml)
@@ -12,10 +14,11 @@
 
 Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
-
+<br>
 <p align="center">
-    <img style="margin: 30px;" width=90% src="docs\source\images\workflow.svg" alt="workflow" />
+    <img width=90% src="docs\source\images\workflow.svg" alt="workflow" />
 </p>
+<br>
 
 ## Installation
 Compose can be installed by running the following command.
