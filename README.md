@@ -12,6 +12,11 @@
 
 Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
+
+<p align="center">
+    <img style="margin: 30px;" width=90% src="docs\source\images\workflow.svg" alt="workflow" />
+</p>
+
 ## Installation
 Compose can be installed by running the following command.
 ```shell
