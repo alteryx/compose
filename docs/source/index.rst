@@ -33,5 +33,6 @@ What is Compose?
     :caption: Resources
     :hidden:
 
+    frequently_asked_questions
     api_reference
     changelog
