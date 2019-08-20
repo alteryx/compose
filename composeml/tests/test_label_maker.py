@@ -31,6 +31,23 @@ def total_spent(df):
     return total
 
 
+def test_search_default(transactions):
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+
+    given_labels = lm.search(transactions, num_examples_per_instance=1, verbose=False)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '1,2019-01-01 09:00:00,3',
+        '2,2019-01-01 10:30:00,4',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
+
+
 def test_search_offset_mix_0(transactions):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
@@ -354,6 +371,20 @@ def test_invalid_threshold(transactions):
             num_examples_per_instance=2,
             minimum_data=' ',
         )
+
+
+def test_search_invalid_n_examples(transactions):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=total_spent,
+    )
+
+    with pytest.raises(AssertionError, match='must specify gap'):
+        next(lm.slice(transactions, num_examples_per_instance=2, verbose=False))
+
+    with pytest.raises(AssertionError, match='must specify gap'):
+        lm.search(transactions, num_examples_per_instance=2, verbose=False)
 
 
 def test_search_empty_labels(transactions):
