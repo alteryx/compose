@@ -226,3 +226,95 @@ class LabelTimes(pd.DataFrame):
 
         label_times.transforms.append(transform)
         return label_times
+
+    def sample(self, n=None, frac=None, random_state=None):
+        """
+        Return a random sample of labels.
+
+        Args:
+            n (int or dict) : Sample number of labels. A dictionary returns
+                the number of samples to each label. Cannot be used with frac.
+            frac (float or dict) : Sample fraction of labels. A dictionary returns
+                the sample fraction to each label. Cannot be used with n.
+            random_state (int) : Seed for the random number generator.
+
+        Returns:
+            LabelTimes : Random sample of labels.
+
+        Examples:
+
+            Create mock data:
+
+            >>> labels = {'labels': list('AABBBAA')}
+            >>> labels = LabelTimes(labels, name='labels')
+            >>> labels
+              labels
+            0      A
+            1      A
+            2      B
+            3      B
+            4      B
+            5      A
+            6      A
+
+            Sample number of labels:
+
+            >>> labels.sample(n=3, random_state=0)
+              labels
+            6      A
+            2      B
+            1      A
+
+            Sample number per label:
+
+            >>> n_per_label = {'A': 1, 'B': 2}
+            >>> labels.sample(n=n_per_label, random_state=0)
+              labels
+            5      A
+            4      B
+            3      B
+
+            Sample fraction of labels:
+
+            >>> labels.sample(frac=.4, random_state=2)
+              labels
+            4      B
+            1      A
+            3      B
+
+            Sample fraction per label:
+
+            >>> frac_per_label = {'A': .5, 'B': .34}
+            >>> labels.sample(frac=frac_per_label, random_state=2)
+              labels
+            5      A
+            6      A
+            4      B
+        """ # noqa
+        if isinstance(n, int):
+            sample = super().sample(n=n, random_state=random_state)
+            return sample
+
+        if isinstance(n, dict):
+            sample_per_label = []
+            for label, n, in n.items():
+                label = self[self[self.name] == label]
+                sample = label.sample(n=n, random_state=random_state)
+                sample_per_label.append(sample)
+
+            labels = pd.concat(sample_per_label, axis=0, sort=False)
+            return labels
+
+        if isinstance(frac, float):
+            sample = super().sample(frac=frac, random_state=random_state)
+            return sample
+
+        if isinstance(frac, dict):
+            sample_per_label = []
+            for label, frac, in frac.items():
+                label = self[self[self.name] == label]
+                sample = label.sample(frac=frac, random_state=random_state)
+                sample_per_label.append(sample)
+
+            labels = pd.concat(sample_per_label, axis=0, sort=False)
+            return labels
