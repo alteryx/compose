@@ -343,7 +343,6 @@ class LabelMaker:
                     progress_bar.update(n=n)
 
             if not finite and new_instance:
-                n_instances += 1
                 progress_bar.update(n=1)
 
         total -= progress_bar.n
