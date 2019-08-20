@@ -133,7 +133,7 @@ def to_offset(value):
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
-    def __init__(self, target_entity, time_index, labeling_function, window_size):
+    def __init__(self, target_entity, time_index, labeling_function, window_size=None):
         """Creates an instance of label maker.
 
         Args:
@@ -141,11 +141,15 @@ class LabelMaker:
             time_index (str): Name of time column in the data frame.
             labeling_function (function) : Function that transforms a data slice to a label.
             window_size (str or int) : Duration of each data slice.
+                The default value for window size is all future data.
         """
         self.target_entity = target_entity
         self.time_index = time_index
         self.labeling_function = labeling_function
-        self.window_size = to_offset(window_size)
+        self.window_size = window_size
+
+        if self.window_size is not None:
+            self.window_size = to_offset(self.window_size)
 
     def get_slices(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices.
@@ -159,7 +163,9 @@ class LabelMaker:
         Returns:
             DataFrame, dict : Returns a data slice and metadata about the data slice.
         """
+        self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
+
         df = df.loc[df.index.notnull()]
         df.sort_index(inplace=True)
 
@@ -233,7 +239,13 @@ class LabelMaker:
         Returns:
             DataFrame : Slice of data.
         """
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+
+        self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
+
         df = self.set_index(df)
 
         if num_examples_per_instance == -1:
@@ -280,20 +292,25 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+
+        self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
         total = len(df.groupby(self.target_entity))
-        is_finite = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
+        finite = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
 
-        if is_finite:
+        if finite:
             total *= num_examples_per_instance
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
         name = self.labeling_function.__name__
-        labels = []
+        labels, n_instances = [], 0
 
         slices = self.slice(
             df=df,
@@ -313,10 +330,25 @@ class LabelMaker:
                 label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
                 labels.append(label)
 
-            if is_finite or (not is_finite and metadata['n_slice'] == 1):
+            new_instance = metadata['n_slice'] == 1
+
+            if new_instance:
+                n_instances += 1
+
+            if finite:
                 progress_bar.update(n=1)
 
-        progress_bar.update(n=total - progress_bar.n)
+                if new_instance:
+                    n = n_instances - 1
+                    n *= num_examples_per_instance
+                    n -= progress_bar.n
+                    progress_bar.update(n=n)
+
+            if not finite and new_instance:
+                progress_bar.update(n=1)
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
         progress_bar.close()
 
         labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
