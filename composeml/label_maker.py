@@ -332,19 +332,18 @@ class LabelMaker:
 
             new_instance = metadata['n_slice'] == 1
 
-            if new_instance:
-                n_instances += 1
-
             if finite:
                 progress_bar.update(n=1)
 
                 if new_instance:
+                    n_instances += 1
                     n = n_instances - 1
                     n *= num_examples_per_instance
                     n -= progress_bar.n
                     progress_bar.update(n=n)
 
             if not finite and new_instance:
+                n_instances += 1
                 progress_bar.update(n=1)
 
         total -= progress_bar.n
