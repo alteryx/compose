@@ -1,4 +1,3 @@
-from inspect import signature
 from sys import stdout
 
 import pandas as pd
@@ -240,33 +239,6 @@ class LabelMaker:
         Returns:
             DataFrame : Slice of data.
         """
-<<<<<<< HEAD
-        assert_valid_offset(minimum_data)
-        assert_valid_offset(gap)
-        assert 'window' not in kwargs, 'window is a reserved argument'
-
-        df = self._preprocess(df)
-        groups = df.groupby(self.target_entity)
-
-        name = self.labeling_function.__name__
-        parameters = signature(self.labeling_function).parameters
-        window_in_parameters = 'window' in parameters
-
-        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-        bar_format += "Progress: {l_bar}{bar}| "
-        bar_format += self.target_entity + ": {n}/{total} "
-        total = groups.ngroups * num_examples_per_instance
-        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
-
-        def df_to_labels(df):
-            labels = pd.Series()
-            df = df.loc[df.index.notnull()]
-            df.sort_index(inplace=True)
-
-            if df.empty:
-                # TODO Also update progress bar for skipped iterations
-                return labels
-=======
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
             assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
@@ -275,7 +247,6 @@ class LabelMaker:
         gap = to_offset(gap or self.window_size)
 
         df = self.set_index(df)
->>>>>>> generate-slices
 
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
@@ -283,26 +254,11 @@ class LabelMaker:
         for key, df in df.groupby(self.target_entity):
             slices = self.get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
-<<<<<<< HEAD
-                if df.empty:
-                    # TODO Also apply when cutoff time is None.
-                    skipped_iterations = num_examples_per_instance - example
-                    progress_bar.update(n=skipped_iterations)
-                    break
-
-                window_end = offset_time(df.index, self.window_size)
-
-                if window_in_parameters:
-                    kwargs['window'] = (cutoff_time, window_end)
-
-                label = self.labeling_function(df[:window_end], *args, **kwargs)
-=======
             for df_slice, df_metadata in slices:
                 df_metadata[self.target_entity] = key
 
                 if verbose:
                     self.print_slice(df_metadata)
->>>>>>> generate-slices
 
                 if metadata:
                     df_slice = df_slice, df_metadata
@@ -312,17 +268,6 @@ class LabelMaker:
                 if df_metadata['n_slice'] >= num_examples_per_instance:
                     break
 
-<<<<<<< HEAD
-        labels_per_group = []
-        for key, df in groups:
-            labels = df_to_labels(df)
-            labels = labels.to_frame(name=name)
-            labels[self.target_entity] = key
-            labels_per_group.append(labels)
-
-        progress_bar.close()
-        labels = pd.concat(labels_per_group, axis=0, sort=False)
-=======
     def search(self,
                df,
                num_examples_per_instance,
@@ -378,7 +323,6 @@ class LabelMaker:
 
         for df, metadata in slices:
             label = self.labeling_function(df, *args, **kwargs)
->>>>>>> generate-slices
 
             if not pd.isnull(label):
                 key = df[self.target_entity].iloc[0]
