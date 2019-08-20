@@ -25,6 +25,7 @@ def labels():
         minimum_data='10min',
         num_examples_per_instance=2,
         gap='30min',
+        drop_empty=True,
         verbose=False,
     )
 
