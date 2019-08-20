@@ -1,64 +1,51 @@
-import numpy as np
 import os
 import pandas as pd
 
 
-def add_time(df):
-    def apply(user):
-        user.sort_values('order_id', inplace=True)
-        user.days_since_prior_order.fillna(1, inplace=True)
+def add_time(df, start='2015-01-01'):
+    def timedelta(value, string):
+        return pd.Timedelta(string.format(value))
+
+    def process_orders(user):
         orders = user.groupby('order_id')
 
-        prior_order = orders.days_since_prior_order.first()
-        prior_order = prior_order.cumsum().apply('{:.0f}d'.format)
-        prior_order = prior_order.apply(pd.Timedelta)
-        prior_order = prior_order.add(pd.Timestamp('2010-01-01'))
+        days = orders.days_since_prior_order.first()
+        days = days.cumsum().apply(timedelta, string='{}d')
+        days = days.add(pd.Timestamp(start))
 
-        return prior_order
+        hour_of_day = orders.order_hour_of_day.first()
+        hour_of_day = hour_of_day.apply(timedelta, string='{}h')
 
-    return df.groupby('user_id').apply(apply)
+        order_time = days.add(hour_of_day)
+        return order_time
 
+    df.days_since_prior_order.fillna(0, inplace=True)
+    order_time = df.groupby('user_id').apply(process_orders).rename('order_time')
 
-def add_time(df):
-    df.reset_index(drop=True)
-    df["order_time"] = np.nan
+    columns = [
+        "order_number",
+        "order_dow",
+        "order_hour_of_day",
+        "days_since_prior_order",
+        "eval_set",
+    ]
 
-    df.days_since_prior_order = df.days_since_prior_order.fillna(0)
-    df.order_hour_of_day = df.order_hour_of_day.fillna(0)
-
-    days_since = df.columns.tolist().index("days_since_prior_order")
-    hour_of_day = df.columns.tolist().index("order_hour_of_day")
-    order_time = df.columns.tolist().index("order_time")
-
-    df.iloc[0, order_time] = pd.Timestamp('Jan 1, 2015') + pd.Timedelta(df.iloc[0, hour_of_day], "h")
-    for i in range(1, df.shape[0]):
-        df.iloc[i, order_time] = df.iloc[i - 1, order_time] \
-            + pd.Timedelta(df.iloc[i, days_since], "d") \
-            + pd.Timedelta(df.iloc[i, hour_of_day], "h")
-
-    to_drop = ["order_number", "order_dow", "order_hour_of_day", "days_since_prior_order", "eval_set"]
-    df.drop(to_drop, axis=1, inplace=True)
+    df.drop(columns, axis=1, inplace=True)
+    df = df.merge(order_time.reset_index(), on=['user_id', 'order_id'])
     return df
 
 
-def load_orders(data_dir, nrows=None):
-    path = os.path.join(data_dir, 'order_products__prior.csv')
-    order_products = pd.read_csv(path, nrows=nrows)
+def load_orders(data_dir, nrows={}):
+    def path(key):
+        file = '{}.csv'.format(key)
+        value = os.path.join(data_dir, file)
+        return value
 
-    path = os.path.join(data_dir, 'orders.csv')
-    orders = pd.read_csv(path, nrows=nrows)
+    order_products = pd.read_csv(path('order_products__prior'), nrows=nrows)
+    orders = pd.read_csv(path('orders'), nrows=nrows)
+    departments = pd.read_csv(path('departments'))
+    products = pd.read_csv(path('products'))
 
-    days = orders.days_since_prior_order
-    days = days.dropna().astype('int').astype('str')
-    days = days.add('d').apply(pd.Timedelta)
-
-    path = os.path.join(data_dir, 'departments.csv')
-    departments = pd.read_csv(path)
-
-    path = os.path.join(data_dir, 'products.csv')
-    products = pd.read_csv(path)
-
-    df = order_products.merge(products).merge(departments)
-    df = df.merge(orders)  # .pipe(add_time)
-    # df.set_index('order_time', inplace=True)
+    df = order_products.merge(products).merge(departments).merge(orders)
+    df = df.pipe(add_time)
     return df
