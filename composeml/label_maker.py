@@ -201,19 +201,19 @@ class LabelMaker:
 
             df_slice = df[:window_end]
 
+            if not df_slice.empty:
+                # exclude last row to avoid overlap
+                is_overlap = df_slice.index[-1] == window_end
+
+                if df_slice.index.size > 1 and is_overlap:
+                    df_slice = df_slice[:-1]
+
             if df_slice.empty and drop_empty:
                 continue
 
             metadata['window'] = (cutoff_time, window_end)
             metadata['gap'] = (cutoff_time, gap_end)
             metadata['slice'] += 1
-
-            if not df_slice.empty:
-                # exclude last row to avoid overlap
-                is_overlap = df_slice.index[-1] == window_end
-
-                if df_slice.size > 1 and is_overlap:
-                    df_slice = df_slice[:-1]
 
             yield df_slice, metadata
 
