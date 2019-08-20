@@ -203,10 +203,10 @@ class LabelMaker:
 
             if not df_slice.empty:
                 # exclude last row to avoid overlap
-                is_overlap = df_slice.index[-1] == window_end
+                is_overlap = df_slice.index == window_end
 
-                if df_slice.index.size > 1 and is_overlap:
-                    df_slice = df_slice[:-1]
+                if df_slice.index.size > 1 and is_overlap.any():
+                    df_slice = df_slice[~is_overlap]
 
             if df_slice.empty and drop_empty:
                 continue
@@ -393,8 +393,8 @@ class LabelMaker:
         gap = metadata.get('gap', empty)
 
         info = {
-            self.target_entity: metadata.get(self.target_entity),
             'slice': metadata['slice'],
+            self.target_entity: metadata.get(self.target_entity),
             'window': '[{}, {})'.format(*window),
             'gap': '[{}, {})'.format(*gap),
         }
