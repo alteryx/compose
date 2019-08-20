@@ -183,7 +183,7 @@ class LabelMaker:
         else:
             intervals = iterate_by_time(start=min_data, offset=gap)
 
-        metadata = {'n_slice': 0, 'min_data': min_data}
+        metadata = {'slice': 0, 'min_data': min_data}
 
         for cutoff_time, gap_end in intervals:
             if cutoff_time > df.index[-1]:
@@ -206,7 +206,7 @@ class LabelMaker:
 
             metadata['window'] = (cutoff_time, window_end)
             metadata['gap'] = (cutoff_time, gap_end)
-            metadata['n_slice'] += 1
+            metadata['slice'] += 1
 
             if not df_slice.empty:
                 # exclude last row to avoid overlap
@@ -265,7 +265,7 @@ class LabelMaker:
 
                 yield df_slice
 
-                if df_metadata['n_slice'] >= num_examples_per_instance:
+                if df_metadata['slice'] >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -310,7 +310,7 @@ class LabelMaker:
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
         name = self.labeling_function.__name__
-        labels, n_instances = [], 0
+        labels, instance = [], 0
 
         slices = self.slice(
             df=df,
@@ -330,14 +330,14 @@ class LabelMaker:
                 label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
                 labels.append(label)
 
-            new_instance = metadata['n_slice'] == 1
+            new_instance = metadata['slice'] == 1
 
             if finite:
                 progress_bar.update(n=1)
 
                 if new_instance:
-                    n_instances += 1
-                    n = n_instances - 1
+                    instance += 1
+                    n = instance - 1
                     n *= num_examples_per_instance
                     n -= progress_bar.n
                     progress_bar.update(n=n)
@@ -394,7 +394,7 @@ class LabelMaker:
 
         info = {
             self.target_entity: metadata.get(self.target_entity),
-            'n_slice': metadata['n_slice'],
+            'slice': metadata['slice'],
             'window': '[{}, {})'.format(*window),
             'gap': '[{}, {})'.format(*gap),
         }
