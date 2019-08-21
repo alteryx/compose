@@ -1,3 +1,4 @@
+from inspect import signature
 from sys import stdout
 
 import pandas as pd
@@ -277,6 +278,7 @@ class LabelMaker:
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
+
         total = len(df.groupby(self.target_entity))
         finite = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
 
@@ -284,8 +286,6 @@ class LabelMaker:
             total *= num_examples_per_instance
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
-        name = self.labeling_function.__name__
-        labels, instance = [], 0
 
         slices = self.slice(
             df=df,
@@ -296,7 +296,16 @@ class LabelMaker:
             drop_empty=drop_empty,
             verbose=False)
 
+        name = self.labeling_function.__name__
+        parameters = signature(self.labeling_function).parameters
+        context, labels, instance = {}, [], 0
+
+        for key in ['context', 'cxt']:
+            if key in parameters:
+                kwargs[key] = context
+
         for df, metadata in slices:
+            context.update(metadata)
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
