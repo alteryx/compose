@@ -67,42 +67,6 @@ def is_offset(value):
     return issubclass(type(value), pd.tseries.offsets.BaseOffset)
 
 
-def iterate_by_range(index, offset):
-    """Generates intervals of an index.
-
-    Args:
-        index (DatetimeIndex) : Index to iterate.
-        offset (int) : Size of the interval.
-
-    Returns:
-        iterable : Start and stop for each interval.
-    """
-    for i in range(index.size):
-        if i % offset == 0:
-            j = i + offset
-
-            if j >= index.size:
-                yield index[i], None
-                break
-
-            yield index[i], index[j]
-
-
-def iterate_by_time(start, offset):
-    """Generates time intervals.
-
-    Args:
-        start (Timestamp) : Start time to base intervals on.
-        offset (offset) : Size of the interval.
-
-    Returns:
-        iterable : Start time and stop time for each interval.
-    """
-    while True:
-        yield start, start + offset
-        start += offset
-
-
 def to_offset(value):
     """Converts a value to an offset and validates the offset.
 
@@ -173,46 +137,57 @@ class LabelMaker:
             return
 
         threshold = min_data or df.index[0]
-        df, min_data = cutoff_data(df=df, threshold=threshold)
+        df, cutoff_time = cutoff_data(df=df, threshold=threshold)
 
         if df.empty:
             return
 
         if isinstance(gap, int):
-            intervals = iterate_by_range(index=df.index, offset=gap)
-        else:
-            intervals = iterate_by_time(start=min_data, offset=gap)
+            cutoff_time = df.index[0]
 
-        metadata = {'slice': 0, 'min_data': min_data}
+        metadata = {'slice': 0, 'min_data': cutoff_time}
 
-        for cutoff_time, gap_end in intervals:
-            if cutoff_time > df.index[-1]:
-                break
+        def iloc(index, i):
+            if i < index.size:
+                return index[i]
 
-            df = df[cutoff_time:]
-
+        while not df.empty and cutoff_time <= df.index[-1]:
             if isinstance(self.window_size, int):
-                if self.window_size >= df.index.size:
-                    window_end = None
-                else:
-                    window_end = df.index[self.window_size]
+                df_slice = df.iloc[:self.window_size]
+                window_end = iloc(df.index, self.window_size)
+
             else:
                 window_end = cutoff_time + self.window_size
+                df_slice = df[:window_end]
 
-            df_slice = df[:window_end]
+                if not df_slice.empty:
+                    # exclude last row to avoid overlap
+                    is_overlap = df_slice.index == window_end
 
-            if not df_slice.empty:
-                # exclude last row to avoid overlap
-                is_overlap = df_slice.index == window_end
+                    if df_slice.index.size > 1 and is_overlap.any():
+                        df_slice = df_slice[~is_overlap]
 
-                if df_slice.index.size > 1 and is_overlap.any():
-                    df_slice = df_slice[~is_overlap]
+            metadata['window'] = (cutoff_time, window_end)
+
+            if isinstance(gap, int):
+                gap_end = iloc(df.index, gap)
+                metadata['gap'] = (cutoff_time, gap_end)
+                df = df.iloc[gap:]
+
+                if not df.empty:
+                    cutoff_time = df.index[0]
+
+            else:
+                gap_end = cutoff_time + gap
+                metadata['gap'] = (cutoff_time, gap_end)
+                cutoff_time += gap
+
+                if cutoff_time <= df.index[-1]:
+                    df = df[cutoff_time:]
 
             if df_slice.empty and drop_empty:
                 continue
 
-            metadata['window'] = (cutoff_time, window_end)
-            metadata['gap'] = (cutoff_time, gap_end)
             metadata['slice'] += 1
 
             yield df_slice, metadata
