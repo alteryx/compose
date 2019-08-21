@@ -427,3 +427,23 @@ def test_slice(transactions):
     for df, metadata in slices:
         assert isinstance(df, pd.DataFrame)
         assert isinstance(metadata, dict)
+
+
+def test_window(transactions):
+    def check(df, window):
+        assert isinstance(window, tuple)
+        types = (pd.Timestamp, type(None))
+
+        for time in window:
+            assert isinstance(time, types)
+
+        return
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=check,
+        window_size=1,
+    )
+
+    lm.search(transactions, num_examples_per_instance=1, verbose=False)
