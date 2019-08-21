@@ -272,6 +272,7 @@ class LabelMaker:
             more_than_one = num_examples_per_instance > 1
             assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
 
+        assert 'window' not in kwargs, 'window is a reserved argument'
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
@@ -298,14 +299,13 @@ class LabelMaker:
 
         name = self.labeling_function.__name__
         parameters = signature(self.labeling_function).parameters
-        context, labels, instance = {}, [], 0
-
-        for key in ['context', 'cxt']:
-            if key in parameters:
-                kwargs[key] = context
+        window_included = 'window' in parameters
+        labels, instance = [], 0
 
         for df, metadata in slices:
-            context.update(metadata)
+            if window_included:
+                kwargs['window'] = metadata['window']
+
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
