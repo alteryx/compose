@@ -2,6 +2,12 @@
 Changelog
 =========
 
+**v0.1.4** August 7, 2019
+    * Enhancements
+        * Added Sample Transform
+        * Improved Progress Bar
+        * Improved Label Times description
+
 **v0.1.3** July 9, 2019
     * Enhancements
         * Improved documentation

@@ -1,197 +1,317 @@
 import pandas as pd
 import pytest
 
-from ..label_maker import LabelMaker
+from composeml import LabelMaker
+from composeml.tests.utils import read_csv
 
 
-def my_labeling_function(df_slice):
-    label = df_slice['amount'].sum()
-    label = label or pd.np.nan
-    return label
+@pytest.fixture
+def transactions():
+
+    data = [
+        'time,amount,customer_id',
+        '2019-01-01 08:00:00,1,0',
+        '2019-01-01 08:30:00,1,0',
+        '2019-01-01 09:00:00,1,1',
+        '2019-01-01 09:30:00,1,1',
+        '2019-01-01 10:00:00,1,1',
+        '2019-01-01 10:30:00,1,2',
+        '2019-01-01 11:00:00,1,2',
+        '2019-01-01 11:30:00,1,2',
+        '2019-01-01 12:00:00,1,2',
+        '2019-01-01 12:30:00,1,3',
+    ]
+
+    df = read_csv(data)
+    return df
 
 
-def test_search_offset_mix_0(transactions, labels):
+def total_spent(df):
+    total = df.amount.sum()
+    return total
+
+
+def test_search_default(transactions):
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+
+    given_labels = lm.search(transactions, num_examples_per_instance=1, verbose=False)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '1,2019-01-01 09:00:00,3',
+        '2,2019-01-01 10:30:00,4',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
+
+
+def test_search_offset_mix_0(transactions):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size='2min',
+        time_index='time',
+        labeling_function=total_spent,
+        window_size='2h',
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data='1min',
-        num_examples_per_instance=4,
-        gap='3min',
+        num_examples_per_instance=2,
+        minimum_data='30min',
+        gap='2h',
+        drop_empty=True,
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:30:00,2',
+        '2,2019-01-01 11:00:00,3',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_1(transactions, labels):
+def test_search_offset_mix_1(transactions):
     """
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size=2,
+        time_index='time',
+        labeling_function=total_spent,
+        window_size=4,
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data='1min',
-        num_examples_per_instance=4,
-        gap='3min',
+        num_examples_per_instance=2,
+        minimum_data='2019-01-01 10:00:00',
+        gap='4h',
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:00:00,4',
+        '3,2019-01-01 10:00:00,1',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_2(transactions, labels):
+def test_search_offset_mix_2(transactions):
     """
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size='2min',
+        time_index='time',
+        labeling_function=total_spent,
+        window_size='30min',
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data=1,
-        num_examples_per_instance=4,
-        gap='3min',
+        num_examples_per_instance=2,
+        minimum_data=2,
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 11:30:00,1',
+        '2,2019-01-01 12:00:00,1',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_3(transactions, labels):
+def test_search_offset_mix_3(transactions):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size='2min',
+        time_index='time',
+        labeling_function=total_spent,
+        window_size='8h',
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data='1min',
-        num_examples_per_instance=4,
-        gap=3,
+        num_examples_per_instance=-1,
+        minimum_data='2019-01-01 08:00:00',
+        gap=1,
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:00:00,3',
+        '1,2019-01-01 09:30:00,2',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:30:00,4',
+        '2,2019-01-01 11:00:00,3',
+        '2,2019-01-01 11:30:00,2',
+        '2,2019-01-01 12:00:00,1',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_4(transactions, labels):
+def test_search_offset_mix_4(transactions):
     """
     Test offset mix with window_size (relative), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size=2,
+        time_index='time',
+        labeling_function=total_spent,
+        window_size=1,
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data=1,
-        num_examples_per_instance=4,
-        gap='3min',
+        num_examples_per_instance=2,
+        gap='30min',
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,1',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:00:00,1',
+        '1,2019-01-01 09:30:00,1',
+        '2,2019-01-01 10:30:00,1',
+        '2,2019-01-01 11:00:00,1',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_5(transactions, labels):
+def test_search_offset_mix_5(transactions):
     """
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
+        time_index='time',
+        labeling_function=total_spent,
         window_size=2,
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data='1min',
-        num_examples_per_instance=4,
-        gap=3,
+        num_examples_per_instance=2,
+        minimum_data='1h',
+        gap=2,
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 11:30:00,2',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_6(transactions, labels):
+def test_search_offset_mix_6(transactions):
     """
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size='2min',
+        time_index='time',
+        labeling_function=total_spent,
+        window_size='1h',
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data=1,
-        num_examples_per_instance=4,
-        gap=3,
+        num_examples_per_instance=1,
+        minimum_data=3,
+        gap=1,
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '2,2019-01-01 12:00:00,1',
+    ]
+
+    assert given_labels == labels
 
 
-def test_search_offset_mix_7(transactions, labels):
+def test_search_offset_mix_7(transactions):
     """
     Test offset mix with window_size (relative), minimum_data (relative), and gap (relative).
     """
 
-    def my_labeling_function(df_slice):
-        label = df_slice['amount'].sum()
-        return label
-
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=my_labeling_function,
-        window_size=2,
+        time_index='time',
+        labeling_function=total_spent,
+        window_size=10,
     )
 
     given_labels = lm.search(
         transactions,
-        minimum_data=1,
-        num_examples_per_instance=2,
-        gap=3,
+        num_examples_per_instance=float('inf'),
+        verbose=False,
     )
 
-    pd.testing.assert_frame_equal(given_labels, labels)
+    given_labels = given_labels.to_csv(index=False).splitlines()
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '1,2019-01-01 09:00:00,3',
+        '2,2019-01-01 10:30:00,4',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
 
 
 def test_search_offset_negative_0(transactions):
-    match = 'negative offset'
-
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=None,
+        time_index='time',
+        labeling_function=lambda: None,
         window_size=2,
     )
+
+    match = 'must be greater than zero'
 
     with pytest.raises(AssertionError, match=match):
         lm.search(
@@ -199,18 +319,19 @@ def test_search_offset_negative_0(transactions):
             num_examples_per_instance=2,
             minimum_data=-1,
             gap=-1,
+            verbose=False,
         )
 
 
 def test_search_offset_negative_1(transactions):
-    match = 'negative offset'
-
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=None,
+        time_index='time',
+        labeling_function=lambda: None,
         window_size=2,
     )
+
+    match = 'must be greater than zero'
 
     with pytest.raises(AssertionError, match=match):
         lm.search(
@@ -218,38 +339,63 @@ def test_search_offset_negative_1(transactions):
             num_examples_per_instance=2,
             minimum_data='-1h',
             gap='-1h',
+            verbose=False,
         )
 
 
-def test_search_offset_invalid_type(transactions):
-    match = 'invalid offset type'
+def test_invalid_offset(transactions):
+    match = 'invalid offset'
 
+    with pytest.raises(AssertionError, match=match):
+        LabelMaker(
+            target_entity='customer_id',
+            time_index='time',
+            labeling_function=lambda: None,
+            window_size={},
+        )
+
+
+def test_invalid_threshold(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=None,
+        time_index='time',
+        labeling_function=lambda: None,
         window_size=2,
     )
 
-    with pytest.raises(TypeError, match=match):
+    match = 'invalid threshold'
+
+    with pytest.raises(ValueError, match=match):
         lm.search(
             transactions,
             num_examples_per_instance=2,
-            minimum_data=[],
-            gap=[],
+            minimum_data=' ',
         )
 
 
-def test_search_empty_labels(transactions):
-    transactions = transactions.copy()
-    transactions['transaction_time'] = pd.NaT
-
+def test_search_invalid_n_examples(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=lambda x: None,
+        time_index='time',
+        labeling_function=total_spent,
+    )
+
+    with pytest.raises(AssertionError, match='must specify gap'):
+        next(lm.slice(transactions, num_examples_per_instance=2, verbose=False))
+
+    with pytest.raises(AssertionError, match='must specify gap'):
+        lm.search(transactions, num_examples_per_instance=2, verbose=False)
+
+
+def test_search_empty_labels(transactions):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=lambda df: None,
         window_size=2,
     )
+
+    transactions = transactions.assign(time=pd.NaT)
 
     given_labels = lm.search(
         transactions,
@@ -261,22 +407,23 @@ def test_search_empty_labels(transactions):
     assert given_labels.empty
 
 
-def test_search_window_param(transactions):
-    def labeling_function(df, window):
-        assert len(window) == 2
-        assert isinstance(window[0], pd.Timestamp)
-        assert isinstance(window[1], pd.Timestamp)
-
+def test_slice(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
-        time_index='transaction_time',
-        labeling_function=labeling_function,
-        window_size=2,
+        time_index='time',
+        labeling_function=total_spent,
+        window_size='2h',
     )
 
-    lm.search(
+    slices = lm.slice(
         transactions,
-        minimum_data=0,
         num_examples_per_instance=2,
-        gap=1,
+        minimum_data='30min',
+        gap='2h',
+        metadata=True,
+        verbose=True,
     )
+
+    for df, metadata in slices:
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(metadata, dict)
