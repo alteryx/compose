@@ -267,13 +267,6 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
-        self.window_size = self.window_size or len(df)
-        gap = to_offset(gap or self.window_size)
-
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
