@@ -122,7 +122,7 @@ class LabelMaker:
             df (DataFrame) : Data frame to generate data slices.
             gap (str) : Time between slices. Default value is window size.
             min_data (int or str or Timestamp) : Threshold to cutoff data.
-            drop_empty (bool) : Whether to drop empty slices.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
 
         Returns:
             DataFrame, dict : Returns a data slice and metadata about the data slice.
@@ -207,9 +207,9 @@ class LabelMaker:
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
             minimum_data (str) : Minimum data before starting search. Default value is first time of index.
             gap (str) : Time between examples. Default value is window size.
-            metadata (bool) : Whether to return metadata about the data slice.
-            drop_empty (bool) : Whether to drop empty slices.
-            verbose (bool) : Whether to print metadata about slice.
+            metadata (bool) : Whether to return metadata about the data slice. Default value is False.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            verbose (bool) : Whether to print metadata about slice. Default value is False.
 
         Returns:
             DataFrame : Slice of data.
@@ -257,10 +257,10 @@ class LabelMaker:
         Args:
             df (DataFrame) : Data frame to search and extract labels.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search.
+            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
             gap (str) : Time between examples.
-            drop_empty (bool) : Whether to drop empty slices.
-            verbose (bool) : Whether to render progress bar.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            verbose (bool) : Whether to render progress bar. Default value is True.
             *args : Positional arguments for labeling function.
             **kwargs : Keyword arguments for labeling function.
 
