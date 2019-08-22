@@ -115,7 +115,7 @@ class LabelMaker:
         if self.window_size is not None:
             self.window_size = to_offset(self.window_size)
 
-    def get_slices(self, df, gap=None, min_data=None, drop_empty=True):
+    def _get_slices(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices.
 
         Args:
@@ -233,7 +233,7 @@ class LabelMaker:
             num_examples_per_instance = float('inf')
 
         for key, df in df.groupby(self.target_entity):
-            slices = self.get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+            slices = self._get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for df_slice, df_metadata in slices:
                 df_metadata[self.target_entity] = key
