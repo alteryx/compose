@@ -10,7 +10,7 @@
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](http://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 
-[Compose](http://compose.ml) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](http://docs.compose.ml) for more information.
+[Compose](https://compose.featurelabs.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.featurelabs.com) for more information.
 
 Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
