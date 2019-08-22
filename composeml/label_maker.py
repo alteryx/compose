@@ -120,7 +120,8 @@ class LabelMaker:
 
         Args:
             df (DataFrame) : Data frame to generate data slices.
-            gap (str) : Time between slices. Default value is window size.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
             min_data (int or str or Timestamp) : Threshold to cutoff data.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
 
@@ -210,7 +211,8 @@ class LabelMaker:
             df (DataFrame) : Data frame to create slices on.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
             minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str) : Time between examples. Default value is window size.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
             metadata (bool) : Whether to return metadata about the data slice. Default value is False.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
             verbose (bool) : Whether to print metadata about slice. Default value is False.
@@ -262,7 +264,8 @@ class LabelMaker:
             df (DataFrame) : Data frame to search and extract labels.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
             minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str) : Time between examples.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
             verbose (bool) : Whether to render progress bar. Default value is True.
             *args : Positional arguments for labeling function.
