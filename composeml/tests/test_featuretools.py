@@ -1,20 +1,36 @@
 import featuretools as ft
 import pytest
 
-from ..label_maker import LabelMaker
+from composeml import LabelMaker
 
 
-def my_labeling_function(df_slice):
-    label = df_slice['amount'].sum()
-    return label
+def total_spent(df):
+    total = df.amount.sum()
+    return total
 
 
 @pytest.fixture
 def labels():
-    columns = ['transaction_time', 'customer_id', 'amount']
-    df = ft.demo.load_mock_customer(return_single_table=True, random_seed=0)[columns]
-    lm = LabelMaker(target_entity='customer_id', time_index='transaction_time', labeling_function=my_labeling_function, window_size='1h')
-    lt = lm.search(df, minimum_data='10min', num_examples_per_instance=2, gap='30min')
+    df = ft.demo.load_mock_customer(return_single_table=True, random_seed=0)
+    df = df[['transaction_time', 'customer_id', 'amount']]
+    df.sort_values('transaction_time', inplace=True)
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='transaction_time',
+        labeling_function=total_spent,
+        window_size='1h',
+    )
+
+    lt = lm.search(
+        df,
+        minimum_data='10min',
+        num_examples_per_instance=2,
+        gap='30min',
+        drop_empty=True,
+        verbose=False,
+    )
+
     lt = lt.threshold(1250)
     return lt
 
