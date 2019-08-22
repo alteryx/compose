@@ -1,13 +1,10 @@
-from os import path
+import pandas as pd
+import os
 
-from pandas import read_csv
-
-
-def _data():
-    return path.join(path.dirname(__file__), 'data')
+DATA = os.path.join(os.path.dirname(__file__))
 
 
 def transactions():
-    file = path.join(_data(), 'transactions.csv')
-    df = read_csv(file, parse_dates=['transaction_time'], index_col='transaction_time')
+    path = os.path.join(DATA, 'transactions.csv')
+    df = pd.read_csv(path, parse_dates=['transaction_time'])
     return df
