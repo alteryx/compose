@@ -160,8 +160,12 @@ class LabelMaker:
                 window_end = cutoff_time + self.window_size
                 df_slice = df[:window_end]
 
+                # Pandas includes both endpoints when slicing by time.
+                # This results in the right endpoint overlapping in consecutive data slices.
+                # Resolved by making the right endpoint exclusive.
+                # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
+
                 if not df_slice.empty:
-                    # exclude last row to avoid overlap
                     is_overlap = df_slice.index == window_end
 
                     if df_slice.index.size > 1 and is_overlap.any():
