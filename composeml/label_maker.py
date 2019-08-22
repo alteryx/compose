@@ -310,12 +310,13 @@ class LabelMaker:
             if finite_examples_per_instance:
                 progress_bar.update(n=1)
 
+                # update skipped examples for previous instance
                 if first_slice_for_instance:
                     instance += 1
-                    n = instance - 1
-                    n *= num_examples_per_instance
-                    n -= progress_bar.n
-                    progress_bar.update(n=n)
+                    skipped_examples = instance - 1
+                    skipped_examples *= num_examples_per_instance
+                    skipped_examples -= progress_bar.n
+                    progress_bar.update(n=skipped_examples)
 
             if not finite_examples_per_instance and first_slice_for_instance:
                 progress_bar.update(n=1)
