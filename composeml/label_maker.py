@@ -278,9 +278,9 @@ class LabelMaker:
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
         total = len(df.groupby(self.target_entity))
-        finite = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
+        finite_examples_per_instance = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
 
-        if finite:
+        if finite_examples_per_instance:
             total *= num_examples_per_instance
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
@@ -305,19 +305,19 @@ class LabelMaker:
                 label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
                 labels.append(label)
 
-            new_instance = metadata['slice'] == 1
+            first_slice_for_instance = metadata['slice'] == 1
 
-            if finite:
+            if finite_examples_per_instance:
                 progress_bar.update(n=1)
 
-                if new_instance:
+                if first_slice_for_instance:
                     instance += 1
                     n = instance - 1
                     n *= num_examples_per_instance
                     n -= progress_bar.n
                     progress_bar.update(n=n)
 
-            if not finite and new_instance:
+            if not finite_examples_per_instance and first_slice_for_instance:
                 progress_bar.update(n=1)
 
         total -= progress_bar.n
