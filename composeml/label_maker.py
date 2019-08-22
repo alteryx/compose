@@ -132,7 +132,7 @@ class LabelMaker:
         gap = to_offset(gap or self.window_size)
 
         df = df.loc[df.index.notnull()]
-        df.sort_index(inplace=True)
+        assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
 
         if df.empty:
             return
