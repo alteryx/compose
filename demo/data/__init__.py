@@ -35,7 +35,9 @@ def add_time(df, start='2015-01-01'):
     return df
 
 
-def load_orders(data_dir, nrows={}):
+def load_orders(data_dir=None, nrows=1000000):
+    data_dir = data_dir or os.path.dirname(__file__)
+
     def path(key):
         file = '{}.csv'.format(key)
         value = os.path.join(data_dir, file)
