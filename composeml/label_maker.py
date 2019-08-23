@@ -54,6 +54,7 @@ def cutoff_data(df, threshold):
 
     return df, cutoff_time
 
+
 def is_offset(value):
     """Checks whether a value is an offset.
 
