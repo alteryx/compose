@@ -6,7 +6,7 @@
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/master)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
-[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](http://docs.compose.ml/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](https://compose.featurelabs.com/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](http://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 
@@ -111,7 +111,7 @@ def total_spent(df):
 ```
 
 ### Construct Label Maker
-With the labeling function, we create the [`LabelMaker`](http://docs.compose.ml/en/latest/generated/composeml.LabelMaker.html#composeml-labelmaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
+With the labeling function, we create the [`LabelMaker`](https://compose.featurelabs.com/en/latest/generated/composeml.LabelMaker.html#composeml.LabelMaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
 
 ```python
 label_maker = cp.LabelMaker(
@@ -123,7 +123,7 @@ label_maker = cp.LabelMaker(
 ```
 
 ### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](http://docs.compose.ml/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker. For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
+Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker. For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
 
 ```python
 labels = label_maker.search(
@@ -173,7 +173,7 @@ labels.head()
 </table>
 
 ### Transform Labels
-With the generated [`LabelTimes`](https://docs.compose.ml/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
+With the generated [`LabelTimes`](https://compose.featurelabs.com/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
 
 ```python
 labels = labels.threshold(100)
@@ -265,7 +265,7 @@ labels.head()
 
 ### Describe Labels
 
-After transforming the labels, we can use [`LabelTimes.describe`](https://docs.compose.ml/en/latest/generated/methods/composeml.LabelTimes.describe.html#composeml.LabelTimes.describe) to print out the distribution with the settings and transforms that were used to make these labels. This is useful as a reference for understanding how the labels were generated from raw data. Also, the label distribution is helpful for determining if we have imbalanced labels.
+After transforming the labels, we can use [`LabelTimes.describe`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelTimes.describe.html#composeml.LabelTimes.describe) to print out the distribution with the settings and transforms that were used to make these labels. This is useful as a reference for understanding how the labels were generated from raw data. Also, the label distribution is helpful for determining if we have imbalanced labels.
 
 ```python
 labels.describe()
