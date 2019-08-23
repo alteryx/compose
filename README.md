@@ -39,7 +39,8 @@ df = cp.datasets.transactions()
 
 df[df.columns[:7]].head()
 ```
-<table border="1" class="dataframe">
+
+<table border="0" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>transaction_id</th>
@@ -108,6 +109,7 @@ def total_spent(df):
     total = df['amount'].sum()
     return total
 ```
+
 ### Construct Label Maker
 With the labeling function, we create the [`LabelMaker`](http://docs.compose.ml/en/latest/generated/composeml.LabelMaker.html#composeml-labelmaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
 
@@ -119,6 +121,7 @@ label_maker = cp.LabelMaker(
     window_size="1h",
 )
 ```
+
 ### Search Labels
 Next, we automatically search and extract the labels by using [`LabelMaker.search`](http://docs.compose.ml/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker.
 
@@ -132,7 +135,7 @@ labels = label_maker.search(
 
 labels.head()
 ```
-<table border="1" class="dataframe">
+<table border="0" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>customer_id</th>
@@ -169,7 +172,6 @@ labels.head()
   </tbody>
 </table>
 
-
 ### Transform Labels
 With the generated [`LabelTimes`](https://docs.compose.ml/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
 
@@ -178,7 +180,8 @@ labels = labels.threshold(100)
 
 labels.head()
 ```
-<table border="1" class="dataframe">
+
+<table border="0" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>customer_id</th>
@@ -223,7 +226,7 @@ labels = labels.apply_lead('1h')
 labels.head()
 ```
 
-<table border="1" class="dataframe">
+<table border="0" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>customer_id</th>
