@@ -35,12 +35,12 @@ def add_time(df, start='2015-01-01'):
     return df
 
 
-def load_orders(data_dir=None, nrows=1000000):
-    data_dir = data_dir or os.path.dirname(__file__)
+def load_orders(folder=None, nrows=1000000):
+    folder = folder or os.path.dirname(__file__)
 
     def path(key):
         file = '{}.csv'.format(key)
-        value = os.path.join(data_dir, file)
+        value = os.path.join(folder, file)
         return value
 
     order_products = pd.read_csv(path('order_products__prior'), nrows=nrows)
