@@ -54,7 +54,6 @@ def cutoff_data(df, threshold):
 
     return df, cutoff_time
 
-
 def is_offset(value):
     """Checks whether a value is an offset.
 
@@ -65,42 +64,6 @@ def is_offset(value):
         Bool : Whether value is an offset.
     """
     return issubclass(type(value), pd.tseries.offsets.BaseOffset)
-
-
-def iterate_by_range(index, offset):
-    """Generates intervals of an index.
-
-    Args:
-        index (DatetimeIndex) : Index to iterate.
-        offset (int) : Size of the interval.
-
-    Returns:
-        iterable : Start and stop for each interval.
-    """
-    for i in range(index.size):
-        if i % offset == 0:
-            j = i + offset
-
-            if j >= index.size:
-                yield index[i], None
-                break
-
-            yield index[i], index[j]
-
-
-def iterate_by_time(start, offset):
-    """Generates time intervals.
-
-    Args:
-        start (Timestamp) : Start time to base intervals on.
-        offset (offset) : Size of the interval.
-
-    Returns:
-        iterable : Start time and stop time for each interval.
-    """
-    while True:
-        yield start, start + offset
-        start += offset
 
 
 def to_offset(value):
@@ -151,14 +114,15 @@ class LabelMaker:
         if self.window_size is not None:
             self.window_size = to_offset(self.window_size)
 
-    def get_slices(self, df, gap=None, min_data=None, drop_empty=True):
+    def _get_slices(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices.
 
         Args:
             df (DataFrame) : Data frame to generate data slices.
-            gap (str) : Time between slices. Default value is window size.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
             min_data (int or str or Timestamp) : Threshold to cutoff data.
-            drop_empty (bool) : Whether to drop empty slices.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
 
         Returns:
             DataFrame, dict : Returns a data slice and metadata about the data slice.
@@ -167,53 +131,68 @@ class LabelMaker:
         gap = to_offset(gap or self.window_size)
 
         df = df.loc[df.index.notnull()]
-        df.sort_index(inplace=True)
+        assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
 
         if df.empty:
             return
 
         threshold = min_data or df.index[0]
-        df, min_data = cutoff_data(df=df, threshold=threshold)
+        df, cutoff_time = cutoff_data(df=df, threshold=threshold)
 
         if df.empty:
             return
 
         if isinstance(gap, int):
-            intervals = iterate_by_range(index=df.index, offset=gap)
-        else:
-            intervals = iterate_by_time(start=min_data, offset=gap)
+            cutoff_time = df.index[0]
 
-        metadata = {'n_slice': 0, 'min_data': min_data}
+        metadata = {'slice': 0, 'min_data': cutoff_time}
 
-        for cutoff_time, gap_end in intervals:
-            if cutoff_time > df.index[-1]:
-                break
+        def iloc(index, i):
+            if i < index.size:
+                return index[i]
 
-            df = df[cutoff_time:]
-
+        while not df.empty and cutoff_time <= df.index[-1]:
             if isinstance(self.window_size, int):
-                if self.window_size >= df.index.size:
-                    window_end = None
-                else:
-                    window_end = df.index[self.window_size]
+                df_slice = df.iloc[:self.window_size]
+                window_end = iloc(df.index, self.window_size)
+
             else:
                 window_end = cutoff_time + self.window_size
+                df_slice = df[:window_end]
 
-            df_slice = df[:window_end]
+                # Pandas includes both endpoints when slicing by time.
+                # This results in the right endpoint overlapping in consecutive data slices.
+                # Resolved by making the right endpoint exclusive.
+                # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
+
+                if not df_slice.empty:
+                    is_overlap = df_slice.index == window_end
+
+                    if df_slice.index.size > 1 and is_overlap.any():
+                        df_slice = df_slice[~is_overlap]
+
+            metadata['window'] = (cutoff_time, window_end)
+
+            if isinstance(gap, int):
+                gap_end = iloc(df.index, gap)
+                metadata['gap'] = (cutoff_time, gap_end)
+                df = df.iloc[gap:]
+
+                if not df.empty:
+                    cutoff_time = df.index[0]
+
+            else:
+                gap_end = cutoff_time + gap
+                metadata['gap'] = (cutoff_time, gap_end)
+                cutoff_time += gap
+
+                if cutoff_time <= df.index[-1]:
+                    df = df[cutoff_time:]
 
             if df_slice.empty and drop_empty:
                 continue
 
-            metadata['window'] = (cutoff_time, window_end)
-            metadata['gap'] = (cutoff_time, gap_end)
-            metadata['n_slice'] += 1
-
-            if not df_slice.empty:
-                # exclude last row to avoid overlap
-                is_overlap = df_slice.index[-1] == window_end
-
-                if df_slice.size > 1 and is_overlap:
-                    df_slice = df_slice[:-1]
+            metadata['slice'] += 1
 
             yield df_slice, metadata
 
@@ -231,10 +210,11 @@ class LabelMaker:
             df (DataFrame) : Data frame to create slices on.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
             minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str) : Time between examples. Default value is window size.
-            metadata (bool) : Whether to return metadata about the data slice.
-            drop_empty (bool) : Whether to drop empty slices.
-            verbose (bool) : Whether to print metadata about slice.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
+            metadata (bool) : Whether to return metadata about the data slice. Default value is False.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            verbose (bool) : Whether to print metadata about slice. Default value is False.
 
         Returns:
             DataFrame : Slice of data.
@@ -252,7 +232,7 @@ class LabelMaker:
             num_examples_per_instance = float('inf')
 
         for key, df in df.groupby(self.target_entity):
-            slices = self.get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+            slices = self._get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for df_slice, df_metadata in slices:
                 df_metadata[self.target_entity] = key
@@ -265,7 +245,7 @@ class LabelMaker:
 
                 yield df_slice
 
-                if df_metadata['n_slice'] >= num_examples_per_instance:
+                if df_metadata['slice'] >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -282,35 +262,29 @@ class LabelMaker:
         Args:
             df (DataFrame) : Data frame to search and extract labels.
             num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search.
-            gap (str) : Time between examples.
-            drop_empty (bool) : Whether to drop empty slices.
-            verbose (bool) : Whether to render progress bar.
+            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
+            gap (str or int) : Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
+            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            verbose (bool) : Whether to render progress bar. Default value is True.
             *args : Positional arguments for labeling function.
             **kwargs : Keyword arguments for labeling function.
 
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
-        self.window_size = self.window_size or len(df)
-        gap = to_offset(gap or self.window_size)
-
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
         total = len(df.groupby(self.target_entity))
-        finite = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
+        finite_examples_per_instance = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
 
-        if finite:
+        if finite_examples_per_instance:
             total *= num_examples_per_instance
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
         name = self.labeling_function.__name__
-        labels, n_instances = [], 0
+        labels, instance = [], 0
 
         slices = self.slice(
             df=df,
@@ -330,19 +304,20 @@ class LabelMaker:
                 label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
                 labels.append(label)
 
-            new_instance = metadata['n_slice'] == 1
+            first_slice_for_instance = metadata['slice'] == 1
 
-            if finite:
+            if finite_examples_per_instance:
                 progress_bar.update(n=1)
 
-                if new_instance:
-                    n_instances += 1
-                    n = n_instances - 1
-                    n *= num_examples_per_instance
-                    n -= progress_bar.n
-                    progress_bar.update(n=n)
+                # update skipped examples for previous instance
+                if first_slice_for_instance:
+                    instance += 1
+                    skipped_examples = instance - 1
+                    skipped_examples *= num_examples_per_instance
+                    skipped_examples -= progress_bar.n
+                    progress_bar.update(n=skipped_examples)
 
-            if not finite and new_instance:
+            if not finite_examples_per_instance and first_slice_for_instance:
                 progress_bar.update(n=1)
 
         total -= progress_bar.n
@@ -393,8 +368,8 @@ class LabelMaker:
         gap = metadata.get('gap', empty)
 
         info = {
+            'slice': metadata['slice'],
             self.target_entity: metadata.get(self.target_entity),
-            'n_slice': metadata['n_slice'],
             'window': '[{}, {})'.format(*window),
             'gap': '[{}, {})'.format(*gap),
         }

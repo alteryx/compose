@@ -12,6 +12,8 @@ def total_spent(df):
 @pytest.fixture
 def labels():
     df = ft.demo.load_mock_customer(return_single_table=True, random_seed=0)
+    df = df[['transaction_time', 'customer_id', 'amount']]
+    df.sort_values('transaction_time', inplace=True)
 
     lm = LabelMaker(
         target_entity='customer_id',
@@ -21,7 +23,7 @@ def labels():
     )
 
     lt = lm.search(
-        df[['transaction_time', 'customer_id', 'amount']],
+        df,
         minimum_data='10min',
         num_examples_per_instance=2,
         gap='30min',
