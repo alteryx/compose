@@ -6,7 +6,7 @@ setup(
     author='Feature Labs, Inc.',
     author_email='support@featurelabs.com',
     license='BSD 3-clause',
-    url='http://compose.ml',
+    url='https://compose.featurelabs.com',
     install_requires=open('requirements.txt').readlines(),
     tests_require=open('test-requirements.txt').readlines(),
     long_description=open('README.md').read(),
