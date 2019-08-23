@@ -123,7 +123,7 @@ label_maker = cp.LabelMaker(
 ```
 
 ### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](http://docs.compose.ml/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker.
+Next, we automatically search and extract the labels by using [`LabelMaker.search`](http://docs.compose.ml/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker. For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
 
 ```python
 labels = label_maker.search(
