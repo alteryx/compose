@@ -35,7 +35,7 @@ With the package installed, we load in the data. To get an idea on how the trans
 ```python
 import composeml as cp
 
-df = cp.datasets.transactions()
+df = cp.demos.load_transactions()
 
 df[df.columns[:7]].head()
 ```
