@@ -35,7 +35,7 @@ With the package installed, we load in the data. To get an idea on how the trans
 ```python
 import composeml as cp
 
-df = cp.datasets.transactions()
+df = cp.demos.load_transactions()
 
 df[df.columns[:7]].head()
 ```
@@ -123,7 +123,7 @@ label_maker = cp.LabelMaker(
 ```
 
 ### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). The data must be sorted by the time index before passing into the label maker. For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
+Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
 
 ```python
 labels = label_maker.search(
@@ -176,7 +176,7 @@ labels.head()
 With the generated [`LabelTimes`](https://compose.featurelabs.com/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
 
 ```python
-labels = labels.threshold(100)
+labels = labels.threshold(300)
 
 labels.head()
 ```
