@@ -12,9 +12,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+
+import os
+import sys
+
+path = os.path.join('..', '..')
+sys.path.insert(0, os.path.abspath(path))
 
 from composeml import __version__ as version
 # -- Project information -----------------------------------------------------
