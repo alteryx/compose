@@ -11,6 +11,6 @@ setup(
     tests_require=open('test-requirements.txt').readlines(),
     long_description=open('README.md').read(),
     packages=find_packages(),
-    package_data={'composeml': ['datasets/*.csv']},
+    package_data={'composeml': ['demos/*.csv']},
     include_package_data=True,
 )
