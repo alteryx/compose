@@ -30,6 +30,14 @@ What is Compose?
     guides/*
 
 .. toctree::
+    :caption: Examples
+    :glob:
+    :hidden:
+    :includehidden:
+
+    examples/**/*
+
+.. toctree::
     :caption: Resources
     :hidden:
 
