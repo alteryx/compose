@@ -1,4 +1,4 @@
-git+https://github.com/FeatureLabs/compose-ml.git
+git+https://github.com/FeatureLabs/compose.git@update-doc-examples
 jupyter==1.0.0
 nbconvert==5.5.0
 nbsphinx==0.4.2
