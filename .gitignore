@@ -1,6 +1,7 @@
 # IDE
 .vscode
-demo
+docs/source/examples/**/*.csv
+docs/source/examples/**/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
