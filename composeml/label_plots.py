@@ -3,7 +3,7 @@ import seaborn as sns
 from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
-sns.set_context('paper')
+sns.set_context('notebook')
 sns.set_style('darkgrid')
 COLOR = sns.color_palette("Set1", n_colors=100, desat=.75)
 
@@ -14,12 +14,11 @@ class LabelPlots:
     def __init__(self, label_times):
         self._label_times = label_times
 
-    def count_by_time(self, **kwargs):
+    def count_by_time(self, ax=None, **kwargs):
         count_by_time = self._label_times.count_by_time
 
         if count_by_time is not None:
-            fig, ax = plt.subplots()
-            fig.autofmt_xdate()
+            ax = ax or plt.axes()
 
             ax.stackplot(
                 count_by_time.index,
@@ -37,6 +36,7 @@ class LabelPlots:
                 framealpha=.9,
             )
 
+            ax.figure.autofmt_xdate()
             ax.set_title('Label Count vs. Cutoff Time')
             ax.set_ylabel('Count')
             ax.set_xlabel('Time')
