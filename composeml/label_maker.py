@@ -327,7 +327,6 @@ class LabelMaker:
 
         labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
         labels = labels.rename_axis('id', axis=0)
-        labels = labels._with_plots()
 
         if labels.empty:
             return labels

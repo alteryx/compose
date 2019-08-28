@@ -1,9 +1,24 @@
 import pandas as pd
+from composeml.label_plots import LabelPlots
+
+
+def is_categorical(label_times, thresh=.5):
+    """Infer whether labels are categorical.
+
+    Args:
+        label_times (LabelTimes) : instance of label times
+        thresh (float) : threshold to apply on unique ratio
+
+    Returns:
+        bool : whether labels are categorical
+    """
+    label_times = label_times[label_times.name]
+    unique_ratio = label_times.nunique() / len(label_times)
+    return unique_ratio <= thresh
 
 
 class LabelTimes(pd.DataFrame):
-    """
-    A data frame containing labels made by a label maker.
+    """A data frame containing labels made by a label maker.
 
     Attributes:
         name
@@ -19,47 +34,32 @@ class LabelTimes(pd.DataFrame):
         self.target_entity = target_entity
         self.settings = settings or {}
         self.transforms = transforms or []
+        self.plot = LabelPlots(self)
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
-    def distribution(self):
-        labels = self.assign(count=1)
-        labels = labels.groupby(self.name)
-        distribution = labels['count'].count()
-        return distribution
+    def _is_categorical(self):
+        return is_categorical(self.iloc[:100], thresh=.5)
 
-    def _plot_distribution(self, **kwargs):
-        plot = self.distribution.plot(kind='bar', **kwargs)
-        plot.set_title('Label Distribution')
-        plot.set_ylabel('count')
-        return plot
+    @property
+    def distribution(self):
+        if self._is_categorical:
+            labels = self.assign(count=1)
+            labels = labels.groupby(self.name)
+            distribution = labels['count'].count()
+            return distribution
 
     @property
     def count_by_time(self):
-        count = self.assign(count=1)
-        count = count.sort_values('cutoff_time')
-        count = count.set_index([self.name, 'cutoff_time'])
-        count = count.groupby(self.name)
-        count = count['count'].cumsum()
-        return count
-
-    def _plot_count_by_time(self, **kwargs):
-        count = self.count_by_time
-        count = count.unstack(self.name)
-        count = count.ffill()
-
-        plot = count.plot(kind='area', **kwargs)
-        plot.set_title('Label Count vs. Time')
-        plot.set_ylabel('count')
-        return plot
-
-    def _with_plots(self):
-        self.plot.count_by_time = self._plot_count_by_time
-        self.plot.distribution = self._plot_distribution
-        return self
+        if self._is_categorical:
+            keys = ['cutoff_time', self.name]
+            count = self.groupby(keys).cutoff_time.count()
+            count = count.unstack(self.name).fillna(0)
+            count = count.cumsum()
+            return count
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
@@ -99,7 +99,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = super().copy()
         labels.transforms = labels.transforms.copy()
-        return labels._with_plots()
+        return labels
 
     def threshold(self, value, inplace=False):
         """
