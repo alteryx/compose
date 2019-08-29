@@ -1,6 +1,7 @@
 import matplotlib as mpl
-import seaborn as sns
 import pandas as pd
+
+import seaborn as sns
 
 pd.plotting.register_matplotlib_converters()
 sns.set_context('notebook')
@@ -52,7 +53,7 @@ class LabelPlots:
                 framealpha=.9,
             )
 
-            ax.set_title('Label Count vs. Cutoff Time')
+            ax.set_title('Label Count vs. Cutoff Times')
             ax.set_ylabel('Count')
             ax.set_xlabel('Time')
 
@@ -63,7 +64,7 @@ class LabelPlots:
                 color=COLOR[1],
             )
 
-            ax.set_title('Label vs. Cutoff Time')
+            ax.set_title('Label vs. Cutoff Times')
             ax.set_ylabel(self._label_times.name)
             ax.set_xlabel('Time')
 
