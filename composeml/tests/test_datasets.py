@@ -1,12 +1,12 @@
 import pytest
 
-from .. import datasets
+from .. import demos
 
 
 @pytest.fixture
 def transactions():
-    return datasets.transactions()
+    return demos.load_transactions()
 
 
 def test_transactions(transactions):
-    assert len(transactions) == 150
+    assert len(transactions) == 100

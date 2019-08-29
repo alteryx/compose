@@ -19,7 +19,7 @@
 from composeml import __version__ as version
 # -- Project information -----------------------------------------------------
 
-project = 'ComposeML'
+project = 'Compose'
 copyright = '2019, Feature Labs, Inc.'
 author = 'Feature Labs, Inc.'
 
@@ -105,7 +105,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ComposeMLdoc'
+htmlhelp_basename = 'Composedoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -132,7 +132,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ComposeML.tex', 'ComposeML Documentation',
+    (master_doc, 'Compose.tex', 'Compose Documentation',
      'Feature Labs, Inc.', 'manual'),
 ]
 
@@ -142,7 +142,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'composeml', 'ComposeML Documentation',
+    (master_doc, 'composeml', 'Compose Documentation',
      [author], 1)
 ]
 
@@ -153,8 +153,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ComposeML', 'ComposeML Documentation',
-     author, 'ComposeML', 'One line description of project.',
+    (master_doc, 'Compose', 'Compose Documentation',
+     author, 'Compose', 'One line description of project.',
      'Miscellaneous'),
 ]
 

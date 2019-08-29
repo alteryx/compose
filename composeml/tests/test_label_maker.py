@@ -407,23 +407,22 @@ def test_search_empty_labels(transactions):
     assert given_labels.empty
 
 
-def test_slice(transactions):
+def test_slice_overlap(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
         labeling_function=total_spent,
-        window_size='2h',
+        window_size='1h',
     )
 
     slices = lm.slice(
         transactions,
         num_examples_per_instance=2,
-        minimum_data='30min',
-        gap='2h',
         metadata=True,
         verbose=True,
     )
 
     for df, metadata in slices:
-        assert isinstance(df, pd.DataFrame)
-        assert isinstance(metadata, dict)
+        start, end = metadata['window']
+        is_overlap = df.index == end
+        assert not is_overlap.any()
