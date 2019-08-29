@@ -42,10 +42,12 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def _is_categorical(self):
+        """Whether labels are categorical."""
         return is_categorical(self.iloc[:100], thresh=.5)
 
     @property
     def distribution(self):
+        """Returns label distribution if labels are discrete."""
         if self._is_categorical:
             labels = self.assign(count=1)
             labels = labels.groupby(self.name)
@@ -54,12 +56,16 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def count_by_time(self):
+        """Returns label count across cutoff times."""
         if self._is_categorical:
             keys = ['cutoff_time', self.name]
-            count = self.groupby(keys).cutoff_time.count()
-            count = count.unstack(self.name).fillna(0)
-            count = count.cumsum()
-            return count
+            value = self.groupby(keys).cutoff_time.count()
+            value = value.unstack(self.name).fillna(0)
+            value = value.cumsum()
+            return value
+        else:
+            value = self.set_index('cutoff_time')[self.name]
+            return value
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
