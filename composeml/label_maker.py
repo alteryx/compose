@@ -331,9 +331,6 @@ class LabelMaker:
         if labels.empty:
             return labels
 
-        if labels.empty:
-            return labels
-
         labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': minimum_data,
