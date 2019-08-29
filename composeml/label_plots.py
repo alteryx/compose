@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
-from pandas.plotting import register_matplotlib_converters
+import pandas as pd
 
-register_matplotlib_converters()
+pd.plotting.register_matplotlib_converters()
 sns.set_context('notebook')
 sns.set_style('darkgrid')
 COLOR = sns.color_palette("Set1", n_colors=100, desat=.75)
@@ -24,7 +24,15 @@ class LabelPlots:
         count_by_time = self._label_times.count_by_time
         count_by_time.sort_index(inplace=True)
 
-        ax = ax or plt.axes()
+        ax = ax or mpl.pyplot.axes()
+        vmin = count_by_time.index.min()
+        vmax = count_by_time.index.max()
+        ax.set_xlim(vmin, vmax)
+
+        locator = mpl.dates.AutoDateLocator()
+        formatter = mpl.dates.AutoDateFormatter(locator)
+        ax.xaxis.set_major_locator(locator)
+        ax.xaxis.set_major_formatter(formatter)
         ax.figure.autofmt_xdate()
 
         if len(count_by_time.shape) > 1:
@@ -47,7 +55,6 @@ class LabelPlots:
             ax.set_title('Label Count vs. Cutoff Time')
             ax.set_ylabel('Count')
             ax.set_xlabel('Time')
-            return ax
 
         else:
             ax.fill_between(
@@ -59,7 +66,8 @@ class LabelPlots:
             ax.set_title('Label vs. Cutoff Time')
             ax.set_ylabel(self._label_times.name)
             ax.set_xlabel('Time')
-            return ax
+
+        return ax
 
     def distribution(self, **kwargs):
         """Plots the label distribution."""
