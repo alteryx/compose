@@ -69,11 +69,12 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        print('Label Distribution\n' + '-' * 18, end='\n')
-        distribution = self[self.name].value_counts()
-        distribution.index = distribution.index.astype('str')
-        distribution['Total:'] = distribution.sum()
-        print(distribution.to_string(), end='\n\n\n')
+        if self._is_categorical:
+            print('Label Distribution\n' + '-' * 18, end='\n')
+            distribution = self[self.name].value_counts()
+            distribution.index = distribution.index.astype('str')
+            distribution['Total:'] = distribution.sum()
+            print(distribution.to_string(), end='\n\n\n')
 
         print('Settings\n' + '-' * 8, end='\n')
         settings = pd.Series(self.settings)
