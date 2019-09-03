@@ -69,6 +69,11 @@ class LabelPlots:
 
         return ax
 
+    @property
+    def dist(self):
+        """Alias for distribution."""
+        return self.distribution
+
     def distribution(self, **kwargs):
         """Plots the label distribution."""
         dist = self._label_times[self._label_times.name]
