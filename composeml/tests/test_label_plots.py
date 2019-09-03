@@ -12,10 +12,10 @@ def test_count_by_time_continuous(total_spent):
 
 def test_distribution_categorical(total_spent):
     ax = total_spent.bin(2, labels=range(2))
-    ax = ax.plot.distribution()
+    ax = ax.plot.dist()
     assert ax.get_title() == 'Label Distribution'
 
 
 def test_distribution_continuous(total_spent):
-    ax = total_spent.plot.distribution()
+    ax = total_spent.plot.dist()
     assert ax.get_title() == 'Label Distribution'
