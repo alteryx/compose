@@ -65,7 +65,9 @@ class LabelTimes(pd.DataFrame):
             value = value.cumsum()
             return value
         else:
-            value = self.set_index('cutoff_time')[self.name]
+            value = self.groupby('cutoff_time')
+            value = value[self.name].count()
+            value = value.cumsum()
             return value
 
     def describe(self):
