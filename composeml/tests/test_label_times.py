@@ -67,3 +67,8 @@ def test_distribution_categorical(total_spent):
 
 def test_distribution_continous(total_spent):
     assert total_spent.distribution is None
+
+
+def test_infer_type(total_spent):
+    assert total_spent.threshold(5).infer_type().is_categorical
+    assert total_spent.bin(2).infer_type().is_categorical

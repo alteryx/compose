@@ -3,21 +3,6 @@ import pandas as pd
 from composeml.label_plots import LabelPlots
 
 
-def is_categorical(label_times, thresh=.5):
-    """Infer whether labels are categorical.
-
-    Args:
-        label_times (LabelTimes) : instance of label times
-        thresh (float) : threshold to apply on unique ratio
-
-    Returns:
-        bool : whether labels are categorical
-    """
-    label_times = label_times[label_times.name]
-    unique_ratio = label_times.nunique() / len(label_times)
-    return unique_ratio <= thresh
-
-
 class LabelTimes(pd.DataFrame):
     """A data frame containing labels made by a label maker.
 
@@ -42,14 +27,15 @@ class LabelTimes(pd.DataFrame):
         return LabelTimes
 
     @property
-    def _is_categorical(self):
+    def is_categorical(self):
         """Whether labels are categorical."""
-        return is_categorical(self.iloc[:100], thresh=.5)
+        dtype = self[self.name].dtype
+        return pd.api.types.is_categorical_dtype(dtype)
 
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
-        if self._is_categorical:
+        if self.is_categorical:
             labels = self.assign(count=1)
             labels = labels.groupby(self.name)
             distribution = labels['count'].count()
@@ -58,7 +44,7 @@ class LabelTimes(pd.DataFrame):
     @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
-        if self._is_categorical:
+        if self.is_categorical:
             keys = ['cutoff_time', self.name]
             value = self.groupby(keys).cutoff_time.count()
             value = value.unstack(self.name).fillna(0)
@@ -72,7 +58,7 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self._is_categorical:
+        if self.is_categorical:
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
@@ -328,3 +314,21 @@ class LabelTimes(pd.DataFrame):
 
             labels = pd.concat(sample_per_label, axis=0, sort=False)
             return labels
+
+    def infer_type(self):
+        """Infer label type.
+
+        Returns:
+            LabelTimes : Label Times as inferred type.
+        """
+        if self.is_categorical:
+            return self
+
+        labels = self[self.name]
+        is_category_like = pd.api.types.is_bool_dtype(labels.dtype) or pd.api.types.is_object_dtype(labels.dtype)
+
+        if is_category_like or labels.nunique() / len(labels) <= .5:
+            self[self.name] = self[self.name].astype('category')
+            return self
+
+        return self

@@ -78,7 +78,7 @@ class LabelPlots:
         """Plots the label distribution."""
         dist = self._label_times[self._label_times.name]
 
-        if self._label_times._is_categorical:
+        if self._label_times.is_categorical:
             ax = sns.countplot(dist, palette=COLOR, **kwargs)
         else:
             ax = sns.distplot(dist, kde=True, color=COLOR[1], **kwargs)
