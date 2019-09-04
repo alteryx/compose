@@ -34,14 +34,23 @@ Transform Methods
     LabelTimes.bin
     LabelTimes.threshold
 
+.. currentmodule:: composeml.label_plots
+
+Label Plots
+===========
+
+.. autosummary::
+    :toctree: generated
+    :template: class.rst
+    :nosignatures:
+
+    LabelPlots
+
 Plotting Methods
 ----------------
 
-.. list-table::
-   :widths: 25 75
-   :header-rows: 0
+.. autosummary::
+    :nosignatures:
 
-   * - :mod:`LabelTimes.plot.distribution`
-     - Plot the label distribution.
-   * - :mod:`LabelTimes.plot.count_by_time`
-     - Plot the label count vs. time.
+    LabelPlots.count_by_time
+    LabelPlots.distribution 
