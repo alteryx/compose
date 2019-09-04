@@ -32,6 +32,7 @@ Transform Methods
 
     LabelTimes.apply_lead
     LabelTimes.bin
+    LabelTimes.sample
     LabelTimes.threshold
 
 .. currentmodule:: composeml.label_plots
