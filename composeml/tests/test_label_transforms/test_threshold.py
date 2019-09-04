@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 def test_threshold(labels):
     labels = labels.threshold(200)
     transform = labels.transforms[0]
