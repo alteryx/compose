@@ -327,7 +327,7 @@ class LabelTimes(pd.DataFrame):
         labels = self[self.name].iloc[:100]
         is_category_like = pd.api.types.is_bool_dtype(labels.dtype) or pd.api.types.is_object_dtype(labels.dtype)
 
-        if is_category_like or labels.nunique() / min(100, len(labels)) <= .5:
+        if is_category_like or labels.nunique() / len(labels) <= .5:
             self[self.name] = self[self.name].astype('category')
             return self
 
