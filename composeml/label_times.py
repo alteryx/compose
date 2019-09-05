@@ -110,6 +110,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels[self.name] = labels[self.name].gt(value)
+        labels.infer_type()
 
         transform = {'__name__': 'threshold', 'value': value}
         labels.transforms.append(transform)
