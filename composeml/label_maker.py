@@ -7,23 +7,6 @@ from composeml.label_times import LabelTimes
 from composeml.utils import can_be_type
 
 
-class DataSlice(pd.DataFrame):
-    """Metadata for data slice.
-
-    Attributes:
-        gap
-        slice
-        target_entity
-        target_instance
-        window
-    """
-    _metadata = ['gap', 'slice', 'target_entity', 'target_instance', 'window']
-
-    @property
-    def _constructor(self):
-        return DataSlice
-
-
 def cutoff_data(df, threshold):
     """Cuts off data before the threshold.
 
@@ -109,6 +92,23 @@ def to_offset(value):
         offset = value
 
     return offset
+
+
+class DataSlice(pd.DataFrame):
+    """Metadata for data slice.
+
+    Attributes:
+        gap
+        slice
+        target_entity
+        target_instance
+        window
+    """
+    _metadata = ['gap', 'slice', 'target_entity', 'target_instance', 'window']
+
+    @property
+    def _constructor(self):
+        return DataSlice
 
 
 class LabelMaker:
