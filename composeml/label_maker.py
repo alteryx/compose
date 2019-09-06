@@ -7,6 +7,20 @@ from composeml.label_times import LabelTimes
 from composeml.utils import can_be_type
 
 
+class Context(dict):
+    @property
+    def gap(self):
+        return self.get('gap')
+
+    @property
+    def window(self):
+        return self.get('window')
+
+    @property
+    def slice(self):
+        return self.get('slice')
+
+
 def cutoff_data(df, threshold):
     """Cuts off data before the threshold.
 
@@ -285,7 +299,10 @@ class LabelMaker:
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
         name = self.labeling_function.__name__
-        labels, instance = [], 0
+        context, labels, instance = Context(), [], 0
+
+        if 'context' in params: kwargs.update(context=context)
+        if 'cxt' in params: kwargs.update(cxt=context)
 
         slices = self.slice(
             df=df,
