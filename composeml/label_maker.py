@@ -1,5 +1,4 @@
 from sys import stdout
-from inspect import signature
 
 import pandas as pd
 from tqdm import tqdm
@@ -9,8 +8,16 @@ from composeml.utils import can_be_type
 
 
 class DataSlice(pd.DataFrame):
-    """Metadata for data slice."""
-    _metadata = ['gap', 'window', 'slice']
+    """Metadata for data slice.
+
+    Attributes:
+        gap
+        slice
+        target_entity
+        target_instance
+        window
+    """
+    _metadata = ['gap', 'slice', 'target_entity', 'target_instance', 'window']
 
     @property
     def _constructor(self):
@@ -136,7 +143,7 @@ class LabelMaker:
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
 
         Returns:
-            DataFrame, dict : Returns a data slice and metadata about the data slice.
+            DataSlice : Returns a data slice.
         """
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
@@ -156,7 +163,8 @@ class LabelMaker:
         if isinstance(gap, int):
             cutoff_time = df.index[0]
 
-        metadata = {'slice': 0, 'min_data': cutoff_time}
+        df = DataSlice(df)
+        df.slice = 1
 
         def iloc(index, i):
             if i < index.size:
@@ -182,11 +190,11 @@ class LabelMaker:
                     if df_slice.index.size > 1 and is_overlap.any():
                         df_slice = df_slice[~is_overlap]
 
-            metadata['window'] = (cutoff_time, window_end)
+            df_slice.window = (cutoff_time, window_end)
 
             if isinstance(gap, int):
                 gap_end = iloc(df.index, gap)
-                metadata['gap'] = (cutoff_time, gap_end)
+                df_slice.gap = (cutoff_time, gap_end)
                 df = df.iloc[gap:]
 
                 if not df.empty:
@@ -194,7 +202,7 @@ class LabelMaker:
 
             else:
                 gap_end = cutoff_time + gap
-                metadata['gap'] = (cutoff_time, gap_end)
+                df_slice.gap = (cutoff_time, gap_end)
                 cutoff_time += gap
 
                 if cutoff_time <= df.index[-1]:
@@ -203,18 +211,11 @@ class LabelMaker:
             if df_slice.empty and drop_empty:
                 continue
 
-            metadata['slice'] += 1
+            df.slice += 1
 
-            yield df_slice, metadata
+            yield df_slice
 
-    def slice(self,
-              df,
-              num_examples_per_instance,
-              minimum_data=None,
-              gap=None,
-              metadata=False,
-              drop_empty=True,
-              verbose=False):
+    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True, verbose=False):
         """Generates data slices of target entity.
 
         Args:
@@ -223,12 +224,11 @@ class LabelMaker:
             minimum_data (str) : Minimum data before starting search. Default value is first time of index.
             gap (str or int) : Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            metadata (bool) : Whether to return metadata about the data slice. Default value is False.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
             verbose (bool) : Whether to print metadata about slice. Default value is False.
 
         Returns:
-            DataFrame : Slice of data.
+            DataSlice : Retruns data slice.
         """
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
@@ -242,21 +242,19 @@ class LabelMaker:
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
 
-        for key, df in df.groupby(self.target_entity):
-            slices = self._get_slices(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+        for key, instance in df.groupby(self.target_entity):
+            slices = self._get_slices(df=instance, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
-            for df_slice, df_metadata in slices:
-                df_metadata[self.target_entity] = key
+            for df in slices:
+                df.target_entity = self.target_entity
+                df.target_instance = key
 
                 if verbose:
-                    self.print_slice(df_metadata)
+                    self.print_slice(df)
 
-                if metadata:
-                    df_slice = df_slice, df_metadata
+                yield df
 
-                yield df_slice
-
-                if df_metadata['slice'] >= num_examples_per_instance:
+                if df.slice >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -284,8 +282,6 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
-        assert 'context' not in kwargs, 'context is a reserved argument'
-
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
@@ -302,30 +298,20 @@ class LabelMaker:
             num_examples_per_instance=num_examples_per_instance,
             minimum_data=minimum_data,
             gap=gap,
-            metadata=True,
             drop_empty=drop_empty,
             verbose=False)
 
         name = self.labeling_function.__name__
-        parameters = signature(self.labeling_function).parameters
-        context = Context()
-
-        if 'context' in parameters:
-            kwargs.update(context=context)
-
         labels, instance = [], 0
 
-        for df, metadata in slices:
-            context.update(metadata)
+        for df in slices:
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
-                key = df[self.target_entity].iloc[0]
-                cutoff_time = metadata['window'][0]
-                label = {self.target_entity: key, 'cutoff_time': cutoff_time, name: label}
+                label = {self.target_entity: df.target_instance, 'cutoff_time': df.window[0], name: label}
                 labels.append(label)
 
-            first_slice_for_instance = metadata['slice'] == 1
+            first_slice_for_instance = df.slice == 1
 
             if finite_examples_per_instance:
                 progress_bar.update(n=1)
@@ -378,21 +364,22 @@ class LabelMaker:
 
         return df
 
-    def print_slice(self, metadata):
+    def print_slice(self, df):
         """Print metadata about slice.
 
         Args:
-            metadata (dict) : metadata about slice
+            df (DataSlice) : data slice
         """
         empty = [None, None]
-        window = metadata.get('window', empty)
-        gap = metadata.get('gap', empty)
+        window = getattr(df, 'window', empty)
+        gap = getattr(df, 'gap', empty)
 
         info = {
-            'slice': metadata['slice'],
-            self.target_entity: metadata.get(self.target_entity),
+            'slice': df.slice,
+            self.target_entity: df.target_instance,
             'window': '[{}, {})'.format(*window),
             'gap': '[{}, {})'.format(*gap),
         }
 
-        print(pd.Series(info).to_string(), end='\n\n')
+        info = pd.Series(info).to_string()
+        print(info, end='\n\n')
