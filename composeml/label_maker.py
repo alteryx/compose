@@ -1,4 +1,5 @@
 from sys import stdout
+from inspect import signature
 
 import pandas as pd
 from tqdm import tqdm
@@ -8,16 +9,21 @@ from composeml.utils import can_be_type
 
 
 class Context(dict):
+    """Metadata for data slice."""
+
     @property
     def gap(self):
+        """Start and stop time for gap."""
         return self.get('gap')
 
     @property
     def window(self):
+        """Start and stop time for window."""
         return self.get('window')
 
     @property
     def slice(self):
+        """Slice number."""
         return self.get('slice')
 
 
@@ -288,6 +294,8 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
+        assert 'context' not in kwargs, 'context is a reserved argument'
+
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
@@ -298,11 +306,6 @@ class LabelMaker:
             total *= num_examples_per_instance
 
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
-        name = self.labeling_function.__name__
-        context, labels, instance = Context(), [], 0
-
-        if 'context' in params: kwargs.update(context=context)
-        if 'cxt' in params: kwargs.update(cxt=context)
 
         slices = self.slice(
             df=df,
@@ -313,7 +316,17 @@ class LabelMaker:
             drop_empty=drop_empty,
             verbose=False)
 
+        name = self.labeling_function.__name__
+        parameters = signature(self.labeling_function).parameters
+        context = Context()
+
+        if 'context' in parameters:
+            kwargs.update(context=context)
+
+        labels, instance = [], 0
+
         for df, metadata in slices:
+            context.update(metadata)
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
