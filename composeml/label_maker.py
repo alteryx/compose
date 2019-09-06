@@ -8,23 +8,13 @@ from composeml.label_times import LabelTimes
 from composeml.utils import can_be_type
 
 
-class Context(dict):
+class DataSlice(pd.DataFrame):
     """Metadata for data slice."""
+    _metadata = ['gap', 'window', 'slice']
 
     @property
-    def gap(self):
-        """Start and stop time for gap."""
-        return self.get('gap')
-
-    @property
-    def window(self):
-        """Start and stop time for window."""
-        return self.get('window')
-
-    @property
-    def slice(self):
-        """Slice number."""
-        return self.get('slice')
+    def _constructor(self):
+        return DataSlice
 
 
 def cutoff_data(df, threshold):
