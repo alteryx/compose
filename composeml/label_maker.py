@@ -228,7 +228,7 @@ class LabelMaker:
             verbose (bool) : Whether to print metadata about slice. Default value is False.
 
         Returns:
-            DataSlice : Retruns data slice.
+            DataSlice : Returns data slice.
         """
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
