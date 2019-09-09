@@ -327,25 +327,19 @@ class LabelMaker:
         progress_bar.update(n=total)
         progress_bar.close()
 
-        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
+        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity, label_type=label_type)
         labels = labels.rename_axis('id', axis=0)
 
         if labels.empty:
             return labels
 
-        if label_type is not None:
-            error = 'label type must be "continuous" or "categorical"'
-            assert label_type in ['continuous', 'categorical'], error
-
-            if label_type == 'categorical':
-                labels[labels.name] = labels[labels.name].astype('category')
-
-        else:
-            labels = labels.infer_type()
+        if labels.label_type == 'discrete':
+            labels[labels.name] = labels[labels.name].astype('category')
 
         labels.settings.update({
+            'labeling_function': name,
             'num_examples_per_instance': num_examples_per_instance,
-            'minimum_data': minimum_data or 0,
+            'minimum_data': str(minimum_data),
             'window_size': self.window_size,
             'gap': gap,
         })
