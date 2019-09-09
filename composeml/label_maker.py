@@ -149,7 +149,7 @@ class LabelMaker:
 
         Args:
             df (DataFrame) : Data frame to generate data slices.
-            gap (str or int) : Time between examples. Default vandrlue is window size.
+            gap (str or int) : Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             min_data (int or str or Timestamp) : Threshold to cutoff data.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
