@@ -94,17 +94,29 @@ def to_offset(value):
     return offset
 
 
-class DataSlice(pd.DataFrame):
-    """Metadata for data slice.
+class Context:
+    """Metadata for data slice."""
 
-    Attributes:
-        gap
-        slice
-        target_entity
-        target_instance
-        window
-    """
-    _metadata = ['gap', 'slice', 'target_entity', 'target_instance', 'window']
+    def __init__(self, gap=None, window=None, slice=None, target_entity=None, target_instance=None):
+        """Metadata for data slice.
+
+        Args:
+            gap (tuple) : Start and stop time for gap.
+            window (tuple) : Start and stop time for window.
+            slice (int) : Slice number.
+            target_entity (int) : Target entity.
+            target_instance (int) : Target instance.
+        """
+        self.gap = gap or (None, None)
+        self.window = window or (None, None)
+        self.slice = slice
+        self.target_entity = target_entity
+        self.target_instance = target_instance
+
+
+class DataSlice(pd.DataFrame):
+    """Data slice for labeling function."""
+    _metadata = ['context']
 
     @property
     def _constructor(self):
@@ -137,7 +149,7 @@ class LabelMaker:
 
         Args:
             df (DataFrame) : Data frame to generate data slices.
-            gap (str or int) : Time between examples. Default value is window size.
+            gap (str or int) : Time between examples. Default vandrlue is window size.
                 If an integer, search will start on the first event after the minimum data.
             min_data (int or str or Timestamp) : Threshold to cutoff data.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
@@ -164,7 +176,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.slice = 1
+        df.context = Context(slice=0)
 
         def iloc(index, i):
             if i < index.size:
@@ -190,11 +202,11 @@ class LabelMaker:
                     if df_slice.index.size > 1 and is_overlap.any():
                         df_slice = df_slice[~is_overlap]
 
-            df_slice.window = (cutoff_time, window_end)
+            df_slice.context.window = (cutoff_time, window_end)
 
             if isinstance(gap, int):
                 gap_end = iloc(df.index, gap)
-                df_slice.gap = (cutoff_time, gap_end)
+                df_slice.context.gap = (cutoff_time, gap_end)
                 df = df.iloc[gap:]
 
                 if not df.empty:
@@ -202,7 +214,7 @@ class LabelMaker:
 
             else:
                 gap_end = cutoff_time + gap
-                df_slice.gap = (cutoff_time, gap_end)
+                df_slice.context.gap = (cutoff_time, gap_end)
                 cutoff_time += gap
 
                 if cutoff_time <= df.index[-1]:
@@ -211,7 +223,7 @@ class LabelMaker:
             if df_slice.empty and drop_empty:
                 continue
 
-            df.slice += 1
+            df.context.slice += 1
 
             yield df_slice
 
@@ -246,15 +258,15 @@ class LabelMaker:
             slices = self._get_slices(df=instance, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for df in slices:
-                df.target_entity = self.target_entity
-                df.target_instance = key
+                df.context.target_entity = self.target_entity
+                df.context.target_instance = key
 
                 if verbose:
                     self.print_slice(df)
 
                 yield df
 
-                if df.slice >= num_examples_per_instance:
+                if df.context.slice >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -308,10 +320,10 @@ class LabelMaker:
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
-                label = {self.target_entity: df.target_instance, 'cutoff_time': df.window[0], name: label}
+                label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
                 labels.append(label)
 
-            first_slice_for_instance = df.slice == 1
+            first_slice_for_instance = df.context.slice == 1
 
             if finite_examples_per_instance:
                 progress_bar.update(n=1)
@@ -370,15 +382,11 @@ class LabelMaker:
         Args:
             df (DataSlice) : data slice
         """
-        empty = [None, None]
-        window = getattr(df, 'window', empty)
-        gap = getattr(df, 'gap', empty)
-
         info = {
-            'slice': df.slice,
-            self.target_entity: df.target_instance,
-            'window': '[{}, {})'.format(*window),
-            'gap': '[{}, {})'.format(*gap),
+            'slice': df.context.slice,
+            self.target_entity: df.context.target_instance,
+            'window': '[{}, {})'.format(*df.context.window),
+            'gap': '[{}, {})'.format(*df.context.gap),
         }
 
         info = pd.Series(info).to_string()
