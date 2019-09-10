@@ -97,7 +97,7 @@ def to_offset(value):
 class Context:
     """Metadata for data slice."""
 
-    def __init__(self, gap=None, window=None, slice=None, target_entity=None, target_instance=None):
+    def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
         """Metadata for data slice.
 
         Args:
@@ -109,7 +109,7 @@ class Context:
         """
         self.gap = gap or (None, None)
         self.window = window or (None, None)
-        self.slice = slice
+        self.slice_number = slice_number
         self.target_entity = target_entity
         self.target_instance = target_instance
 
@@ -223,7 +223,7 @@ class LabelMaker:
             if df_slice.empty and drop_empty:
                 continue
 
-            df.context.slice += 1
+            df.context.slice_number += 1
 
             yield df_slice
 
@@ -266,7 +266,7 @@ class LabelMaker:
 
                 yield df
 
-                if df.context.slice >= num_examples_per_instance:
+                if df.context.slice_number >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -323,7 +323,7 @@ class LabelMaker:
                 label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
                 labels.append(label)
 
-            first_slice_for_instance = df.context.slice == 1
+            first_slice_for_instance = df.context.slice_number == 1
 
             if finite_examples_per_instance:
                 progress_bar.update(n=1)
@@ -383,7 +383,7 @@ class LabelMaker:
             df (DataSlice) : data slice
         """
         info = {
-            'slice': df.context.slice,
+            'slice_number': df.context.slice_number,
             self.target_entity: df.context.target_instance,
             'window': '[{}, {})'.format(*df.context.window),
             'gap': '[{}, {})'.format(*df.context.gap),
