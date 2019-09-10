@@ -415,20 +415,15 @@ def test_slice_overlap(transactions):
         window_size='1h',
     )
 
-    slices = lm.slice(
-        transactions,
-        num_examples_per_instance=2,
-        metadata=True,
-        verbose=True,
-    )
+    slices = lm.slice(transactions, num_examples_per_instance=2, verbose=True)
 
-    for df, metadata in slices:
-        start, end = metadata['window']
+    for df in slices:
+        start, end = df.context.window
         is_overlap = df.index == end
         assert not is_overlap.any()
 
 
 def test_label_type(transactions):
     lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
-    lt = lm.search(transactions, num_examples_per_instance=1, label_type='categorical', verbose=False)
-    assert lt.is_categorical
+    lt = lm.search(transactions, num_examples_per_instance=1, label_type='discrete', verbose=False)
+    assert lt.label_type == 'discrete'

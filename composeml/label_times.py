@@ -11,31 +11,48 @@ class LabelTimes(pd.DataFrame):
         target_entity
         transforms
     """
-    _metadata = ['name', 'target_entity', 'settings', 'transforms']
+    _metadata = ['name', 'target_entity', 'settings', 'transforms', 'label_type']
 
-    def __init__(self, data=None, name=None, target_entity=None, settings=None, transforms=None, *args, **kwargs):
+    def __init__(self,
+                 data=None,
+                 name=None,
+                 target_entity=None,
+                 settings=None,
+                 transforms=None,
+                 label_type=None,
+                 *args,
+                 **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
         self.name = name
         self.target_entity = target_entity
-        self.settings = settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
+
+        if label_type is not None:
+            error = 'label type must be "continuous" or "discrete"'
+            assert label_type in ['continuous', 'discrete'], error
+
+        self.label_type = label_type
+        self.settings = settings or {}
+        self.settings['label_type'] = self.label_type
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
-    def is_categorical(self):
-        """Whether labels are categorical."""
-        dtype = self[self.name].dtype
-        return pd.api.types.is_categorical_dtype(dtype)
+    def is_discrete(self):
+        """Whether labels are discrete."""
+        if self.label_type is None:
+            self.label_type = self.infer_type()
+
+        return self.label_type == 'discrete'
 
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
-        if self.is_categorical:
+        if self.is_discrete:
             labels = self.assign(count=1)
             labels = labels.groupby(self.name)
             distribution = labels['count'].count()
@@ -44,7 +61,7 @@ class LabelTimes(pd.DataFrame):
     @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
-        if self.is_categorical:
+        if self.is_discrete:
             keys = ['cutoff_time', self.name]
             value = self.groupby(keys).cutoff_time.count()
             value = value.unstack(self.name).fillna(0)
@@ -58,7 +75,7 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self.is_categorical:
+        if self.is_discrete:
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
@@ -110,7 +127,9 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels[self.name] = labels[self.name].gt(value)
-        labels.infer_type()
+
+        labels.label_type = 'discrete'
+        labels.settings['label_type'] = 'discrete'
 
         transform = {'__name__': 'threshold', 'value': value}
         labels.transforms.append(transform)
@@ -222,6 +241,7 @@ class LabelTimes(pd.DataFrame):
         }
 
         label_times.transforms.append(transform)
+        label_times.label_type = 'discrete'
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None):
@@ -320,16 +340,14 @@ class LabelTimes(pd.DataFrame):
         """Infer label type.
 
         Returns:
-            LabelTimes : Label Times as inferred type.
+            str : Inferred label type. Either "continuous" or "discrete".
         """
-        if self.is_categorical:
-            return self
+        dtype = self[self.name].dtype
+        is_discrete = pd.api.types.is_bool_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
 
-        labels = self[self.name].iloc[:100]
-        is_category_like = pd.api.types.is_bool_dtype(labels.dtype) or pd.api.types.is_object_dtype(labels.dtype)
-
-        if is_category_like or labels.nunique() / len(labels) <= .5:
-            self[self.name] = self[self.name].astype('category')
-            return self
-
-        return self
+        if is_discrete:
+            return 'discrete'
+        else:
+            return 'continuous'
