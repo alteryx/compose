@@ -2,6 +2,15 @@
 Changelog
 =========
 
+**v0.1.5** September 10, 2019
+    * Enhancements
+        * Added Slice Generator
+        * Added Seaborn Plots
+        * Added Data Slice Context
+    * Documentation Changes
+        * Updated README
+        * Added Example: Predict Next Purchase
+
 **v0.1.4** August 7, 2019
     * Enhancements
         * Added Sample Transform
