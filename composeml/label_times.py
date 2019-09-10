@@ -46,6 +46,7 @@ class LabelTimes(pd.DataFrame):
         """Whether labels are discrete."""
         if self.label_type is None:
             self.label_type = self.infer_type()
+            self.settings['label_type'] = self.label_type
 
         return self.label_type == 'discrete'
 
