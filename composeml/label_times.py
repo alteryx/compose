@@ -243,7 +243,7 @@ class LabelTimes(pd.DataFrame):
 
         label_times.transforms.append(transform)
         label_times.label_type = 'discrete'
-        labels.settings['label_type'] = 'discrete'
+        label_times.settings['label_type'] = 'discrete'
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None):
