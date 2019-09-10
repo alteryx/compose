@@ -415,15 +415,10 @@ def test_slice_overlap(transactions):
         window_size='1h',
     )
 
-    slices = lm.slice(
-        transactions,
-        num_examples_per_instance=2,
-        metadata=True,
-        verbose=True,
-    )
+    slices = lm.slice(transactions, num_examples_per_instance=2, verbose=True)
 
-    for df, metadata in slices:
-        start, end = metadata['window']
+    for df in slices:
+        start, end = df.context.window
         is_overlap = df.index == end
         assert not is_overlap.any()
 
