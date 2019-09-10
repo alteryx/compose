@@ -122,6 +122,18 @@ class DataSlice(pd.DataFrame):
     def _constructor(self):
         return DataSlice
 
+    def __repr__(self):
+        """Representation for metadata of data slice."""
+        info = {
+            'slice_number': self.context.slice_number,
+            self.context.target_entity: self.context.target_instance,
+            'window': '[{}, {})'.format(*self.context.window),
+            'gap': '[{}, {})'.format(*self.context.gap),
+        }
+
+        info = pd.Series(info).to_string()
+        return info
+
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
@@ -144,8 +156,8 @@ class LabelMaker:
         if self.window_size is not None:
             self.window_size = to_offset(self.window_size)
 
-    def _get_slices(self, df, gap=None, min_data=None, drop_empty=True):
-        """Generate data slices.
+    def _get_slices(self, group, gap=None, min_data=None, drop_empty=True):
+        """Generate data slices for group.
 
         Args:
             df (DataFrame) : Data frame to generate data slices.
@@ -157,6 +169,7 @@ class LabelMaker:
         Returns:
             DataSlice : Returns a data slice.
         """
+        key, df = group
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
@@ -176,7 +189,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice_number=0)
+        df.context = Context(slice_number=0, target_entity=self.target_entity, target_instance=key)
 
         def iloc(index, i):
             if i < index.size:
@@ -254,15 +267,12 @@ class LabelMaker:
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
 
-        for key, instance in df.groupby(self.target_entity):
-            slices = self._get_slices(df=instance, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+        for group in df.groupby(self.target_entity):
+            slices = self._get_slices(group=group, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for df in slices:
-                df.context.target_entity = self.target_entity
-                df.context.target_instance = key
-
                 if verbose:
-                    self.print_slice(df)
+                    print(repr(df))
 
                 yield df
 
@@ -375,19 +385,3 @@ class LabelMaker:
             df.index = df.index.astype('datetime64[ns]')
 
         return df
-
-    def print_slice(self, df):
-        """Print metadata about slice.
-
-        Args:
-            df (DataSlice) : data slice
-        """
-        info = {
-            'slice_number': df.context.slice_number,
-            self.target_entity: df.context.target_instance,
-            'window': '[{}, {})'.format(*df.context.window),
-            'gap': '[{}, {})'.format(*df.context.gap),
-        }
-
-        info = pd.Series(info).to_string()
-        print(info, end='\n\n')
