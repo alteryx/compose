@@ -55,14 +55,8 @@ class LabelTimes(pd.DataFrame):
 
         if is_discrete:
             return True
-
-        labels = self[self.name].iloc[:100]
-        is_discrete = labels.nunique() / len(labels) <= .5
-
-        if is_discrete:
-            return True
-
-        return False
+        else:
+            return False
 
     @property
     def distribution(self):
