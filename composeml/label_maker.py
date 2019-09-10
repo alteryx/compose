@@ -138,7 +138,7 @@ class DataSlice(pd.DataFrame):
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
-    def __init__(self, target_entity, time_index, labeling_function, window_size=None):
+    def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
         Args:
@@ -285,6 +285,7 @@ class LabelMaker:
                minimum_data=None,
                gap=None,
                drop_empty=True,
+               label_type=None,
                verbose=True,
                *args,
                **kwargs):
@@ -297,6 +298,7 @@ class LabelMaker:
             gap (str or int) : Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            label_type (str) : The label type can be "continuous" or "categorical". Default value is the inferred label type.
             verbose (bool) : Whether to render progress bar. Default value is True.
             *args : Positional arguments for labeling function.
             **kwargs : Keyword arguments for labeling function.
@@ -353,16 +355,19 @@ class LabelMaker:
         progress_bar.update(n=total)
         progress_bar.close()
 
-        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity)
+        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity, label_type=label_type)
         labels = labels.rename_axis('id', axis=0)
-        labels = labels._with_plots()
 
         if labels.empty:
             return labels
 
+        if labels.is_discrete:
+            labels[labels.name] = labels[labels.name].astype('category')
+
         labels.settings.update({
+            'labeling_function': name,
             'num_examples_per_instance': num_examples_per_instance,
-            'minimum_data': minimum_data,
+            'minimum_data': str(minimum_data),
             'window_size': self.window_size,
             'gap': gap,
         })

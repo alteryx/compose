@@ -1,73 +1,87 @@
 import pandas as pd
 
+from composeml.label_plots import LabelPlots
+
 
 class LabelTimes(pd.DataFrame):
-    """
-    A data frame containing labels made by a label maker.
+    """A data frame containing labels made by a label maker.
 
     Attributes:
         name
         target_entity
         transforms
     """
-    _metadata = ['name', 'target_entity', 'settings', 'transforms']
+    _metadata = ['name', 'target_entity', 'settings', 'transforms', 'label_type']
 
-    def __init__(self, data=None, name=None, target_entity=None, settings=None, transforms=None, *args, **kwargs):
+    def __init__(self,
+                 data=None,
+                 name=None,
+                 target_entity=None,
+                 settings=None,
+                 transforms=None,
+                 label_type=None,
+                 *args,
+                 **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
         self.name = name
         self.target_entity = target_entity
-        self.settings = settings or {}
         self.transforms = transforms or []
+        self.plot = LabelPlots(self)
+
+        if label_type is not None:
+            error = 'label type must be "continuous" or "discrete"'
+            assert label_type in ['continuous', 'discrete'], error
+
+        self.label_type = label_type
+        self.settings = settings or {}
+        self.settings['label_type'] = self.label_type
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
-    def distribution(self):
-        labels = self.assign(count=1)
-        labels = labels.groupby(self.name)
-        distribution = labels['count'].count()
-        return distribution
+    def is_discrete(self):
+        """Whether labels are discrete."""
+        if self.label_type is None:
+            self.label_type = self.infer_type()
+            self.settings['label_type'] = self.label_type
 
-    def _plot_distribution(self, **kwargs):
-        plot = self.distribution.plot(kind='bar', **kwargs)
-        plot.set_title('Label Distribution')
-        plot.set_ylabel('count')
-        return plot
+        return self.label_type == 'discrete'
+
+    @property
+    def distribution(self):
+        """Returns label distribution if labels are discrete."""
+        if self.is_discrete:
+            labels = self.assign(count=1)
+            labels = labels.groupby(self.name)
+            distribution = labels['count'].count()
+            return distribution
 
     @property
     def count_by_time(self):
-        count = self.assign(count=1)
-        count = count.sort_values('cutoff_time')
-        count = count.set_index([self.name, 'cutoff_time'])
-        count = count.groupby(self.name)
-        count = count['count'].cumsum()
-        return count
-
-    def _plot_count_by_time(self, **kwargs):
-        count = self.count_by_time
-        count = count.unstack(self.name)
-        count = count.ffill()
-
-        plot = count.plot(kind='area', **kwargs)
-        plot.set_title('Label Count vs. Time')
-        plot.set_ylabel('count')
-        return plot
-
-    def _with_plots(self):
-        self.plot.count_by_time = self._plot_count_by_time
-        self.plot.distribution = self._plot_distribution
-        return self
+        """Returns label count across cutoff times."""
+        if self.is_discrete:
+            keys = ['cutoff_time', self.name]
+            value = self.groupby(keys).cutoff_time.count()
+            value = value.unstack(self.name).fillna(0)
+            value = value.cumsum()
+            return value
+        else:
+            value = self.groupby('cutoff_time')
+            value = value[self.name].count()
+            value = value.cumsum()
+            return value
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        print('Label Distribution\n' + '-' * 18, end='\n')
-        distribution = self[self.name].value_counts()
-        distribution.index = distribution.index.astype('str')
-        distribution['Total:'] = distribution.sum()
-        print(distribution.to_string(), end='\n\n\n')
+        if self.is_discrete:
+            print('Label Distribution\n' + '-' * 18, end='\n')
+            distribution = self[self.name].value_counts()
+            distribution.index = distribution.index.astype('str')
+            distribution['Total:'] = distribution.sum()
+            print(distribution.to_string(), end='\n\n\n')
 
         print('Settings\n' + '-' * 8, end='\n')
         settings = pd.Series(self.settings)
@@ -99,7 +113,7 @@ class LabelTimes(pd.DataFrame):
         """
         labels = super().copy()
         labels.transforms = labels.transforms.copy()
-        return labels._with_plots()
+        return labels
 
     def threshold(self, value, inplace=False):
         """
@@ -114,6 +128,9 @@ class LabelTimes(pd.DataFrame):
         """
         labels = self if inplace else self.copy()
         labels[self.name] = labels[self.name].gt(value)
+
+        labels.label_type = 'discrete'
+        labels.settings['label_type'] = 'discrete'
 
         transform = {'__name__': 'threshold', 'value': value}
         labels.transforms.append(transform)
@@ -225,6 +242,8 @@ class LabelTimes(pd.DataFrame):
         }
 
         label_times.transforms.append(transform)
+        label_times.label_type = 'discrete'
+        label_times.settings['label_type'] = 'discrete'
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None):
@@ -318,3 +337,19 @@ class LabelTimes(pd.DataFrame):
 
             labels = pd.concat(sample_per_label, axis=0, sort=False)
             return labels
+
+    def infer_type(self):
+        """Infer label type.
+
+        Returns:
+            str : Inferred label type. Either "continuous" or "discrete".
+        """
+        dtype = self[self.name].dtype
+        is_discrete = pd.api.types.is_bool_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
+
+        if is_discrete:
+            return 'discrete'
+        else:
+            return 'continuous'
