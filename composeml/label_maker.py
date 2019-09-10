@@ -122,8 +122,8 @@ class DataSlice(pd.DataFrame):
     def _constructor(self):
         return DataSlice
 
-    def __repr__(self):
-        """Representation for metadata of data slice."""
+    def __str__(self):
+        """Metadata of data slice."""
         info = {
             'slice_number': self.context.slice_number,
             self.context.target_entity: self.context.target_instance,
@@ -272,7 +272,7 @@ class LabelMaker:
 
             for df in slices:
                 if verbose:
-                    print(repr(df))
+                    print(df)
 
                 yield df
 
