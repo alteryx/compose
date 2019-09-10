@@ -333,7 +333,7 @@ class LabelMaker:
         if labels.empty:
             return labels
 
-        if labels.label_type == 'discrete':
+        if labels.is_discrete:
             labels[labels.name] = labels[labels.name].astype('category')
 
         labels.settings.update({
