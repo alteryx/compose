@@ -26,7 +26,6 @@ class LabelTimes(pd.DataFrame):
 
         self.name = name
         self.target_entity = target_entity
-        self.settings = settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
@@ -34,10 +33,8 @@ class LabelTimes(pd.DataFrame):
             error = 'label type must be "continuous" or "discrete"'
             assert label_type in ['continuous', 'discrete'], error
 
-        if label_type is None and name in self.columns:
-            label_type = self.infer_type()
-
         self.label_type = label_type
+        self.settings = settings or {}
         self.settings['label_type'] = self.label_type
 
     @property
@@ -47,21 +44,15 @@ class LabelTimes(pd.DataFrame):
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        dtype = self[self.name].dtype
+        if self.label_type is None:
+            self.label_type = self.infer_type()
 
-        is_discrete = pd.api.types.is_bool_dtype(dtype) \
-            or pd.api.types.is_categorical_dtype(dtype) \
-            or pd.api.types.is_object_dtype(dtype)
-
-        if is_discrete:
-            return True
-        else:
-            return False
+        return self.label_type == 'discrete'
 
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
-        if self.label_type == 'discrete':
+        if self.is_discrete:
             labels = self.assign(count=1)
             labels = labels.groupby(self.name)
             distribution = labels['count'].count()
@@ -70,7 +61,7 @@ class LabelTimes(pd.DataFrame):
     @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
-        if self.label_type == 'discrete':
+        if self.is_discrete:
             keys = ['cutoff_time', self.name]
             value = self.groupby(keys).cutoff_time.count()
             value = value.unstack(self.name).fillna(0)
@@ -84,7 +75,7 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self.label_type == 'discrete':
+        if self.is_discrete:
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
@@ -349,9 +340,14 @@ class LabelTimes(pd.DataFrame):
         """Infer label type.
 
         Returns:
-            str : Inferred label type. Can be "continuous" or "discrete".
+            str : Inferred label type. Either "continuous" or "discrete".
         """
-        if self.is_discrete:
+        dtype = self[self.name].dtype
+        is_discrete = pd.api.types.is_bool_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
+
+        if is_discrete:
             return 'discrete'
         else:
             return 'continuous'
