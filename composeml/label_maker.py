@@ -176,7 +176,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice=0)
+        df.context = Context(slice_number=0)
 
         def iloc(index, i):
             if i < index.size:
