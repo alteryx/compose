@@ -61,6 +61,7 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def count(self):
+        """Returns label count per instance."""
         count = self.groupby(self.target_entity)
         count = count[self.name].count()
         count = count.to_frame('count')
