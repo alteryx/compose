@@ -321,8 +321,11 @@ class LabelTimes(pd.DataFrame):
                 sample = label.sample(n=n, random_state=random_state)
                 sample_per_label.append(sample)
 
-            labels = pd.concat(sample_per_label, axis=0, sort=False)
-            return labels
+            sample = pd.concat(sample_per_label, axis=0, sort=False)
+            sample.name = self.name
+            sample.settings = self.settings
+            sample.transforms = self.transforms
+            return sample
 
         if isinstance(frac, float):
             sample = super().sample(frac=frac, random_state=random_state)
@@ -335,8 +338,11 @@ class LabelTimes(pd.DataFrame):
                 sample = label.sample(frac=frac, random_state=random_state)
                 sample_per_label.append(sample)
 
-            labels = pd.concat(sample_per_label, axis=0, sort=False)
-            return labels
+            sample = pd.concat(sample_per_label, axis=0, sort=False)
+            sample.name = self.name
+            sample.settings = self.settings
+            sample.transforms = self.transforms
+            return sample
 
     def infer_type(self):
         """Infer label type.
