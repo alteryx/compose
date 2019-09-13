@@ -2,14 +2,16 @@
 Changelog
 =========
 
-**v0.1.5** September 10, 2019
+**v0.1.5** September 13, 2019
     * Enhancements
         * Added Slice Generator
         * Added Seaborn Plots
         * Added Data Slice Context
+        * Added Count per Group
     * Documentation Changes
         * Updated README
         * Added Example: Predict Next Purchase
+        * Added Example: Predict RUL
 
 **v0.1.4** August 7, 2019
     * Enhancements
