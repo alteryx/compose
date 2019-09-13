@@ -75,3 +75,19 @@ def test_infer_type(total_spent):
     total_spent = total_spent.threshold(5)
     total_spent.label_type = None
     assert total_spent.infer_type() == 'discrete'
+
+
+def test_count(total_spent):
+    given_answer = total_spent.count
+    given_answer = given_answer.to_csv(index=True)
+    given_answer = given_answer.splitlines()
+
+    answer = [
+        'customer_id,count',
+        '0,2',
+        '1,3',
+        '2,4',
+        '3,1',
+    ]
+
+    assert given_answer == answer

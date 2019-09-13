@@ -60,6 +60,13 @@ class LabelTimes(pd.DataFrame):
             return distribution
 
     @property
+    def count(self):
+        count = self.groupby(self.target_entity)
+        count = count[self.name].count()
+        count = count.to_frame('count')
+        return count
+
+    @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
         if self.is_discrete:
