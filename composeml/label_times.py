@@ -42,7 +42,7 @@ class LabelTimes(pd.DataFrame):
 
         Args:
             other (LabelTimes) : The label times from which to get the attributes from.
-            method (str) : A passed method name (optional). For taking different types of propagation actions based on this.
+            method (str) : A passed method name for optionally taking different types of propagation actions based on this value.
         """
         if method == 'concat':
             other = other.objs[0]
