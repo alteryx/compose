@@ -46,9 +46,9 @@ class LabelTimes(pd.DataFrame):
         """
         if method == 'concat':
             other = other.objs[0]
-            for name in self._metadata:
-                metadata = getattr(other, name, None)
-                setattr(self, name, metadata)
+            for key in self._metadata:
+                value = getattr(other, key, None)
+                setattr(self, key, value)
 
             return self
 
