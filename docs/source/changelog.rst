@@ -2,7 +2,7 @@
 Changelog
 =========
 
-**v0.1.5** September 13, 2019
+**v0.1.5** September 16, 2019
     * Enhancements
         * Added Slice Generator
         * Added Seaborn Plots
