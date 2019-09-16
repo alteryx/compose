@@ -37,6 +37,24 @@ class LabelTimes(pd.DataFrame):
         self.settings = settings or {}
         self.settings['label_type'] = self.label_type
 
+    def __finalize__(self, other, method=None, **kwargs):
+        """Propagate metadata from other label times.
+
+        Args:
+            other (LabelTimes) : The label times from which to get the attributes from.
+            method (str) : A passed method name (optional). For taking different types of propagation actions based on this.
+        """
+        if method == 'concat':
+            other = other.objs[0]
+            for name in self._metadata:
+                metadata = getattr(other, name, None)
+                setattr(self, name, metadata)
+
+            return self
+
+        else:
+            return super().__finalize__(other=other, method=method, **kwargs)
+
     @property
     def _constructor(self):
         return LabelTimes
@@ -315,34 +333,26 @@ class LabelTimes(pd.DataFrame):
             return sample
 
         if isinstance(n, dict):
-            sample_per_label = []
+            sample_per_label = self.head(0)
             for label, n, in n.items():
                 label = self[self[self.name] == label]
                 sample = label.sample(n=n, random_state=random_state)
-                sample_per_label.append(sample)
+                sample_per_label = sample_per_label.append(sample)
 
-            sample = pd.concat(sample_per_label, axis=0, sort=False)
-            sample.name = self.name
-            sample.settings = self.settings
-            sample.transforms = self.transforms
-            return sample
+            return sample_per_label
 
         if isinstance(frac, float):
             sample = super().sample(frac=frac, random_state=random_state)
             return sample
 
         if isinstance(frac, dict):
-            sample_per_label = []
+            sample_per_label = self.head(0)
             for label, frac, in frac.items():
                 label = self[self[self.name] == label]
                 sample = label.sample(frac=frac, random_state=random_state)
-                sample_per_label.append(sample)
+                sample_per_label = sample_per_label.append(sample)
 
-            sample = pd.concat(sample_per_label, axis=0, sort=False)
-            sample.name = self.name
-            sample.settings = self.settings
-            sample.transforms = self.transforms
-            return sample
+            return sample_per_label
 
     def infer_type(self):
         """Infer label type.
