@@ -75,3 +75,10 @@ def test_sample_metadata_frac_dict(labels):
     assert sample.name == labels.name
     assert sample.settings == labels.settings
     assert sample.transforms == labels.transforms
+
+
+def test_sample_with_replacement(labels):
+    assert labels.shape[0] < 20
+    n = {True: 10, False: 10}
+    sample = labels.sample(n=n, replace=True)
+    assert sample.shape[0] == 20
