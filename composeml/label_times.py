@@ -264,7 +264,7 @@ class LabelTimes(pd.DataFrame):
         label_times.settings['label_type'] = 'discrete'
         return label_times
 
-    def sample(self, n=None, frac=None, random_state=None):
+    def sample(self, n=None, frac=None, random_state=None, replace=False):
         """
         Return a random sample of labels.
 
@@ -274,6 +274,7 @@ class LabelTimes(pd.DataFrame):
             frac (float or dict) : Sample fraction of labels. A dictionary returns
                 the sample fraction to each label. Cannot be used with n.
             random_state (int) : Seed for the random number generator.
+            replace (bool) : Sample with or without replacement. Default value is False.
 
         Returns:
             LabelTimes : Random sample of labels.
@@ -329,28 +330,28 @@ class LabelTimes(pd.DataFrame):
             4      B
         """ # noqa
         if isinstance(n, int):
-            sample = super().sample(n=n, random_state=random_state)
+            sample = super().sample(n=n, random_state=random_state, replace=replace)
             return sample
 
         if isinstance(n, dict):
             sample_per_label = []
             for label, n, in n.items():
                 label = self[self[self.name] == label]
-                sample = label.sample(n=n, random_state=random_state)
+                sample = label.sample(n=n, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
             sample = pd.concat(sample_per_label, axis=0, sort=False)
             return sample
 
         if isinstance(frac, float):
-            sample = super().sample(frac=frac, random_state=random_state)
+            sample = super().sample(frac=frac, random_state=random_state, replace=replace)
             return sample
 
         if isinstance(frac, dict):
             sample_per_label = []
             for label, frac, in frac.items():
                 label = self[self[self.name] == label]
-                sample = label.sample(frac=frac, random_state=random_state)
+                sample = label.sample(frac=frac, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
             sample = pd.concat(sample_per_label, axis=0, sort=False)
