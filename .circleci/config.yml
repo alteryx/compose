@@ -28,16 +28,21 @@ jobs:
       - when:
           condition: << parameters.codecov >>
           steps:
-            - run: codecov
+            - run: |
+                source << parameters.python_version >>/bin/activate
+                codecov
 
 workflows:
   version: 2
   test_all_python_versions:
     jobs:
       - test_python:
+          name: "test python 3.5"
           python_version: "3.5"
       - test_python:
+          name: "test python 3.6"
           python_version: "3.6"
       - test_python:
+          name: "test python 3.7"
           python_version: "3.7"
           codecov: true
