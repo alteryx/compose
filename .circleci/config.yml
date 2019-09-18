@@ -28,8 +28,7 @@ jobs:
       - when:
           condition: << parameters.codecov >>
           steps:
-            - run: |
-              codecov
+            - run: codecov
 
 workflows:
   version: 2
