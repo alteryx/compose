@@ -37,6 +37,24 @@ class LabelTimes(pd.DataFrame):
         self.settings = settings or {}
         self.settings['label_type'] = self.label_type
 
+    def __finalize__(self, other, method=None, **kwargs):
+        """Propagate metadata from other label times.
+
+        Args:
+            other (LabelTimes) : The label times from which to get the attributes from.
+            method (str) : A passed method name for optionally taking different types of propagation actions based on this value.
+        """
+        if method == 'concat':
+            other = other.objs[0]
+            for key in self._metadata:
+                value = getattr(other, key, None)
+                setattr(self, key, value)
+
+            return self
+
+        else:
+            return super().__finalize__(other=other, method=method, **kwargs)
+
     @property
     def _constructor(self):
         return LabelTimes
@@ -254,7 +272,7 @@ class LabelTimes(pd.DataFrame):
         label_times.settings['label_type'] = 'discrete'
         return label_times
 
-    def sample(self, n=None, frac=None, random_state=None):
+    def sample(self, n=None, frac=None, random_state=None, replace=False):
         """
         Return a random sample of labels.
 
@@ -264,6 +282,7 @@ class LabelTimes(pd.DataFrame):
             frac (float or dict) : Sample fraction of labels. A dictionary returns
                 the sample fraction to each label. Cannot be used with n.
             random_state (int) : Seed for the random number generator.
+            replace (bool) : Sample with or without replacement. Default value is False.
 
         Returns:
             LabelTimes : Random sample of labels.
@@ -319,32 +338,32 @@ class LabelTimes(pd.DataFrame):
             4      B
         """ # noqa
         if isinstance(n, int):
-            sample = super().sample(n=n, random_state=random_state)
+            sample = super().sample(n=n, random_state=random_state, replace=replace)
             return sample
 
         if isinstance(n, dict):
             sample_per_label = []
             for label, n, in n.items():
                 label = self[self[self.name] == label]
-                sample = label.sample(n=n, random_state=random_state)
+                sample = label.sample(n=n, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
-            labels = pd.concat(sample_per_label, axis=0, sort=False)
-            return labels
+            sample = pd.concat(sample_per_label, axis=0, sort=False)
+            return sample
 
         if isinstance(frac, float):
-            sample = super().sample(frac=frac, random_state=random_state)
+            sample = super().sample(frac=frac, random_state=random_state, replace=replace)
             return sample
 
         if isinstance(frac, dict):
             sample_per_label = []
             for label, frac, in frac.items():
                 label = self[self[self.name] == label]
-                sample = label.sample(frac=frac, random_state=random_state)
+                sample = label.sample(frac=frac, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
-            labels = pd.concat(sample_per_label, axis=0, sort=False)
-            return labels
+            sample = pd.concat(sample_per_label, axis=0, sort=False)
+            return sample
 
     def infer_type(self):
         """Infer label type.

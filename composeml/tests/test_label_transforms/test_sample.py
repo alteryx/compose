@@ -59,3 +59,26 @@ def test_sample_frac_dict(labels):
     ]
 
     assert given_answer == answer
+
+
+def test_sample_metadata_n_dict(labels):
+    n = {True: 2, False: 2}
+    sample = labels.sample(n=n)
+    assert sample.name == labels.name
+    assert sample.settings == labels.settings
+    assert sample.transforms == labels.transforms
+
+
+def test_sample_metadata_frac_dict(labels):
+    frac = {True: .5, False: .5}
+    sample = labels.sample(frac=frac)
+    assert sample.name == labels.name
+    assert sample.settings == labels.settings
+    assert sample.transforms == labels.transforms
+
+
+def test_sample_with_replacement(labels):
+    assert labels.shape[0] < 20
+    n = {True: 10, False: 10}
+    sample = labels.sample(n=n, replace=True)
+    assert sample.shape[0] == 20
