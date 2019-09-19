@@ -15,21 +15,21 @@ jobs:
     steps:
       - checkout
       - run: |
-          virtualenv << parameters.python_version >> -q
-          source << parameters.python_version >>/bin/activate
+          virtualenv test_python -q
+          source test_python/bin/activate
           make installdeps
       - run: |
-          source << parameters.python_version >>/bin/activate
+          source test_python/bin/activate
           make lint
       - run: |
-          source << parameters.python_version >>/bin/activate
+          source test_python/bin/activate
           coverage erase
           make test
       - when:
           condition: << parameters.codecov >>
           steps:
             - run: |
-                source << parameters.python_version >>/bin/activate
+                source test_python/bin/activate
                 codecov
 
 workflows:
