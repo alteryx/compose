@@ -16,7 +16,7 @@ Its result is then provided to the automatic feature engineering tools Featureto
 
 <br>
 <p align="center">
-    <img width=90% src="docs\source\images\workflow.svg" alt="workflow" />
+    <img width=90% src="docs/source/images/workflow.png" alt="Compose" />
 </p>
 <br>
 
