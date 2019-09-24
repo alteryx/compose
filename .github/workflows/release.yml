@@ -1,5 +1,9 @@
-on: release
 name: Release
+
+on:
+  release:
+    types: [published]
+
 jobs:
   pypi:
     name: PyPI
