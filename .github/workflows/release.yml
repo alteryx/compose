@@ -5,6 +5,7 @@ jobs:
     name: PyPI
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
     - name: PyPI
       uses: FeatureLabs/gh-action-pypi-upload@master
       env:
