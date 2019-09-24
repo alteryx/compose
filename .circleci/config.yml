@@ -1,26 +1,48 @@
-version: 2
+version: 2.1
+
 jobs:
-  "python-35":
-    working_directory: ~/compose-ml
+  test_python:
+    parameters:
+      python_version:
+        type: string
+        default: "3.7"
+      codecov:
+        type: boolean
+        default: false
+    working_directory: ~/compose
     docker:
-        - image: circleci/python:3.5
+        - image: circleci/python:<< parameters.python_version >>
     steps:
       - checkout
       - run: |
-          virtualenv venv_35 -q
-          source venv_35/bin/activate
+          virtualenv test_python -q
+          source test_python/bin/activate
           make installdeps
       - run: |
-          source venv_35/bin/activate
+          source test_python/bin/activate
           make lint
       - run: |
-          source venv_35/bin/activate
+          source test_python/bin/activate
           coverage erase
           make test
-          codecov
+      - when:
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source test_python/bin/activate
+                codecov
 
 workflows:
   version: 2
   test_all_python_versions:
     jobs:
-      - "python-35"
+      - test_python:
+          name: "python 3.5"
+          python_version: "3.5"
+      - test_python:
+          name: "python 3.6"
+          python_version: "3.6"
+      - test_python:
+          name: "python 3.7"
+          python_version: "3.7"
+          codecov: true
