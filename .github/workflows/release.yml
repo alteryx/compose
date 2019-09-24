@@ -5,11 +5,11 @@ on:
 name: Release
 jobs:
   pypi:
-    name: PyPI
+    name: Release to PyPI
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: PyPI
+    - name: Upload to PyPI
       uses: FeatureLabs/gh-action-pypi-upload@master
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
