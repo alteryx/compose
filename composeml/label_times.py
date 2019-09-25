@@ -380,3 +380,6 @@ class LabelTimes(pd.DataFrame):
             return 'discrete'
         else:
             return 'continuous'
+
+    def to_csv(self, folder, filename='label_times.csv', save_settings=True):
+        pass
