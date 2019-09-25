@@ -416,10 +416,10 @@ class LabelTimes(pd.DataFrame):
         """Determines if two label time objects are the same.
 
         Args:
-            other (LabelTimes) : Other label time instance for comparison.
+            other (LabelTimes) : Other label time object for comparison.
 
         Returns:
-            bool : Whether label time instances are the same.
+            bool : Whether label time objects are the same.
         """
         tests = [
             super().equals(other),

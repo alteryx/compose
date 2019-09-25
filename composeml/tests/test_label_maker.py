@@ -2,28 +2,7 @@ import pandas as pd
 import pytest
 
 from composeml import LabelMaker
-from composeml.tests.utils import read_csv
-
-
-@pytest.fixture
-def transactions():
-
-    data = [
-        'time,amount,customer_id',
-        '2019-01-01 08:00:00,1,0',
-        '2019-01-01 08:30:00,1,0',
-        '2019-01-01 09:00:00,1,1',
-        '2019-01-01 09:30:00,1,1',
-        '2019-01-01 10:00:00,1,1',
-        '2019-01-01 10:30:00,1,2',
-        '2019-01-01 11:00:00,1,2',
-        '2019-01-01 11:30:00,1,2',
-        '2019-01-01 12:00:00,1,2',
-        '2019-01-01 12:30:00,1,3',
-    ]
-
-    df = read_csv(data)
-    return df
+from composeml.tests import utils
 
 
 def total_spent(df):
@@ -35,7 +14,7 @@ def test_search_default(transactions):
     lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
 
     given_labels = lm.search(transactions, num_examples_per_instance=1, verbose=False)
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -68,7 +47,7 @@ def test_search_offset_mix_0(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -99,7 +78,7 @@ def test_search_offset_mix_1(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -129,7 +108,7 @@ def test_search_offset_mix_2(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -160,7 +139,7 @@ def test_search_offset_mix_3(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -197,7 +176,7 @@ def test_search_offset_mix_4(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -232,7 +211,7 @@ def test_search_offset_mix_5(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -262,7 +241,7 @@ def test_search_offset_mix_6(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -290,7 +269,7 @@ def test_search_offset_mix_7(transactions):
         verbose=False,
     )
 
-    given_labels = given_labels.to_csv(index=False).splitlines()
+    given_labels = utils.to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',

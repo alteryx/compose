@@ -6,6 +6,24 @@ from composeml.tests.utils import read_csv
 
 
 @pytest.fixture(scope="module")
+def transactions():
+    df = read_csv(data=[
+        'time,amount,customer_id',
+        '2019-01-01 08:00:00,1,0',
+        '2019-01-01 08:30:00,1,0',
+        '2019-01-01 09:00:00,1,1',
+        '2019-01-01 09:30:00,1,1',
+        '2019-01-01 10:00:00,1,1',
+        '2019-01-01 10:30:00,1,2',
+        '2019-01-01 11:00:00,1,2',
+        '2019-01-01 11:30:00,1,2',
+        '2019-01-01 12:00:00,1,2',
+        '2019-01-01 12:30:00,1,3',
+    ])
+    return df
+
+
+@pytest.fixture(scope="module")
 def total_spent():
     data = [
         'id,customer_id,cutoff_time,total_spent',
