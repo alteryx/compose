@@ -1,6 +1,36 @@
+import json
+import os
 import pandas as pd
 
 from composeml.label_plots import LabelPlots
+
+
+def read_csv(path, filename='label_times.csv', load_settings=True, **kwargs):
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), 'data not found'
+
+    label_times = {'data': pd.read_csv(file, index_col='id', **kwargs)}
+
+    if load_settings:
+        file = os.path.join(path, 'settings.json')
+        assert os.path.exists(file), 'settings not found'
+
+        with open(file, 'r') as file:
+            label_times['settings'] = json.load(file)
+
+        label_times['name'] = label_times['settings']['labeling_function']
+
+        dtypes = label_times['settings'].pop('dtypes')
+        label_times['data'] = label_times['data'].astype(dtypes)
+
+        file = os.path.join(path, 'transforms.json')
+        assert os.path.exists(file), 'transforms not found'
+
+        with open(file, 'r') as file:
+            label_times['transforms'] = json.load(file)
+
+        label_times = LabelTimes(**label_times)
+        return label_times
 
 
 class LabelTimes(pd.DataFrame):
@@ -381,5 +411,20 @@ class LabelTimes(pd.DataFrame):
         else:
             return 'continuous'
 
-    def to_csv(self, folder, filename='label_times.csv', save_settings=True):
-        pass
+    def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_csv(file, **kwargs)
+
+        if save_settings:
+            dtypes = self.dtypes.astype('str')
+            self.settings['dtypes'] = dtypes.to_dict()
+
+            file = os.path.join(path, 'settings.json')
+            with open(file, 'w') as file:
+                json.dump(self.settings, file)
+                del self.settings['dtypes']
+
+            file = os.path.join(path, 'transforms.json')
+            with open(file, 'w') as file:
+                json.dump(self.transforms, file)
