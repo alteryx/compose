@@ -22,8 +22,15 @@ def total_spent():
     ]
 
     data = read_csv(data, index_col='id', parse_dates=['cutoff_time'])
-    lt = LabelTimes(data=data, name='total_spent', target_entity='customer_id')
-    lt.settings.update({'num_examples_per_instance': -1})
+    settings = {'num_examples_per_instance': -1}
+
+    lt = LabelTimes(
+        data=data,
+        name='total_spent',
+        target_entity='customer_id',
+        settings=settings,
+    )
+
     return lt
 
 

@@ -412,6 +412,24 @@ class LabelTimes(pd.DataFrame):
         else:
             return 'continuous'
 
+    def equals(self, other):
+        """Determines if two label time objects are the same.
+
+        Args:
+            other (LabelTimes) : Other label time instance for comparison.
+
+        Returns:
+            bool : Whether label time instances are the same.
+        """
+        tests = [
+            super().equals(other),
+            self.name == other.name,
+            self.target_entity == other.target_entity,
+            self.settings == other.settings,
+            self.transforms == other.transforms,
+        ]
+        return all(tests)
+
     def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
