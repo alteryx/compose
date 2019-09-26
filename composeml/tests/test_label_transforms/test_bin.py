@@ -5,7 +5,7 @@ def test_bins(labels):
     given_labels = labels.bin(2)
     transform = given_labels.transforms[0]
 
-    assert transform['_name'] == 'bin'
+    assert transform['transform'] == 'bin'
     assert transform['bins'] == 2
     assert transform['quantiles'] is False
     assert transform['labels'] is None
@@ -27,7 +27,7 @@ def test_quantile_bins(labels):
     given_labels = labels.bin(2, quantiles=True)
     transform = given_labels.transforms[0]
 
-    assert transform['_name'] == 'bin'
+    assert transform['transform'] == 'bin'
     assert transform['bins'] == 2
     assert transform['quantiles'] is True
     assert transform['labels'] is None

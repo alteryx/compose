@@ -30,9 +30,7 @@ class LabelTimes(pd.DataFrame):
     """A data frame containing labels made by a label maker.
 
     Attributes:
-        name
-        target_entity
-        transforms
+        settings
     """
     _metadata = ['settings']
 
@@ -84,10 +82,12 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def target_entity(self):
+        """Get target entity of label times."""
         return self.settings.get('target_entity')
 
     @target_entity.setter
     def target_entity(self, value):
+        """Set target entity of label times."""
         self.settings['target_entity'] = value
 
     @property
@@ -168,7 +168,7 @@ class LabelTimes(pd.DataFrame):
 
         for step, transform in enumerate(transforms):
             transform = pd.Series(transform)
-            name = transform.pop('_name')
+            name = transform.pop('transform')
             transform = transform.add_prefix('  - ')
             transform = transform.add_suffix(':')
             transform = transform.to_string()
@@ -207,7 +207,7 @@ class LabelTimes(pd.DataFrame):
         labels.label_type = 'discrete'
         labels.settings['label_type'] = 'discrete'
 
-        transform = {'_name': 'threshold', 'value': value}
+        transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -227,7 +227,7 @@ class LabelTimes(pd.DataFrame):
         labels = self if inplace else self.copy()
         labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
 
-        transform = {'_name': 'apply_lead', 'value': value}
+        transform = {'transform': 'apply_lead', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -309,7 +309,7 @@ class LabelTimes(pd.DataFrame):
             label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
         transform = {
-            '_name': 'bin',
+            'transform': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
