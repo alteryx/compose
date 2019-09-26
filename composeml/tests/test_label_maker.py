@@ -2,19 +2,14 @@ import pandas as pd
 import pytest
 
 from composeml import LabelMaker
-from composeml.tests import utils
+from composeml.tests.utils import to_csv
 
 
-def total_spent(df):
-    total = df.amount.sum()
-    return total
-
-
-def test_search_default(transactions):
-    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+def test_search_default(transactions, total_spent_fn):
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
 
     given_labels = lm.search(transactions, num_examples_per_instance=1, verbose=False)
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -27,14 +22,14 @@ def test_search_default(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_0(transactions):
+def test_search_offset_mix_0(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size='2h',
     )
 
@@ -47,7 +42,7 @@ def test_search_offset_mix_0(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -59,14 +54,14 @@ def test_search_offset_mix_0(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_1(transactions):
+def test_search_offset_mix_1(transactions, total_spent_fn):
     """
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size=4,
     )
 
@@ -78,7 +73,7 @@ def test_search_offset_mix_1(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -90,14 +85,14 @@ def test_search_offset_mix_1(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_2(transactions):
+def test_search_offset_mix_2(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size='30min',
     )
 
@@ -108,7 +103,7 @@ def test_search_offset_mix_2(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -120,14 +115,14 @@ def test_search_offset_mix_2(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_3(transactions):
+def test_search_offset_mix_3(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size='8h',
     )
 
@@ -139,7 +134,7 @@ def test_search_offset_mix_3(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -158,14 +153,14 @@ def test_search_offset_mix_3(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_4(transactions):
+def test_search_offset_mix_4(transactions, total_spent_fn):
     """
     Test offset mix with window_size (relative), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size=1,
     )
 
@@ -176,7 +171,7 @@ def test_search_offset_mix_4(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -192,14 +187,14 @@ def test_search_offset_mix_4(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_5(transactions):
+def test_search_offset_mix_5(transactions, total_spent_fn):
     """
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size=2,
     )
 
@@ -211,7 +206,7 @@ def test_search_offset_mix_5(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -222,14 +217,14 @@ def test_search_offset_mix_5(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_6(transactions):
+def test_search_offset_mix_6(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (relative).
     """
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size='1h',
     )
 
@@ -241,7 +236,7 @@ def test_search_offset_mix_6(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -251,7 +246,7 @@ def test_search_offset_mix_6(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_mix_7(transactions):
+def test_search_offset_mix_7(transactions, total_spent_fn):
     """
     Test offset mix with window_size (relative), minimum_data (relative), and gap (relative).
     """
@@ -259,7 +254,7 @@ def test_search_offset_mix_7(transactions):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size=10,
     )
 
@@ -269,7 +264,7 @@ def test_search_offset_mix_7(transactions):
         verbose=False,
     )
 
-    given_labels = utils.to_csv(given_labels)
+    given_labels = to_csv(given_labels)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -282,7 +277,7 @@ def test_search_offset_mix_7(transactions):
     assert given_labels == labels
 
 
-def test_search_offset_negative_0(transactions):
+def test_search_offset_negative_0(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -302,7 +297,7 @@ def test_search_offset_negative_0(transactions):
         )
 
 
-def test_search_offset_negative_1(transactions):
+def test_search_offset_negative_1(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -322,7 +317,7 @@ def test_search_offset_negative_1(transactions):
         )
 
 
-def test_invalid_offset(transactions):
+def test_invalid_offset(transactions, total_spent_fn):
     match = 'invalid offset'
 
     with pytest.raises(AssertionError, match=match):
@@ -334,7 +329,7 @@ def test_invalid_offset(transactions):
         )
 
 
-def test_invalid_threshold(transactions):
+def test_invalid_threshold(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -352,11 +347,11 @@ def test_invalid_threshold(transactions):
         )
 
 
-def test_search_invalid_n_examples(transactions):
+def test_search_invalid_n_examples(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
     )
 
     with pytest.raises(AssertionError, match='must specify gap'):
@@ -366,7 +361,7 @@ def test_search_invalid_n_examples(transactions):
         lm.search(transactions, num_examples_per_instance=2, verbose=False)
 
 
-def test_search_empty_labels(transactions):
+def test_search_empty_labels(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -386,11 +381,11 @@ def test_search_empty_labels(transactions):
     assert given_labels.empty
 
 
-def test_slice_overlap(transactions):
+def test_slice_overlap(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=total_spent,
+        labeling_function=total_spent_fn,
         window_size='1h',
     )
 
@@ -402,7 +397,7 @@ def test_slice_overlap(transactions):
         assert not is_overlap.any()
 
 
-def test_label_type(transactions):
-    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+def test_label_type(transactions, total_spent_fn):
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
     lt = lm.search(transactions, num_examples_per_instance=1, label_type='discrete', verbose=False)
     assert lt.label_type == 'discrete'

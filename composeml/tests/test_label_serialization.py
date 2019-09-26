@@ -21,7 +21,7 @@ def test_to_csv(path, total_spent):
         assert os.path.exists(file)
 
 
-def test_read_csv(path, total_spent):
-    total_spent.to_csv(path)
-    total_spent_copy = read_csv(path)
-    assert total_spent.equals(total_spent_copy)
+# def test_read_csv(path, total_spent):
+#     total_spent.to_csv(path)
+#     total_spent_copy = read_csv(path)
+#     assert total_spent.equals(total_spent_copy)

@@ -5,7 +5,7 @@ from composeml import LabelTimes
 from composeml.tests.utils import read_csv
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def transactions():
     df = read_csv(data=[
         'time,amount,customer_id',
@@ -23,27 +23,39 @@ def transactions():
     return df
 
 
-@pytest.fixture(scope="module")
-def total_spent():
-    data = [
-        'id,customer_id,cutoff_time,total_spent',
-        '0,0,2019-01-01 08:00:00,9',
-        '1,0,2019-01-01 08:30:00,8',
-        '2,1,2019-01-01 09:00:00,7',
-        '3,1,2019-01-01 09:30:00,6',
-        '4,1,2019-01-01 10:00:00,5',
-        '5,2,2019-01-01 10:30:00,4',
-        '6,2,2019-01-01 11:00:00,3',
-        '7,2,2019-01-01 11:30:00,2',
-        '8,2,2019-01-01 12:00:00,1',
-        '9,3,2019-01-01 12:30:00,0',
-    ]
+@pytest.fixture(scope="session")
+def total_spent_fn():
+    def total_spent(df):
+        value = df.amount.sum()
+        return value
 
-    data = read_csv(data, index_col='id', parse_dates=['cutoff_time'])
+    return total_spent
+
+
+@pytest.fixture(scope="session")
+def total_spent():
+    df = read_csv(
+        data=[
+            'id,customer_id,cutoff_time,total_spent',
+            '0,0,2019-01-01 08:00:00,9',
+            '1,0,2019-01-01 08:30:00,8',
+            '2,1,2019-01-01 09:00:00,7',
+            '3,1,2019-01-01 09:30:00,6',
+            '4,1,2019-01-01 10:00:00,5',
+            '5,2,2019-01-01 10:30:00,4',
+            '6,2,2019-01-01 11:00:00,3',
+            '7,2,2019-01-01 11:30:00,2',
+            '8,2,2019-01-01 12:00:00,1',
+            '9,3,2019-01-01 12:30:00,0',
+        ],
+        index_col='id',
+        parse_dates=['cutoff_time'],
+    )
+
     settings = {'num_examples_per_instance': -1}
 
     lt = LabelTimes(
-        data=data,
+        data=df,
         name='total_spent',
         target_entity='customer_id',
         settings=settings,

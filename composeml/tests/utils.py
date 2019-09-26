@@ -13,7 +13,7 @@ def read_csv(data, **kwargs):
     return df
 
 
-def to_csv(label_times):
+def to_csv(label_times, index=False, **kwargs):
     df = pd.DataFrame(label_times)
-    csv = df.to_csv(index=False)
+    csv = df.to_csv(index=index, **kwargs)
     return csv.splitlines()
