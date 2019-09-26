@@ -155,16 +155,17 @@ class LabelTimes(pd.DataFrame):
             distribution['Total:'] = distribution.sum()
             print(distribution.to_string(), end='\n\n\n')
 
-        print('Settings\n' + '-' * 8, end='\n')
         settings = pd.Series(self.settings)
+        transforms = settings.pop('transforms')
 
-        if settings.empty:
+        print('Settings\n' + '-' * 8, end='\n')
+
+        if settings.isnull().all():
             print('No settings', end='\n\n\n')
         else:
             print(settings.to_string(), end='\n\n\n')
 
         print('Transforms\n' + '-' * 10, end='\n')
-        transforms = self.transforms
 
         for step, transform in enumerate(transforms):
             transform = pd.Series(transform)
