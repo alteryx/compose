@@ -42,31 +42,23 @@ class LabelTimes(pd.DataFrame):
         target_entity
         transforms
     """
-    _metadata = ['name', 'target_entity', 'settings', 'transforms', 'label_type']
+    _metadata = ['settings']
 
-    def __init__(self,
-                 data=None,
-                 name=None,
-                 target_entity=None,
-                 settings=None,
-                 transforms=None,
-                 label_type=None,
-                 *args,
-                 **kwargs):
+    def __init__(self, data=None, target_entity=None, name=None, label_type=None, settings=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
-
-        self.name = name
-        self.target_entity = target_entity
-        self.transforms = transforms or []
-        self.plot = LabelPlots(self)
 
         if label_type is not None:
             error = 'label type must be "continuous" or "discrete"'
             assert label_type in ['continuous', 'discrete'], error
 
-        self.label_type = label_type
-        self.settings = settings or {}
-        self.settings['label_type'] = self.label_type
+        self.settings = settings or {
+            'target_entity': target_entity,
+            'labeling_function': name,
+            'label_type': label_type,
+            'transforms': transforms or [],
+        }
+
+        self.plot = LabelPlots(self)
 
     def __finalize__(self, other, method=None, **kwargs):
         """Propagate metadata from other label times.
@@ -91,11 +83,34 @@ class LabelTimes(pd.DataFrame):
         return LabelTimes
 
     @property
+    def name(self):
+        return self.settings.get('labeling_function')
+
+    @name.setter
+    def name(self, value):
+        self.settings['labeling_function'] = value
+
+    @property
+    def label_type(self):
+        return self.settings.get('label_type')
+
+    @label_type.setter
+    def label_type(self, value):
+        self.settings['label_type'] = value
+
+    @property
+    def transforms(self):
+        return self.settings.get('transforms')
+
+    @transforms.setter
+    def transforms(self, value):
+        self.settings['transforms'] = value
+
+    @property
     def is_discrete(self):
         """Whether labels are discrete."""
         if self.label_type is None:
             self.label_type = self.infer_type()
-            self.settings['label_type'] = self.label_type
 
         return self.label_type == 'discrete'
 
@@ -409,8 +424,8 @@ class LabelTimes(pd.DataFrame):
 
         if is_discrete:
             return 'discrete'
-        else:
-            return 'continuous'
+
+        return 'continuous'
 
     def equals(self, other):
         """Determines if two label time objects are the same.
@@ -421,14 +436,11 @@ class LabelTimes(pd.DataFrame):
         Returns:
             bool : Whether label time objects are the same.
         """
-        tests = [
-            super().equals(other),
-            self.name == other.name,
-            self.target_entity == other.target_entity,
-            self.settings == other.settings,
-            self.transforms == other.transforms,
-        ]
-        return all(tests)
+        value = super().equals(other) \
+            and self.settings == other.settings \
+            and self.transforms == other.transforms
+
+        return value
 
     def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
         os.makedirs(path, exist_ok=True)
