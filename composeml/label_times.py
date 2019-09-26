@@ -151,7 +151,7 @@ class LabelTimes(pd.DataFrame):
         print('Transforms\n' + '-' * 10, end='\n')
         for step, transform in enumerate(self.transforms):
             transform = pd.Series(transform)
-            name = transform.pop('__name__')
+            name = transform.pop('_name')
             transform = transform.add_prefix('  - ')
             transform = transform.add_suffix(':')
             transform = transform.to_string()
@@ -189,7 +189,7 @@ class LabelTimes(pd.DataFrame):
         labels.label_type = 'discrete'
         labels.settings['label_type'] = 'discrete'
 
-        transform = {'__name__': 'threshold', 'value': value}
+        transform = {'_name': 'threshold', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -209,7 +209,7 @@ class LabelTimes(pd.DataFrame):
         labels = self if inplace else self.copy()
         labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
 
-        transform = {'__name__': 'apply_lead', 'value': value}
+        transform = {'_name': 'apply_lead', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -291,7 +291,7 @@ class LabelTimes(pd.DataFrame):
             label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
         transform = {
-            '__name__': 'bin',
+            '_name': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,

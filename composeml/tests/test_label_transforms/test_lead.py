@@ -5,7 +5,7 @@ def test_lead(labels):
     labels = labels.apply_lead('10min')
     transform = labels.transforms[0]
 
-    assert transform['__name__'] == 'apply_lead'
+    assert transform['_name'] == 'apply_lead'
     assert transform['value'] == '10min'
 
     answer = [
