@@ -19,16 +19,8 @@ def read_csv(path, filename='label_times.csv', load_settings=True, **kwargs):
         with open(file, 'r') as file:
             label_times['settings'] = json.load(file)
 
-        label_times['name'] = label_times['settings']['labeling_function']
-
         dtypes = label_times['settings'].pop('dtypes')
         label_times['data'] = label_times['data'].astype(dtypes)
-
-        file = os.path.join(path, 'transforms.json')
-        assert os.path.exists(file), 'transforms not found'
-
-        with open(file, 'r') as file:
-            label_times['transforms'] = json.load(file)
 
         label_times = LabelTimes(**label_times)
         return label_times
@@ -55,7 +47,7 @@ class LabelTimes(pd.DataFrame):
             'target_entity': target_entity,
             'labeling_function': name,
             'label_type': label_type,
-            'transforms': transforms or [],
+            'transforms': [],
         }
 
         self.plot = LabelPlots(self)
@@ -69,14 +61,14 @@ class LabelTimes(pd.DataFrame):
         """
         if method == 'concat':
             other = other.objs[0]
+
             for key in self._metadata:
                 value = getattr(other, key, None)
                 setattr(self, key, value)
 
             return self
 
-        else:
-            return super().__finalize__(other=other, method=method, **kwargs)
+        return super().__finalize__(other=other, method=method, **kwargs)
 
     @property
     def _constructor(self):
@@ -140,11 +132,11 @@ class LabelTimes(pd.DataFrame):
             value = value.unstack(self.name).fillna(0)
             value = value.cumsum()
             return value
-        else:
-            value = self.groupby('cutoff_time')
-            value = value[self.name].count()
-            value = value.cumsum()
-            return value
+
+        value = self.groupby('cutoff_time')
+        value = value[self.name].count()
+        value = value.cumsum()
+        return value
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
@@ -164,7 +156,9 @@ class LabelTimes(pd.DataFrame):
             print(settings.to_string(), end='\n\n\n')
 
         print('Transforms\n' + '-' * 10, end='\n')
-        for step, transform in enumerate(self.transforms):
+        transforms = self.transforms
+
+        for step, transform in enumerate(transforms):
             transform = pd.Series(transform)
             name = transform.pop('_name')
             transform = transform.add_prefix('  - ')
@@ -173,19 +167,19 @@ class LabelTimes(pd.DataFrame):
             header = '{}. {}\n'.format(step + 1, name)
             print(header + transform, end='\n\n')
 
-        if len(self.transforms) == 0:
+        if len(transforms) == 0:
             print('No transforms applied', end='\n\n')
 
     def copy(self):
         """
-        Makes a copy of this instance.
+        Makes a copy of this object.
 
         Returns:
-            labels (LabelTimes) : Copy of labels.
+            LabelTimes : Copy of label times.
         """
-        labels = super().copy()
-        labels.transforms = labels.transforms.copy()
-        return labels
+        label_times = super().copy()
+        label_times.transforms = label_times.transforms.copy()
+        return label_times
 
     def threshold(self, value, inplace=False):
         """
@@ -315,7 +309,6 @@ class LabelTimes(pd.DataFrame):
 
         label_times.transforms.append(transform)
         label_times.label_type = 'discrete'
-        label_times.settings['label_type'] = 'discrete'
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None, replace=False):
@@ -436,11 +429,7 @@ class LabelTimes(pd.DataFrame):
         Returns:
             bool : Whether label time objects are the same.
         """
-        value = super().equals(other) \
-            and self.settings == other.settings \
-            and self.transforms == other.transforms
-
-        return value
+        return super().equals(other) and self.settings == other.settings
 
     def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
         os.makedirs(path, exist_ok=True)
@@ -455,7 +444,3 @@ class LabelTimes(pd.DataFrame):
             with open(file, 'w') as file:
                 json.dump(self.settings, file)
                 del self.settings['dtypes']
-
-            file = os.path.join(path, 'transforms.json')
-            with open(file, 'w') as file:
-                json.dump(self.transforms, file)
