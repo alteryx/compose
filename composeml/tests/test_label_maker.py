@@ -9,7 +9,7 @@ def test_search_default(transactions, total_spent_fn):
     lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
 
     given_labels = lm.search(transactions, num_examples_per_instance=1, verbose=False)
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -42,7 +42,7 @@ def test_search_offset_mix_0(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -73,7 +73,7 @@ def test_search_offset_mix_1(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -103,7 +103,7 @@ def test_search_offset_mix_2(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -134,7 +134,7 @@ def test_search_offset_mix_3(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -171,7 +171,7 @@ def test_search_offset_mix_4(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -206,7 +206,7 @@ def test_search_offset_mix_5(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -236,7 +236,7 @@ def test_search_offset_mix_6(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',
@@ -264,7 +264,7 @@ def test_search_offset_mix_7(transactions, total_spent_fn):
         verbose=False,
     )
 
-    given_labels = to_csv(given_labels)
+    given_labels = to_csv(given_labels, index=False)
 
     labels = [
         'customer_id,cutoff_time,total_spent',

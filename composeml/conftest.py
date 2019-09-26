@@ -32,10 +32,10 @@ def total_spent_fn():
     return total_spent
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def total_spent():
-    df = read_csv(
-        data=[
+    label_times = {
+        'data': [
             'id,customer_id,cutoff_time,total_spent',
             '0,0,2019-01-01 08:00:00,9',
             '1,0,2019-01-01 08:30:00,8',
@@ -48,23 +48,24 @@ def total_spent():
             '8,2,2019-01-01 12:00:00,1',
             '9,3,2019-01-01 12:30:00,0',
         ],
+        'settings': {
+            'target_entity': 'customer_id',
+            'labeling_function': 'total_spent',
+            'num_examples_per_instance': -1,
+        }
+    }
+
+    label_times['data'] = read_csv(
+        label_times['data'],
         index_col='id',
         parse_dates=['cutoff_time'],
     )
 
-    settings = {'num_examples_per_instance': -1}
-
-    lt = LabelTimes(
-        data=df,
-        name='total_spent',
-        target_entity='customer_id',
-        settings=settings,
-    )
-
-    return lt
+    label_times = LabelTimes(**label_times)
+    return label_times
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def labels():
     records = [
         {

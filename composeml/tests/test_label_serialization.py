@@ -17,12 +17,12 @@ def path():
 def test_to_csv(path, total_spent):
     total_spent.to_csv(path)
 
-    for filename in ['label_times.csv', 'settings.json', 'transforms.json']:
+    for filename in ['label_times.csv', 'settings.json']:
         file = os.path.join(path, filename)
         assert os.path.exists(file)
 
 
-# def test_read_csv(path, total_spent):
-#     total_spent.to_csv(path)
-#     total_spent_copy = read_csv(path)
-#     assert total_spent.equals(total_spent_copy)
+def test_read_csv(path, total_spent):
+    total_spent.to_csv(path)
+    total_spent_copy = read_csv(path)
+    assert total_spent.equals(total_spent_copy)

@@ -83,6 +83,14 @@ class LabelTimes(pd.DataFrame):
         self.settings['labeling_function'] = value
 
     @property
+    def target_entity(self):
+        return self.settings.get('target_entity')
+
+    @target_entity.setter
+    def target_entity(self, value):
+        self.settings['target_entity'] = value
+
+    @property
     def label_type(self):
         return self.settings.get('label_type')
 
@@ -92,7 +100,7 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def transforms(self):
-        return self.settings.get('transforms')
+        return self.settings.get('transforms', [])
 
     @transforms.setter
     def transforms(self, value):
@@ -140,7 +148,7 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self.is_discrete:
+        if self.name is not None and self.is_discrete:
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
@@ -178,7 +186,8 @@ class LabelTimes(pd.DataFrame):
             LabelTimes : Copy of label times.
         """
         label_times = super().copy()
-        label_times.transforms = label_times.transforms.copy()
+        label_times.settings = self.settings.copy()
+        label_times.transforms = self.transforms.copy()
         return label_times
 
     def threshold(self, value, inplace=False):
