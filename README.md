@@ -335,3 +335,4 @@ Compose open source has been developed by Feature Labs engineering team. The ope
 Compose is an open source project created by Feature Labs. We developed Compose to enable flexible definition of the machine learning task. Read more about our rationale behind automating and developing this stage of the machine learning process here.
 
 To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
+
