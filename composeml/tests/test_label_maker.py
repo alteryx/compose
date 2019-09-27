@@ -344,6 +344,7 @@ def test_invalid_threshold(transactions, total_spent_fn):
             transactions,
             num_examples_per_instance=2,
             minimum_data=' ',
+            verbose=False,
         )
 
 

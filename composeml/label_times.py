@@ -152,6 +152,7 @@ class LabelTimes(pd.DataFrame):
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
+            distribution.sort_index(inplace=True)
             distribution['Total:'] = distribution.sum()
             print(distribution.to_string(), end='\n\n\n')
 
@@ -163,12 +164,14 @@ class LabelTimes(pd.DataFrame):
         if settings.isnull().all():
             print('No settings', end='\n\n\n')
         else:
+            settings.sort_index(inplace=True)
             print(settings.to_string(), end='\n\n\n')
 
         print('Transforms\n' + '-' * 10, end='\n')
 
         for step, transform in enumerate(transforms):
             transform = pd.Series(transform)
+            transform.sort_index(inplace=True)
             name = transform.pop('transform')
             transform = transform.add_prefix('  - ')
             transform = transform.add_suffix(':')
@@ -354,37 +357,37 @@ class LabelTimes(pd.DataFrame):
 
             Sample number of labels:
 
-            >>> labels.sample(n=3, random_state=0)
+            >>> labels.sample(n=3, random_state=0).sort_index()
               labels
-            6      A
-            2      B
             1      A
+            2      B
+            6      A
 
             Sample number per label:
 
-            >>> n_per_label = {'A': 1, 'B': 2}
-            >>> labels.sample(n=n_per_label, random_state=0)
+            >>> n_per_label = {'B': 2, 'A': 1}
+            >>> labels.sample(n=n_per_label, random_state=0).sort_index()
               labels
-            5      A
-            4      B
             3      B
+            4      B
+            5      A
 
             Sample fraction of labels:
 
-            >>> labels.sample(frac=.4, random_state=2)
+            >>> labels.sample(frac=.4, random_state=2).sort_index()
               labels
-            4      B
             1      A
             3      B
+            4      B
 
             Sample fraction per label:
 
             >>> frac_per_label = {'A': .5, 'B': .34}
-            >>> labels.sample(frac=frac_per_label, random_state=2)
+            >>> labels.sample(frac=frac_per_label, random_state=2).sort_index()
               labels
+            4      B
             5      A
             6      A
-            4      B
         """ # noqa
         if isinstance(n, int):
             sample = super().sample(n=n, random_state=random_state, replace=replace)
