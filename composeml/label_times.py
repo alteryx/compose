@@ -12,7 +12,7 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
     Args:
         path (str) : Directory on disk to read from.
         filename (str) : Name of label times file. Default value is `label_times.csv`.
-        save_settings (bool) : Whether to load settings used to make label times.
+        load_settings (bool) : Whether to load settings used to make label times.
     """
     file = os.path.join(path, filename)
     assert os.path.exists(file), 'data not found'
