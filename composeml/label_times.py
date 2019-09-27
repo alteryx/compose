@@ -6,11 +6,18 @@ import pandas as pd
 from composeml.label_plots import LabelPlots
 
 
-def read_csv(path, filename='label_times.csv', load_settings=True, **kwargs):
+def read_csv(path, filename='label_times.csv', load_settings=True):
+    """Read label times in csv format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Name of label times file. Default value is `label_times.csv`.
+        save_settings (bool) : Whether to load settings used to make label times.
+    """
     file = os.path.join(path, filename)
     assert os.path.exists(file), 'data not found'
 
-    label_times = {'data': pd.read_csv(file, index_col='id', **kwargs)}
+    label_times = {'data': pd.read_csv(file, index_col='id')}
 
     if load_settings:
         file = os.path.join(path, 'settings.json')
@@ -444,10 +451,17 @@ class LabelTimes(pd.DataFrame):
         """
         return super().equals(other) and self.settings == other.settings
 
-    def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
+    def to_csv(self, path, filename='label_times.csv', save_settings=True):
+        """Write label times in csv format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Name of label times file. Default value is `label_times.csv`.
+            save_settings (bool) : Whether to save settings used to make label times.
+        """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_csv(file, **kwargs)
+        super().to_csv(file)
 
         if save_settings:
             dtypes = self.dtypes.astype('str')
