@@ -81,10 +81,12 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def name(self):
+        """Get name of label times."""
         return self.settings.get('labeling_function')
 
     @name.setter
     def name(self, value):
+        """Set name of label times."""
         self.settings['labeling_function'] = value
 
     @property
@@ -99,18 +101,22 @@ class LabelTimes(pd.DataFrame):
 
     @property
     def label_type(self):
+        """Get label type."""
         return self.settings.get('label_type')
 
     @label_type.setter
     def label_type(self, value):
+        """Set label type."""
         self.settings['label_type'] = value
 
     @property
     def transforms(self):
+        """Get transforms of label times."""
         return self.settings.get('transforms', [])
 
     @transforms.setter
     def transforms(self, value):
+        """Set transforms of label times."""
         self.settings['transforms'] = value
 
     @property
@@ -372,7 +378,7 @@ class LabelTimes(pd.DataFrame):
 
             Sample number per label:
 
-            >>> n_per_label = {'B': 2, 'A': 1}
+            >>> n_per_label = {'A': 1, 'B': 2}
             >>> labels.sample(n=n_per_label, random_state=0).sort_index()
               labels
             3      B
