@@ -377,6 +377,7 @@ def test_search_empty_labels(transactions, total_spent_fn):
         minimum_data=1,
         num_examples_per_instance=2,
         gap=3,
+        verbose=False,
     )
 
     assert given_labels.empty
