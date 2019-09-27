@@ -29,8 +29,8 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
         dtypes = label_times['settings'].pop('dtypes')
         label_times['data'] = label_times['data'].astype(dtypes)
 
-        label_times = LabelTimes(**label_times)
-        return label_times
+    label_times = LabelTimes(**label_times)
+    return label_times
 
 
 class LabelTimes(pd.DataFrame):
