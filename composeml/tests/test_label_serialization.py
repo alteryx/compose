@@ -1,9 +1,10 @@
 import os
 import shutil
 
+import pandas as pd
 import pytest
+
 import composeml as cp
-from pandas.testing import assert_frame_equal
 
 
 @pytest.fixture
@@ -24,19 +25,19 @@ def total_spent(transactions, total_spent_fn):
 def test_csv(path, total_spent):
     total_spent.to_csv(path)
     total_spent_copy = cp.read_csv(path)
-    assert_frame_equal(total_spent, total_spent_copy)
+    pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
 
 
 def test_parquet(path, total_spent):
     total_spent.to_parquet(path)
     total_spent_copy = cp.read_parquet(path)
-    assert_frame_equal(total_spent, total_spent_copy)
+    pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
 
 
 def test_pickle(path, total_spent):
     total_spent.to_pickle(path)
     total_spent_copy = cp.read_pickle(path)
-    assert_frame_equal(total_spent, total_spent_copy)
+    pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)

@@ -500,6 +500,11 @@ class LabelTimes(pd.DataFrame):
         return super().equals(other) and self.settings == other.settings
 
     def _load_settings(self, path):
+        """Read the settings in json format from disk.
+
+        Args:
+            path (str) : Directory on disk to read from.
+        """
         file = os.path.join(path, 'settings.json')
         assert os.path.exists(file), 'settings not found'
 
@@ -515,6 +520,11 @@ class LabelTimes(pd.DataFrame):
         return self
 
     def _save_settings(self, path):
+        """Write the settings in json format to disk.
+
+        Args:
+            path (str) : Directory on disk to write to.
+        """
         dtypes = self.dtypes.astype('str')
         self.settings['dtypes'] = dtypes.to_dict()
 
