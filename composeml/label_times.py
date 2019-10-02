@@ -558,7 +558,7 @@ class LabelTimes(pd.DataFrame):
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_parquet(file, compression=None)
+        super().to_parquet(file, compression=None, engine='auto')
 
         if save_settings:
             self._save_settings(path)
