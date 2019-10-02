@@ -11,25 +11,67 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
 
     Args:
         path (str) : Directory on disk to read from.
-        filename (str) : Name of label times file. Default value is `label_times.csv`.
-        load_settings (bool) : Whether to load settings used to make label times.
+        filename (str) : Filename for label times. Default value is `label_times.csv`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
     """
     file = os.path.join(path, filename)
     assert os.path.exists(file), 'data not found'
 
-    label_times = {'data': pd.read_csv(file, index_col='id')}
+    data = pd.read_csv(file, index_col='id')
+    label_times = LabelTimes(data=data)
 
     if load_settings:
-        file = os.path.join(path, 'settings.json')
-        assert os.path.exists(file), 'settings not found'
+        label_times = label_times._load_settings(path)
 
-        with open(file, 'r') as file:
-            label_times['settings'] = json.load(file)
+    return label_times
 
-        dtypes = label_times['settings'].pop('dtypes')
-        label_times['data'] = label_times['data'].astype(dtypes)
 
-    label_times = LabelTimes(**label_times)
+def read_parquet(path, filename='label_times.parquet', load_settings=True):
+    """Read label times in parquet format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Filename for label times. Default value is `label_times.parquet`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
+    """
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), 'data not found'
+
+    data = pd.read_parquet(file)
+    label_times = LabelTimes(data=data)
+
+    if load_settings:
+        label_times = label_times._load_settings(path)
+
+    return label_times
+
+
+def read_pickle(path, filename='label_times.pickle', load_settings=True):
+    """Read label times in parquet format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Filename for label times. Default value is `label_times.parquet`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
+    """
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), 'data not found'
+
+    data = pd.read_pickle(file)
+    label_times = LabelTimes(data=data)
+
+    if load_settings:
+        label_times = label_times._load_settings(path)
+
     return label_times
 
 
@@ -457,23 +499,71 @@ class LabelTimes(pd.DataFrame):
         """
         return super().equals(other) and self.settings == other.settings
 
+    def _load_settings(self, path):
+        file = os.path.join(path, 'settings.json')
+        assert os.path.exists(file), 'settings not found'
+
+        with open(file, 'r') as file:
+            settings = json.load(file)
+
+        if 'dtypes' in settings:
+            dtypes = settings.pop('dtypes')
+            self = LabelTimes(self.astype(dtypes))
+
+        self.settings.update(settings)
+
+        return self
+
+    def _save_settings(self, path):
+        dtypes = self.dtypes.astype('str')
+        self.settings['dtypes'] = dtypes.to_dict()
+
+        file = os.path.join(path, 'settings.json')
+        with open(file, 'w') as file:
+            json.dump(self.settings, file)
+            del self.settings['dtypes']
+
     def to_csv(self, path, filename='label_times.csv', save_settings=True):
         """Write label times in csv format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Name of label times file. Default value is `label_times.csv`.
-            save_settings (bool) : Whether to save settings used to make label times.
+            filename (str) : Filename for label times. Default value is `label_times.csv`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
         super().to_csv(file)
 
         if save_settings:
-            dtypes = self.dtypes.astype('str')
-            self.settings['dtypes'] = dtypes.to_dict()
+            self._save_settings(path)
 
-            file = os.path.join(path, 'settings.json')
-            with open(file, 'w') as file:
-                json.dump(self.settings, file)
-                del self.settings['dtypes']
+    def to_parquet(self, path, filename='label_times.parquet', save_settings=True):
+        """Write label times in parquet format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Filename for label times. Default value is `label_times.parquet`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
+        """
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_parquet(file, compression=None)
+
+        if save_settings:
+            self._save_settings(path)
+
+    def to_pickle(self, path, filename='label_times.pickle', save_settings=True):
+        """Write label times in pickle format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Filename for label times. Default value is `label_times.pickle`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
+        """
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_pickle(file)
+
+        if save_settings:
+            self._save_settings(path)

@@ -2,8 +2,8 @@ import os
 import shutil
 
 import pytest
-
-from composeml.label_times import read_csv
+import composeml as cp
+from pandas.testing import assert_frame_equal
 
 
 @pytest.fixture
@@ -14,15 +14,29 @@ def path():
     shutil.rmtree(path)
 
 
-def test_to_csv(path, total_spent):
+@pytest.fixture
+def total_spent(transactions, total_spent_fn):
+    lm = cp.LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
+    lt = lm.search(transactions, num_examples_per_instance=1, verbose=False)
+    return lt
+
+
+def test_csv(path, total_spent):
     total_spent.to_csv(path)
+    total_spent_copy = cp.read_csv(path)
+    assert_frame_equal(total_spent, total_spent_copy)
+    assert total_spent.equals(total_spent_copy)
 
-    for filename in ['label_times.csv', 'settings.json']:
-        file = os.path.join(path, filename)
-        assert os.path.exists(file)
+
+def test_parquet(path, total_spent):
+    total_spent.to_parquet(path)
+    total_spent_copy = cp.read_parquet(path)
+    assert_frame_equal(total_spent, total_spent_copy)
+    assert total_spent.equals(total_spent_copy)
 
 
-def test_read_csv(path, total_spent):
-    total_spent.to_csv(path)
-    total_spent_copy = read_csv(path)
+def test_pickle(path, total_spent):
+    total_spent.to_pickle(path)
+    total_spent_copy = cp.read_pickle(path)
+    assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
