@@ -337,33 +337,54 @@ class LabelTimes(pd.DataFrame):
             6      A
             4      B
         """ # noqa
+        transform = {
+            'transform': 'sample',
+            'n': n,
+            'frac': frac,
+            'random_state': random_state,
+            'replace': replace,
+        }
+
         if isinstance(n, int):
             sample = super().sample(n=n, random_state=random_state, replace=replace)
-            return sample
+
+            if not self.settings.get('sample_in_transforms'):
+                self.transforms.append(transform)
 
         if isinstance(n, dict):
+            self.transforms.append(transform)
+
             sample_per_label = []
             for label, n, in n.items():
                 label = self[self[self.name] == label]
+                label.settings['sample_in_transforms'] = True
                 sample = label.sample(n=n, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
             sample = pd.concat(sample_per_label, axis=0, sort=False)
-            return sample
 
         if isinstance(frac, float):
             sample = super().sample(frac=frac, random_state=random_state, replace=replace)
-            return sample
+
+            if not self.settings.get('sample_in_transforms'):
+                self.transforms.append(transform)
 
         if isinstance(frac, dict):
+            self.transforms.append(transform)
+
             sample_per_label = []
             for label, frac, in frac.items():
                 label = self[self[self.name] == label]
+                label.settings['sample_in_transforms'] = True
                 sample = label.sample(frac=frac, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
             sample = pd.concat(sample_per_label, axis=0, sort=False)
-            return sample
+
+        if 'sample_in_transforms' in self.settings:
+            del self.settings['sample_in_transforms']
+
+        return sample
 
     def infer_type(self):
         """Infer label type.
