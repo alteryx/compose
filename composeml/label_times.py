@@ -456,40 +456,43 @@ class LabelTimes(pd.DataFrame):
             sample = super().sample(n=n, random_state=random_state, replace=replace)
 
             if not self.settings.get('sample_in_transforms'):
-                self.transforms.append(transform)
+                sample = sample.copy()
+                sample.transforms.append(transform)
 
         if isinstance(n, dict):
-            self.transforms.append(transform)
+            self.settings['sample_in_transforms'] = True
 
             sample_per_label = []
             for label, n, in n.items():
                 label = self[self[self.name] == label]
-                label.settings['sample_in_transforms'] = True
                 sample = label.sample(n=n, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
+            del self.settings['sample_in_transforms']
             sample = pd.concat(sample_per_label, axis=0, sort=False)
+            sample = sample.copy()
+            sample.transforms.append(transform)
 
         if isinstance(frac, float):
             sample = super().sample(frac=frac, random_state=random_state, replace=replace)
 
             if not self.settings.get('sample_in_transforms'):
-                self.transforms.append(transform)
+                sample = sample.copy()
+                sample.transforms.append(transform)
 
         if isinstance(frac, dict):
-            self.transforms.append(transform)
+            self.settings['sample_in_transforms'] = True
 
             sample_per_label = []
             for label, frac, in frac.items():
                 label = self[self[self.name] == label]
-                label.settings['sample_in_transforms'] = True
                 sample = label.sample(frac=frac, random_state=random_state, replace=replace)
                 sample_per_label.append(sample)
 
-            sample = pd.concat(sample_per_label, axis=0, sort=False)
-
-        if 'sample_in_transforms' in self.settings:
             del self.settings['sample_in_transforms']
+            sample = pd.concat(sample_per_label, axis=0, sort=False)
+            sample = sample.copy()
+            sample.transforms.append(transform)
 
         return sample
 

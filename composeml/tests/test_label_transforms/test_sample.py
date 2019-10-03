@@ -8,7 +8,7 @@ def labels(labels):
     return labels.threshold(100)
 
 
-def test_sample_n_int(labels):
+def test_sample_n(labels):
     given_answer = labels.sample(n=2, random_state=0)
     given_answer = given_answer.sort_index()
     given_answer = to_csv(given_answer, index=True)
@@ -22,7 +22,7 @@ def test_sample_n_int(labels):
     assert given_answer == answer
 
 
-def test_sample_n_dict(labels):
+def test_sample_n_per_label(labels):
     n = {True: 1, False: 2}
     given_answer = labels.sample(n=n, random_state=0)
     given_answer = given_answer.sort_index()
@@ -38,7 +38,7 @@ def test_sample_n_dict(labels):
     assert given_answer == answer
 
 
-def test_sample_frac_int(labels):
+def test_sample_frac(labels):
     given_answer = labels.sample(frac=.25, random_state=0)
     given_answer = given_answer.sort_index()
     given_answer = to_csv(given_answer, index=True)
@@ -51,7 +51,7 @@ def test_sample_frac_int(labels):
     assert given_answer == answer
 
 
-def test_sample_frac_dict(labels):
+def test_sample_frac_per_label(labels):
     frac = {True: 1., False: .5}
     given_answer = labels.sample(frac=frac, random_state=0)
     given_answer = given_answer.sort_index()
@@ -67,20 +67,20 @@ def test_sample_frac_dict(labels):
     assert given_answer == answer
 
 
-def test_sample_metadata_n_dict(labels):
+def test_sample_in_transforms(labels):
     n = {True: 2, False: 2}
+
+    transform = {
+        'transform': 'sample',
+        'n': n,
+        'frac': None,
+        'random_state': None,
+        'replace': False,
+    }
+
     sample = labels.sample(n=n)
-    assert sample.name == labels.name
-    assert sample.settings == labels.settings
-    assert sample.transforms == labels.transforms
-
-
-def test_sample_metadata_frac_dict(labels):
-    frac = {True: .5, False: .5}
-    sample = labels.sample(frac=frac)
-    assert sample.name == labels.name
-    assert sample.settings == labels.settings
-    assert sample.transforms == labels.transforms
+    assert transform != labels.transforms[-1]
+    assert transform == sample.transforms[-1]
 
 
 def test_sample_with_replacement(labels):
