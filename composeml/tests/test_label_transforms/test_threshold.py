@@ -2,7 +2,7 @@ def test_threshold(labels):
     labels = labels.threshold(200)
     transform = labels.transforms[0]
 
-    assert transform['__name__'] == 'threshold'
+    assert transform['transform'] == 'threshold'
     assert transform['value'] == 200
 
     answer = [True, False, True, False]

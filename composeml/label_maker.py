@@ -364,8 +364,9 @@ class LabelMaker:
         if labels.is_discrete:
             labels[labels.name] = labels[labels.name].astype('category')
 
+        labels.name = name
+        labels.target_entity = self.target_entity
         labels.settings.update({
-            'labeling_function': name,
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': str(minimum_data),
             'window_size': self.window_size,
