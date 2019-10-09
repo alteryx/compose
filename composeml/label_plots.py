@@ -2,7 +2,7 @@ import matplotlib as mpl  # isort:skip
 
 # Raises an import error on OSX if not included.
 # https://matplotlib.org/3.1.0/faq/osx_framework.html#working-with-matplotlib-on-osx
-mpl.use('TkAgg')  # noqa
+mpl.use('agg')  # noqa
 
 import pandas as pd
 import seaborn as sns
