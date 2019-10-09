@@ -185,6 +185,5 @@ templates_path = ["_templates"]
 def setup(app):
     app.add_stylesheet("style.css")
 
-nbsphinx_allow_errors = True
 html_show_sphinx = False
 intersphinx_mapping = {'featuretools': ('https://docs.featuretools.com/', None)}
