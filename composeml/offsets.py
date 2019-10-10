@@ -1,8 +1,8 @@
+import re
+
 import pandas as pd
 
 from composeml.utils import can_be_type
-
-import re
 
 
 def parse(value):
