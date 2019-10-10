@@ -58,6 +58,7 @@ def cutoff_data(df, threshold):
 
 class Context:
     """Metadata for data slice."""
+
     def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
         """Metadata for data slice.
 
@@ -98,6 +99,7 @@ class DataSlice(pd.DataFrame):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
