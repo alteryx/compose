@@ -10,7 +10,7 @@ def read_csv(data, **kwargs):
         data (str or list) : CSV string(s)
 
     Returns:
-        DataFrame : Instance of dataframe.
+        DataFrame : Instance of a dataframe.
     """
     if isinstance(data, list):
         data = '\n'.join(data)
