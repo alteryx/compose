@@ -369,8 +369,8 @@ class LabelMaker:
         labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': str(minimum_data),
-            'window_size': self.window_size,
-            'gap': gap,
+            'window_size': str(self.window_size),
+            'gap': str(gap),
         })
 
         return labels
