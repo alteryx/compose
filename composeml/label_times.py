@@ -18,7 +18,7 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
         LabelTimes : Deserialized label times.
     """
     file = os.path.join(path, filename)
-    assert os.path.exists(file), 'data not found'
+    assert os.path.exists(file), "data not found: '%s'" % file
 
     data = pd.read_csv(file, index_col='id')
     label_times = LabelTimes(data=data)
@@ -41,7 +41,7 @@ def read_parquet(path, filename='label_times.parquet', load_settings=True):
         LabelTimes : Deserialized label times.
     """
     file = os.path.join(path, filename)
-    assert os.path.exists(file), 'data not found'
+    assert os.path.exists(file), "data not found: '%s'" % file
 
     data = pd.read_parquet(file)
     label_times = LabelTimes(data=data)
@@ -64,7 +64,7 @@ def read_pickle(path, filename='label_times.pickle', load_settings=True):
         LabelTimes : Deserialized label times.
     """
     file = os.path.join(path, filename)
-    assert os.path.exists(file), 'data not found'
+    assert os.path.exists(file), "data not found: '%s'" % file
 
     data = pd.read_pickle(file)
     label_times = LabelTimes(data=data)
