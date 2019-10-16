@@ -1,0 +1,48 @@
+version: 2.1
+
+jobs:
+  test_python:
+    parameters:
+      python_version:
+        type: string
+        default: "3.7"
+      codecov:
+        type: boolean
+        default: false
+    working_directory: ~/compose
+    docker:
+        - image: circleci/python:<< parameters.python_version >>
+    steps:
+      - checkout
+      - run: |
+          virtualenv test_python -q
+          source test_python/bin/activate
+          make installdeps
+      - run: |
+          source test_python/bin/activate
+          make lint
+      - run: |
+          source test_python/bin/activate
+          coverage erase
+          make test
+      - when:
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source test_python/bin/activate
+                codecov
+
+workflows:
+  version: 2
+  test_all_python_versions:
+    jobs:
+      - test_python:
+          name: "python 3.5"
+          python_version: "3.5"
+      - test_python:
+          name: "python 3.6"
+          python_version: "3.6"
+      - test_python:
+          name: "python 3.7"
+          python_version: "3.7"
+          codecov: true
