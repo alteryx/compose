@@ -1,7 +1,11 @@
+from composeml.label_times import LabelTimes
+from composeml.tests.utils import to_csv
+
+
 def test_count_by_time_categorical(total_spent):
     labels = range(2)
     given_answer = total_spent.bin(2, labels=labels).count_by_time
-    given_answer = given_answer.to_csv(header=True).splitlines()
+    given_answer = to_csv(given_answer)
 
     answer = [
         'cutoff_time,0,1',
@@ -22,7 +26,7 @@ def test_count_by_time_categorical(total_spent):
 
 def test_count_by_time_continuous(total_spent):
     given_answer = total_spent.count_by_time
-    given_answer = given_answer.to_csv(header=True).splitlines()
+    given_answer = to_csv(given_answer, header=True, index=True)
 
     answer = [
         'cutoff_time,total_spent',
@@ -41,20 +45,65 @@ def test_count_by_time_continuous(total_spent):
     assert given_answer == answer
 
 
-def test_describe(total_spent):
-    assert total_spent.bin(2).describe() is None
+def test_describe(capsys, total_spent):
+    labels = ['A', 'B']
+    total_spent.bin(2, labels=labels).describe()
+    captured = capsys.readouterr()
+
+    out = '\n'.join([
+        'Label Distribution',
+        '------------------',
+        'A          5',
+        'B          5',
+        'Total:    10',
+        '',
+        '',
+        'Settings',
+        '--------',
+        'label_type                      discrete',
+        'labeling_function            total_spent',
+        'num_examples_per_instance             -1',
+        'target_entity                customer_id',
+        '',
+        '',
+        'Transforms',
+        '----------',
+        '1. bin',
+        '  - bins:              2',
+        '  - labels:       [A, B]',
+        '  - quantiles:     False',
+        '  - right:          True',
+        '',
+        '',
+    ])
+
+    assert captured.out == out
 
 
-def test_describe_no_settings(total_spent):
-    total_spent = total_spent.copy()
-    total_spent.settings.clear()
-    assert total_spent.describe() is None
+def test_describe_empty(capsys):
+    LabelTimes().describe()
+    captured = capsys.readouterr()
+
+    out = '\n'.join([
+        'Settings',
+        '--------',
+        'No settings',
+        '',
+        '',
+        'Transforms',
+        '----------',
+        'No transforms applied',
+        '',
+        '',
+    ])
+
+    assert captured.out == out
 
 
 def test_distribution_categorical(total_spent):
     labels = range(2)
     given_answer = total_spent.bin(2, labels=labels).distribution
-    given_answer = given_answer.to_csv(header=True).splitlines()
+    given_answer = to_csv(given_answer)
 
     answer = [
         'total_spent,count',
@@ -71,7 +120,6 @@ def test_distribution_continous(total_spent):
 
 def test_infer_type(total_spent):
     assert total_spent.infer_type() == 'continuous'
-
     total_spent = total_spent.threshold(5)
     total_spent.label_type = None
     assert total_spent.infer_type() == 'discrete'
@@ -79,8 +127,7 @@ def test_infer_type(total_spent):
 
 def test_count(total_spent):
     given_answer = total_spent.count
-    given_answer = given_answer.to_csv(index=True)
-    given_answer = given_answer.splitlines()
+    given_answer = to_csv(given_answer, index=True)
 
     answer = [
         'customer_id,count',
