@@ -384,7 +384,7 @@ class LabelTimes(pd.DataFrame):
 
         Args:
             key (str) : Determines the sampling method. Can either be 'n' or 'frac'.
-            value (dict) : Quantity to sample per label.
+            value (dict) : Quantity to sample.
             settings (dict) : Transform settings used for sampling.
             random_state (int) : Seed for the random number generator.
             replace (bool) : Sample with or without replacement. Default value is False.
