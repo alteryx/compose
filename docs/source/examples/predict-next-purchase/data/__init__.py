@@ -1,7 +1,10 @@
 import os
+import tarfile
+
 import pandas as pd
 import requests
-import tarfile
+
+from tqdm import tqdm
 
 PWD = os.path.dirname(__file__)
 PATH = os.path.join(PWD, 'instacart_2017_05_01')
@@ -41,6 +44,8 @@ def add_time(df, start='2015-01-01'):
 
 
 def load_orders(path=None, nrows=1000000):
+    if not exists(): download()
+
     path = path or PATH
 
     file = os.path.join(path, 'order_products__prior.csv')
@@ -65,25 +70,48 @@ def exists():
 
 
 def download():
-    assert not exists(), 'data already exists'
-
-    print('Downloading data..')
     url = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_shopping_2017_05_01.tar.gz'
     response = requests.get(url, stream=True)
+    assert response.status_code == 200, "unable to download data"
 
-    if response.status_code == 200:
-        tar = os.path.join(PWD, 'data.tar.gz')
+    bar_format = "Downloaded: {n}MB / {total}MB ({rate}MB/s), "
+    bar_format += "Elapsed: {elapsed}, Remaining: {remaining}, Progress: {l_bar}{bar}"
+    total = int(response.headers.get('content-length', 0)) // 1e+6
+    data = response.iter_content(chunk_size=int(1e+6))
+    data = tqdm(data, total=total, bar_format=bar_format, unit="MB")
 
-        file = open(tar, 'wb')
-        file.write(response.raw.read())
-        file.close()
+    tar = os.path.join(PWD, 'data.tar.gz')
+    with open(tar, 'wb') as file:
+        for chunk in data:
+            file.write(chunk)
 
-        file = tarfile.open(tar, "r:gz")
+    with tarfile.open(tar, "r:gz") as file:
         file.extractall('data')
-        file.close()
-        os.remove(tar)
 
+    os.remove(tar)
     response.close()
 
-    if not exists():
-        raise FileNotFoundError('unable to download data')
+
+# def download():
+#     assert not exists(), 'data already exists'
+
+#     print('Downloading data..')
+#     url = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_shopping_2017_05_01.tar.gz'
+#     response = requests.get(url, stream=True)
+
+#     if response.status_code == 200:
+#         tar = os.path.join(PWD, 'data.tar.gz')
+
+#         file = open(tar, 'wb')
+#         file.write(response.raw.read())
+#         file.close()
+
+#         file = tarfile.open(tar, "r:gz")
+#         file.extractall('data')
+#         file.close()
+#         os.remove(tar)
+
+#     response.close()
+
+#     if not exists():
+#         raise FileNotFoundError('unable to download data')
