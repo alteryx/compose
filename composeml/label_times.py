@@ -1,41 +1,103 @@
+import json
+import os
+
 import pandas as pd
 
 from composeml.label_plots import LabelPlots
+
+
+def read_csv(path, filename='label_times.csv', load_settings=True):
+    """Read label times in csv format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Filename for label times. Default value is `label_times.csv`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
+    """
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), "data not found: '%s'" % file
+
+    data = pd.read_csv(file, index_col='id')
+    label_times = LabelTimes(data=data)
+
+    if load_settings:
+        label_times = label_times._load_settings(path)
+
+    return label_times
+
+
+def read_parquet(path, filename='label_times.parquet', load_settings=True):
+    """Read label times in parquet format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Filename for label times. Default value is `label_times.parquet`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
+    """
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), "data not found: '%s'" % file
+
+    data = pd.read_parquet(file)
+    label_times = LabelTimes(data=data)
+
+    if load_settings:
+        label_times = label_times._load_settings(path)
+
+    return label_times
+
+
+def read_pickle(path, filename='label_times.pickle', load_settings=True):
+    """Read label times in parquet format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+        filename (str) : Filename for label times. Default value is `label_times.parquet`.
+        load_settings (bool) : Whether to load the settings used to make the label times.
+
+    Returns:
+        LabelTimes : Deserialized label times.
+    """
+    file = os.path.join(path, filename)
+    assert os.path.exists(file), "data not found: '%s'" % file
+
+    data = pd.read_pickle(file)
+    label_times = LabelTimes(data=data)
+
+    if load_settings:
+        label_times = label_times._load_settings(path)
+
+    return label_times
 
 
 class LabelTimes(pd.DataFrame):
     """A data frame containing labels made by a label maker.
 
     Attributes:
-        name
-        target_entity
-        transforms
+        settings
     """
-    _metadata = ['name', 'target_entity', 'settings', 'transforms', 'label_type']
+    _metadata = ['settings']
 
-    def __init__(self,
-                 data=None,
-                 name=None,
-                 target_entity=None,
-                 settings=None,
-                 transforms=None,
-                 label_type=None,
-                 *args,
-                 **kwargs):
+    def __init__(self, data=None, target_entity=None, name=None, label_type=None, settings=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
-
-        self.name = name
-        self.target_entity = target_entity
-        self.transforms = transforms or []
-        self.plot = LabelPlots(self)
 
         if label_type is not None:
             error = 'label type must be "continuous" or "discrete"'
             assert label_type in ['continuous', 'discrete'], error
 
-        self.label_type = label_type
-        self.settings = settings or {}
-        self.settings['label_type'] = self.label_type
+        self.settings = settings or {
+            'target_entity': target_entity,
+            'labeling_function': name,
+            'label_type': label_type,
+            'transforms': [],
+        }
+
+        self.plot = LabelPlots(self)
 
     def __finalize__(self, other, method=None, **kwargs):
         """Propagate metadata from other label times.
@@ -46,25 +108,64 @@ class LabelTimes(pd.DataFrame):
         """
         if method == 'concat':
             other = other.objs[0]
+
             for key in self._metadata:
                 value = getattr(other, key, None)
                 setattr(self, key, value)
 
             return self
 
-        else:
-            return super().__finalize__(other=other, method=method, **kwargs)
+        return super().__finalize__(other=other, method=method, **kwargs)
 
     @property
     def _constructor(self):
         return LabelTimes
 
     @property
+    def name(self):
+        """Get name of label times."""
+        return self.settings.get('labeling_function')
+
+    @name.setter
+    def name(self, value):
+        """Set name of label times."""
+        self.settings['labeling_function'] = value
+
+    @property
+    def target_entity(self):
+        """Get target entity of label times."""
+        return self.settings.get('target_entity')
+
+    @target_entity.setter
+    def target_entity(self, value):
+        """Set target entity of label times."""
+        self.settings['target_entity'] = value
+
+    @property
+    def label_type(self):
+        """Get label type."""
+        return self.settings.get('label_type')
+
+    @label_type.setter
+    def label_type(self, value):
+        """Set label type."""
+        self.settings['label_type'] = value
+
+    @property
+    def transforms(self):
+        """Get transforms of label times."""
+        return self.settings.get('transforms', [])
+
+    @transforms.setter
+    def transforms(self, value):
+        """Set transforms of label times."""
+        self.settings['transforms'] = value
+
+    @property
     def is_discrete(self):
         """Whether labels are discrete."""
         if self.label_type is None:
             self.label_type = self.infer_type()
-            self.settings['label_type'] = self.label_type
 
         return self.label_type == 'discrete'
 
@@ -94,52 +195,59 @@ class LabelTimes(pd.DataFrame):
             value = value.unstack(self.name).fillna(0)
             value = value.cumsum()
             return value
-        else:
-            value = self.groupby('cutoff_time')
-            value = value[self.name].count()
-            value = value.cumsum()
-            return value
+
+        value = self.groupby('cutoff_time')
+        value = value[self.name].count()
+        value = value.cumsum()
+        return value
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self.is_discrete:
+        if self.name is not None and self.is_discrete:
             print('Label Distribution\n' + '-' * 18, end='\n')
             distribution = self[self.name].value_counts()
             distribution.index = distribution.index.astype('str')
+            distribution.sort_index(inplace=True)
             distribution['Total:'] = distribution.sum()
             print(distribution.to_string(), end='\n\n\n')
 
-        print('Settings\n' + '-' * 8, end='\n')
         settings = pd.Series(self.settings)
+        transforms = settings.pop('transforms')
 
-        if settings.empty:
+        print('Settings\n' + '-' * 8, end='\n')
+
+        if settings.isnull().all():
             print('No settings', end='\n\n\n')
         else:
+            settings.sort_index(inplace=True)
             print(settings.to_string(), end='\n\n\n')
 
         print('Transforms\n' + '-' * 10, end='\n')
-        for step, transform in enumerate(self.transforms):
+
+        for step, transform in enumerate(transforms):
             transform = pd.Series(transform)
-            name = transform.pop('__name__')
+            transform.sort_index(inplace=True)
+            name = transform.pop('transform')
             transform = transform.add_prefix('  - ')
             transform = transform.add_suffix(':')
             transform = transform.to_string()
             header = '{}. {}\n'.format(step + 1, name)
             print(header + transform, end='\n\n')
 
-        if len(self.transforms) == 0:
+        if len(transforms) == 0:
             print('No transforms applied', end='\n\n')
 
     def copy(self):
         """
-        Makes a copy of this instance.
+        Makes a copy of this object.
 
         Returns:
-            labels (LabelTimes) : Copy of labels.
+            LabelTimes : Copy of label times.
         """
-        labels = super().copy()
-        labels.transforms = labels.transforms.copy()
-        return labels
+        label_times = super().copy()
+        label_times.settings = self.settings.copy()
+        label_times.transforms = self.transforms.copy()
+        return label_times
 
     def threshold(self, value, inplace=False):
         """
@@ -158,7 +266,7 @@ class LabelTimes(pd.DataFrame):
         labels.label_type = 'discrete'
         labels.settings['label_type'] = 'discrete'
 
-        transform = {'__name__': 'threshold', 'value': value}
+        transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -178,7 +286,7 @@ class LabelTimes(pd.DataFrame):
         labels = self if inplace else self.copy()
         labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
 
-        transform = {'__name__': 'apply_lead', 'value': value}
+        transform = {'transform': 'apply_lead', 'value': value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -260,7 +368,7 @@ class LabelTimes(pd.DataFrame):
             label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
         transform = {
-            '__name__': 'bin',
+            'transform': 'bin',
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
@@ -269,7 +377,6 @@ class LabelTimes(pd.DataFrame):
 
         label_times.transforms.append(transform)
         label_times.label_type = 'discrete'
-        label_times.settings['label_type'] = 'discrete'
         return label_times
 
     def sample(self, n=None, frac=None, random_state=None, replace=False):
@@ -305,37 +412,37 @@ class LabelTimes(pd.DataFrame):
 
             Sample number of labels:
 
-            >>> labels.sample(n=3, random_state=0)
+            >>> labels.sample(n=3, random_state=0).sort_index()
               labels
-            6      A
-            2      B
             1      A
+            2      B
+            6      A
 
             Sample number per label:
 
             >>> n_per_label = {'A': 1, 'B': 2}
-            >>> labels.sample(n=n_per_label, random_state=0)
+            >>> labels.sample(n=n_per_label, random_state=0).sort_index()
               labels
-            5      A
-            4      B
             3      B
+            4      B
+            5      A
 
             Sample fraction of labels:
 
-            >>> labels.sample(frac=.4, random_state=2)
+            >>> labels.sample(frac=.4, random_state=2).sort_index()
               labels
-            4      B
             1      A
             3      B
+            4      B
 
             Sample fraction per label:
 
             >>> frac_per_label = {'A': .5, 'B': .34}
-            >>> labels.sample(frac=frac_per_label, random_state=2)
+            >>> labels.sample(frac=frac_per_label, random_state=2).sort_index()
               labels
+            4      B
             5      A
             6      A
-            4      B
         """ # noqa
         if isinstance(n, int):
             sample = super().sample(n=n, random_state=random_state, replace=replace)
@@ -378,5 +485,95 @@ class LabelTimes(pd.DataFrame):
 
         if is_discrete:
             return 'discrete'
-        else:
-            return 'continuous'
+
+        return 'continuous'
+
+    def equals(self, other):
+        """Determines if two label time objects are the same.
+
+        Args:
+            other (LabelTimes) : Other label time object for comparison.
+
+        Returns:
+            bool : Whether label time objects are the same.
+        """
+        return super().equals(other) and self.settings == other.settings
+
+    def _load_settings(self, path):
+        """Read the settings in json format from disk.
+
+        Args:
+            path (str) : Directory on disk to read from.
+        """
+        file = os.path.join(path, 'settings.json')
+        assert os.path.exists(file), 'settings not found'
+
+        with open(file, 'r') as file:
+            settings = json.load(file)
+
+        if 'dtypes' in settings:
+            dtypes = settings.pop('dtypes')
+            self = LabelTimes(self.astype(dtypes))
+
+        self.settings.update(settings)
+
+        return self
+
+    def _save_settings(self, path):
+        """Write the settings in json format to disk.
+
+        Args:
+            path (str) : Directory on disk to write to.
+        """
+        dtypes = self.dtypes.astype('str')
+        self.settings['dtypes'] = dtypes.to_dict()
+
+        file = os.path.join(path, 'settings.json')
+        with open(file, 'w') as file:
+            json.dump(self.settings, file)
+            del self.settings['dtypes']
+
+    def to_csv(self, path, filename='label_times.csv', save_settings=True):
+        """Write label times in csv format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Filename for label times. Default value is `label_times.csv`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
+        """
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_csv(file)
+
+        if save_settings:
+            self._save_settings(path)
+
+    def to_parquet(self, path, filename='label_times.parquet', save_settings=True):
+        """Write label times in parquet format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Filename for label times. Default value is `label_times.parquet`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
+        """
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_parquet(file, compression=None, engine='auto')
+
+        if save_settings:
+            self._save_settings(path)
+
+    def to_pickle(self, path, filename='label_times.pickle', save_settings=True):
+        """Write label times in pickle format to disk.
+
+        Args:
+            path (str) : Location on disk to write to (will be created as a directory).
+            filename (str) : Filename for label times. Default value is `label_times.pickle`.
+            save_settings (bool) : Whether to save the settings used to make the label times.
+        """
+        os.makedirs(path, exist_ok=True)
+        file = os.path.join(path, filename)
+        super().to_pickle(file)
+
+        if save_settings:
+            self._save_settings(path)
