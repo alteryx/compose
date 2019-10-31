@@ -8,7 +8,7 @@ def labels(labels):
     return labels.threshold(100)
 
 
-def test_sample_n(labels):
+def test_sample_n_int(labels):
     given_answer = labels.sample(n=2, random_state=0)
     given_answer = given_answer.sort_index()
     given_answer = to_csv(given_answer, index=True)
@@ -38,7 +38,7 @@ def test_sample_n_per_label(labels):
     assert given_answer == answer
 
 
-def test_sample_frac(labels):
+def test_sample_frac_int(labels):
     given_answer = labels.sample(frac=.25, random_state=0)
     given_answer = given_answer.sort_index()
     given_answer = to_csv(given_answer, index=True)
