@@ -379,9 +379,56 @@ class LabelTimes(pd.DataFrame):
         label_times.label_type = 'discrete'
         return label_times
 
-    def sample(self, n=None, frac=None, random_state=None, replace=False):
+    def _sample(self, key, value, settings, random_state=None, replace=False):
+        """Returns a random sample of labels.
+
+        Args:
+            key (str) : Determines the sampling method. Can either be 'n' or 'frac'.
+            value (dict) : Quantity to sample per label.
+            settings (dict) : Transform settings used for sampling.
+            random_state (int) : Seed for the random number generator.
+            replace (bool) : Sample with or without replacement. Default value is False.
+
+        Returns:
+            LabelTimes : Random sample of labels.
         """
-        Return a random sample of labels.
+        sample = super().sample(random_state=random_state, replace=replace, **{key: value})
+
+        if not self.settings.get('sample_in_transforms'):
+            sample = sample.copy()
+            sample.transforms.append(settings)
+
+        return sample
+
+    def _sample_per_label(self, key, value, settings, random_state=None, replace=False):
+        """Returns a random sample per label.
+
+        Args:
+            key (str) : Determines the sampling method. Can either be 'n' or 'frac'.
+            value (dict) : Quantity to sample per label.
+            settings (dict) : Transform settings used for sampling.
+            random_state (int) : Seed for the random number generator.
+            replace (bool) : Sample with or without replacement. Default value is False.
+
+        Returns:
+            LabelTimes : Random sample per label.
+        """
+        self.settings['sample_in_transforms'] = True
+
+        sample_per_label = []
+        for label, value, in value.items():
+            label = self[self[self.name] == label]
+            sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
+            sample_per_label.append(sample)
+
+        del self.settings['sample_in_transforms']
+        sample = pd.concat(sample_per_label, axis=0, sort=False)
+        sample = sample.copy()
+        sample.transforms.append(settings)
+        return sample
+
+    def sample(self, n=None, frac=None, random_state=None, replace=False):
+        """Return a random sample of labels.
 
         Args:
             n (int or dict) : Sample number of labels. A dictionary returns
@@ -444,7 +491,7 @@ class LabelTimes(pd.DataFrame):
             5      A
             6      A
         """ # noqa
-        transform = {
+        settings = {
             'transform': 'sample',
             'n': n,
             'frac': frac,
@@ -452,48 +499,12 @@ class LabelTimes(pd.DataFrame):
             'replace': replace,
         }
 
-        if isinstance(n, int):
-            sample = super().sample(n=n, random_state=random_state, replace=replace)
+        key, value = ('n', n) if n else ('frac', frac)
+        assert value, "must set value for 'n' or 'frac'"
 
-            if not self.settings.get('sample_in_transforms'):
-                sample = sample.copy()
-                sample.transforms.append(transform)
-
-        if isinstance(n, dict):
-            self.settings['sample_in_transforms'] = True
-
-            sample_per_label = []
-            for label, n, in n.items():
-                label = self[self[self.name] == label]
-                sample = label.sample(n=n, random_state=random_state, replace=replace)
-                sample_per_label.append(sample)
-
-            del self.settings['sample_in_transforms']
-            sample = pd.concat(sample_per_label, axis=0, sort=False)
-            sample = sample.copy()
-            sample.transforms.append(transform)
-
-        if isinstance(frac, float):
-            sample = super().sample(frac=frac, random_state=random_state, replace=replace)
-
-            if not self.settings.get('sample_in_transforms'):
-                sample = sample.copy()
-                sample.transforms.append(transform)
-
-        if isinstance(frac, dict):
-            self.settings['sample_in_transforms'] = True
-
-            sample_per_label = []
-            for label, frac, in frac.items():
-                label = self[self[self.name] == label]
-                sample = label.sample(frac=frac, random_state=random_state, replace=replace)
-                sample_per_label.append(sample)
-
-            del self.settings['sample_in_transforms']
-            sample = pd.concat(sample_per_label, axis=0, sort=False)
-            sample = sample.copy()
-            sample.transforms.append(transform)
-
+        per_label = isinstance(value, dict)
+        method = self._sample_per_label if per_label else self._sample
+        sample = method(key, value, settings, random_state=random_state, replace=replace)
         return sample
 
     def infer_type(self):
