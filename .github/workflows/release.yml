@@ -1,0 +1,17 @@
+on:
+  release:
+    types: [published]
+
+name: Release
+jobs:
+  pypi:
+    name: Release to PyPI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Upload to PyPI
+      uses: FeatureLabs/gh-action-pypi-upload@master
+      env:
+        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/

@@ -1,5 +1,7 @@
 import pytest
 
+from composeml.tests.utils import to_csv
+
 
 @pytest.fixture
 def labels(labels):
@@ -7,8 +9,9 @@ def labels(labels):
 
 
 def test_sample_n_int(labels):
-    given_answer = labels.sample(n=2, random_state=0).sort_index()
-    given_answer = given_answer.to_csv(index=True).splitlines()
+    given_answer = labels.sample(n=2, random_state=0)
+    given_answer = given_answer.sort_index()
+    given_answer = to_csv(given_answer, index=True)
 
     answer = [
         'label_id,customer_id,cutoff_time,my_labeling_function',
@@ -21,8 +24,9 @@ def test_sample_n_int(labels):
 
 def test_sample_n_dict(labels):
     n = {True: 1, False: 2}
-    given_answer = labels.sample(n=n, random_state=0).sort_index()
-    given_answer = given_answer.to_csv(index=True).splitlines()
+    given_answer = labels.sample(n=n, random_state=0)
+    given_answer = given_answer.sort_index()
+    given_answer = to_csv(given_answer, index=True)
 
     answer = [
         'label_id,customer_id,cutoff_time,my_labeling_function',
@@ -35,8 +39,9 @@ def test_sample_n_dict(labels):
 
 
 def test_sample_frac_int(labels):
-    given_answer = labels.sample(frac=.25, random_state=0).sort_index()
-    given_answer = given_answer.to_csv(index=True).splitlines()
+    given_answer = labels.sample(frac=.25, random_state=0)
+    given_answer = given_answer.sort_index()
+    given_answer = to_csv(given_answer, index=True)
 
     answer = [
         'label_id,customer_id,cutoff_time,my_labeling_function',
@@ -48,8 +53,9 @@ def test_sample_frac_int(labels):
 
 def test_sample_frac_dict(labels):
     frac = {True: 1., False: .5}
-    given_answer = labels.sample(frac=frac, random_state=0).sort_index()
-    given_answer = given_answer.to_csv(index=True).splitlines()
+    given_answer = labels.sample(frac=frac, random_state=0)
+    given_answer = given_answer.sort_index()
+    given_answer = to_csv(given_answer, index=True)
 
     answer = [
         'label_id,customer_id,cutoff_time,my_labeling_function',

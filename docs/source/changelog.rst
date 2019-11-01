@@ -2,6 +2,17 @@
 Changelog
 =========
 
+**v0.1.6** October 22, 2019
+    * Enhancements
+        * Serialization for Label Times
+    * Fixes
+        * Matplotlib Backend Fix
+        * Sampling Label Times
+    * Documentation Changes
+        * Added Data Slice Generator Guide
+    * Testing Changes
+        * Integration Tests for Python Versions 3.6 and 3.7
+
 **v0.1.5** September 16, 2019
     * Enhancements
         * Added Slice Generator
