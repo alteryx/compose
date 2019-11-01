@@ -74,11 +74,11 @@ def download():
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "unable to download data"
 
-    bar_format = "Downloaded: {n}MB / {total}MB ({rate}MB/s), "
+    bar_format = "Downloaded: {n}MB / {total}MB -{rate_fmt}, "
     bar_format += "Elapsed: {elapsed}, Remaining: {remaining}, Progress: {l_bar}{bar}"
-    total = int(response.headers.get('content-length', 0)) // 1e+6
+    total = round(int(response.headers.get('content-length', 0)) / 1e+6)
     data = response.iter_content(chunk_size=int(1e+6))
-    data = tqdm(data, total=total, bar_format=bar_format, unit="MB")
+    data = tqdm(data, total=total, unit="MB", bar_format=bar_format)
 
     tar = os.path.join(PWD, 'data.tar.gz')
     with open(tar, 'wb') as file:
