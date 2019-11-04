@@ -90,28 +90,3 @@ def download():
 
     os.remove(tar)
     response.close()
-
-
-# def download():
-#     assert not exists(), 'data already exists'
-
-#     print('Downloading data..')
-#     url = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_shopping_2017_05_01.tar.gz'
-#     response = requests.get(url, stream=True)
-
-#     if response.status_code == 200:
-#         tar = os.path.join(PWD, 'data.tar.gz')
-
-#         file = open(tar, 'wb')
-#         file.write(response.raw.read())
-#         file.close()
-
-#         file = tarfile.open(tar, "r:gz")
-#         file.extractall('data')
-#         file.close()
-#         os.remove(tar)
-
-#     response.close()
-
-#     if not exists():
-#         raise FileNotFoundError('unable to download data')
