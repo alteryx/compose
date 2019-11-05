@@ -328,6 +328,17 @@ def test_invalid_offset(transactions, total_spent_fn):
             window_size={},
         )
 
+def test_invalid_offset_alias(transactions, total_spent_fn):
+    match = 'offset must be a valid string'
+
+    with pytest.raises(AssertionError, match=match):
+        LabelMaker(
+            target_entity='customer_id',
+            time_index='time',
+            labeling_function=lambda: None,
+            window_size='not an offset alias',
+        )
+
 
 def test_invalid_threshold(transactions, total_spent_fn):
     lm = LabelMaker(

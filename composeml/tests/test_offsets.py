@@ -8,3 +8,7 @@ def test_parser():
     assert isinstance(offset, pd.offsets.MonthBegin)
     offset = parse('until start of next year')
     assert isinstance(offset, pd.offsets.YearBegin)
+
+def test_parser_no_matches():
+    offset = parse('not an offset mapping')
+    assert offset is None
