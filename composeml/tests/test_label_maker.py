@@ -328,6 +328,7 @@ def test_invalid_offset(transactions, total_spent_fn):
             window_size={},
         )
 
+
 def test_invalid_offset_alias(transactions, total_spent_fn):
     match = 'offset must be a valid string'
 
