@@ -233,6 +233,9 @@ class LabelMaker:
             slices = self._get_slices(group=group, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for df in slices:
+                if verbose:
+                    print(df)
+
                 yield df
 
                 if df.context.slice_number >= num_examples_per_instance:
