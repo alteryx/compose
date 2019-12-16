@@ -297,20 +297,24 @@ class LabelMaker:
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         records = []
+
         for key, df in target_entity:
             for ds in self._slice(df=df, minimum_data=minimum_data, gap=gap, drop_empty=drop_empty):
                 value = self.labeling_function(ds, *args, **kwargs)
-                if pd.isnull(value): continue
+
+                if not pd.isnull(value):
+                    records.append({
+                        self.target_entity: key,
+                        'cutoff_time': df.context.window[0],
+                        self.labeling_function.__name__: value,
+                    })
 
                 if n_examples_per_label:
-                    value not in num_examples_per_instance
-                    label_count[value] > num_examples_per_instance[value]
+                    items = num_examples_per_instance.items()
+                    labels_found = [label_count.get(label, 0) >= count for label, count in items]
 
-                records.append({
-                    self.target_entity: key,
-                    'cutoff_time': df.context.window[0],
-                    self.labeling_function.__name__: value,
-                })
+                    if all(labels_found):
+                        break
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
