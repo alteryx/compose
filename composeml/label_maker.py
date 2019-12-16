@@ -56,9 +56,16 @@ def cutoff_data(df, threshold):
     return df, cutoff_time
 
 
+def is_finite(n):
+    return n > 0 or abs(n) != float('inf')
+
+
+def is_number(n):
+    return isinstance(n, (int, float))
+
+
 class Context:
     """Metadata for data slice."""
-
     def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
         """Metadata for data slice.
 
@@ -99,7 +106,6 @@ class DataSlice(pd.DataFrame):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -118,7 +124,7 @@ class LabelMaker:
         if self.window_size is not None:
             self.window_size = to_offset(self.window_size)
 
-    def _get_slices(self, group, gap=None, min_data=None, drop_empty=True):
+    def _slice(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices for group.
 
         Args:
@@ -131,7 +137,6 @@ class LabelMaker:
         Returns:
             DataSlice : Returns a data slice.
         """
-        key, df = group
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
@@ -151,7 +156,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice_number=0, target_entity=self.target_entity, target_instance=key)
+        df.context = Context(slice_number=0, target_entity=self.target_entity)
 
         def iloc(index, i):
             if i < index.size:
@@ -172,10 +177,9 @@ class LabelMaker:
                 # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
 
                 if not df_slice.empty:
-                    is_overlap = df_slice.index == window_end
-
-                    if df_slice.index.size > 1 and is_overlap.any():
-                        df_slice = df_slice[~is_overlap]
+                    overlap = df_slice.index == window_end
+                    if overlap.any():
+                        df_slice = df_slice[~overlap]
 
             df_slice.context.window = (cutoff_time, window_end)
 
@@ -223,22 +227,20 @@ class LabelMaker:
 
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
-
-        df = self.set_index(df)
+        groups = self.set_index(df).groupby(self.target_entity)
 
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
 
-        for group in df.groupby(self.target_entity):
-            slices = self._get_slices(group=group, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+        for key, df in groups:
+            slices = self._slice(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
-            for df in slices:
-                if verbose:
-                    print(df)
+            for ds in slices:
+                ds.context.target_instance = key
+                if verbose: print(ds)
+                yield ds
 
-                yield df
-
-                if df.context.slice_number >= num_examples_per_instance:
+                if ds.context.slice_number >= num_examples_per_instance:
                     break
 
     def search(self,
@@ -268,16 +270,49 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
+        target_entity = self.set_index(df).groupby(self.target_entity)
+        n_examples_per_label = isinstance(num_examples_per_instance, dict)
+        total = len(target_entity)
+
+        if n_examples_per_label:
+            assert label_type != 'continuous', 'must be discrete'
+            for label, number in num_examples_per_instance.items():
+                assert is_number(number) and is_finite(number), 'must be a finite number'
+
+            total *= sum(num_examples_per_instance.values())
+            finite_examples_per_instance = True
+            label_count, label_type = {}, 'discrete'
+
+        else:
+            assert is_number(num_examples_per_instance), 'must be a number'
+            finite_examples_per_instance = is_finite(num_examples_per_instance)
+            if finite_examples_per_instance: total *= num_examples_per_instance
+            label_count = 0
+
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
-        total = len(df.groupby(self.target_entity))
-        finite_examples_per_instance = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
-
-        if finite_examples_per_instance:
-            total *= num_examples_per_instance
-
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
+
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        records = []
+        for key, df in target_entity:
+            for ds in self._slice(df=df, minimum_data=minimum_data, gap=gap, drop_empty=drop_empty):
+                value = self.labeling_function(ds, *args, **kwargs)
+                if pd.isnull(value): continue
+
+                if n_examples_per_label:
+                    value not in num_examples_per_instance
+                    label_count[value] > num_examples_per_instance[value]
+
+                records.append({
+                    self.target_entity: key,
+                    'cutoff_time': df.context.window[0],
+                    self.labeling_function.__name__: value,
+                })
+
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         slices = self.slice(
             df=df,
@@ -294,7 +329,10 @@ class LabelMaker:
         for df in slices:
             label = self.labeling_function(df, *args, **kwargs)
 
-            if not pd.isnull(label):
+            not_null = not pd.isnull(label)
+            label_count[label] += 1
+
+            if not_null:
                 label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
                 labels.append(label)
 
