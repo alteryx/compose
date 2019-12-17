@@ -274,6 +274,7 @@ class LabelMaker:
         n_labels_per_entity = isinstance(num_examples_per_instance, (float, int))
         target_entity = self.set_index(df).groupby(self.target_entity)
         total = len(target_entity)
+        entity_count = 0
 
         if n_examples_per_label:
             assert label_type != 'continuous', 'must be discrete'
@@ -321,18 +322,31 @@ class LabelMaker:
                         if all(labels_found): break
 
                 else:
-                    if not pd.isnull(label_value):
+                    #  If the label count isn't up to the number of labels for this entity, the example is appended.
+                    if not pd.isnull(label_value) and len(label_records) <= n_labels_per_entity:
+                        label_records.append({
+                            self.target_entity: key,
+                            'cutoff_time': ds.context.window[0],
+                            self.labeling_function.__name__: label_value,
+                        })
 
-                        #  If the label count isn't up to the number of labels for this entity, the example is appended.
-                        if len(label_records) <= n_labels_per_entity:
-                            label_records.append({
-                                self.target_entity: key,
-                                'cutoff_time': ds.context.window[0],
-                                self.labeling_function.__name__: label_value,
-                            })
+                    if finite_examples_per_instance:
+                        progress_bar.update(n=1)
 
-                        # If all the labels were found for this entity, the search skips to the next entity.
-                        if len(label_records) >= n_labels_per_entity: break
+                        # The progress bar is updated for missing examples in the previous entity.
+                        if first_slice_of_entity:
+                            skipped_examples = entity_count * num_examples_per_instance - progress_bar.n
+                            progress_bar.update(n=skipped_examples)
+                            entity_count += 1
+
+                    if not finite_examples_per_instance and first_slice_of_entity: progress_bar.update(n=1)
+
+                    # If all the labels were found for this entity, the search skips to the next entity.
+                    if len(label_records) >= n_labels_per_entity: break
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
