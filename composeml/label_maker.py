@@ -277,56 +277,71 @@ class LabelMaker:
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
-        if num_examples_per_instance == -1:
-            num_examples_per_instance = float('inf')
-
-        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
         n_examples_per_label = isinstance(num_examples_per_instance, dict)
-        n_examples_per_entity = isinstance(num_examples_per_instance, (float, int))
         target_entity = self.set_index(df).groupby(self.target_entity)
-        total = len(target_entity)
+        total = target_entity.ngroups
 
         if n_examples_per_label:
-            assert label_type != 'continuous', 'must be discrete'
-            for label, number in num_examples_per_instance.items():
-                assert is_number(number) and is_finite(number), 'must be a finite number'
+            for label, count in num_examples_per_instance.items():
+                info = 'number of examples must be a float or integer'
+                assert is_number(count), info
 
-            total *= sum(num_examples_per_instance.values())
-            finite_examples_per_instance = True
-            label_count, label_type = {}, 'discrete'
+                if count == -1:
+                    num_examples_per_instance[label] = float('inf')
+
+            values = num_examples_per_instance.values()
+            finite_examples_per_instance = any(map(is_finite, values))
+
+            if finite_examples_per_instance:
+                total *= sum(values)
 
         else:
-            assert n_examples_per_entity, 'invalid num_examples_per_instance'
-            finite_examples_per_instance = is_finite(num_examples_per_instance)
-            if finite_examples_per_instance: total *= num_examples_per_instance
-            label_count = 0
+            info = 'number of examples must be a float or integer'
+            assert is_number(num_examples_per_instance), info
 
+            if num_examples_per_instance == -1:
+                num_examples_per_instance = float('inf')
+
+            finite_examples_per_instance = is_finite(num_examples_per_instance)
+
+            if finite_examples_per_instance:
+                total *= num_examples_per_instance
+
+        # The progress bar is constructed.
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
 
         label_name = self.labeling_function.__name__
-        entity_count, examples = 0, []
+        entity_count = 0
+        examples = []
 
         for key, df in target_entity:
             if finite_examples_per_instance:
-                # The progress bar is updated for missing examples in the previous entity.
+                # The progress bar is incremented by the number of missing examples in the previous entity.
                 skipped_examples = entity_count * num_examples_per_instance - progress_bar.n
                 progress_bar.update(n=skipped_examples)
             else:
+                # The progress bar is incremented by one for each entity.
                 progress_bar.update(n=1)
 
-            entity_count += 1
+            data_slices = self._slice(df=df, min_data=minimum_data, gap=gap, drop_empty=drop_empty)
             label_count = {} if n_examples_per_label else 0
-            for ds in self._slice(df=df, min_data=minimum_data, gap=gap, drop_empty=drop_empty):
+            entity_count += 1
+
+            for ds in data_slices:
                 # The labeling function is applied to the data slice.
                 label_value = self.labeling_function(ds, *args, **kwargs)
-                if pd.isnull(label_value): continue
+
+                # If the label value is null, the search skips to the next data slice.
+                if pd.isnull(label_value):
+                    continue
 
                 if n_examples_per_label:
+                    # The number of examples for this label increments by one.
                     label_count[label_value] = label_count.get(label_value, 0) + 1
+
                     #  If the label count isn't up to the number of examples for this label, the example is appended.
                     if label_count[label_value] <= num_examples_per_instance[label_value]:
                         examples.append({
@@ -335,16 +350,20 @@ class LabelMaker:
                             label_name: label_value,
                         })
 
-                        if finite_examples_per_instance: progress_bar.update(n=1)
+                        if finite_examples_per_instance:
+                            progress_bar.update(n=1)
 
+                        # If all the labels were found, the search skips to the next entity.
                         items = num_examples_per_instance.items()
                         labels_found = [label_count.get(label, 0) >= count for label, count in items]
 
-                        # If all the labels were found for this entity, the search skips to the next entity.
-                        if all(labels_found): break
+                        if all(labels_found):
+                            break
 
                 else:
+                    # The number of labels increments by one.
                     label_count += 1
+
                     #  If the label count isn't up to the number of labels for this entity, the example is appended.
                     if label_count <= num_examples_per_instance:
                         examples.append({
@@ -353,21 +372,23 @@ class LabelMaker:
                             label_name: label_value,
                         })
 
-                        if finite_examples_per_instance: progress_bar.update(n=1)
+                        if finite_examples_per_instance:
+                            progress_bar.update(n=1)
 
-                        # If all the labels were found for this entity, the search skips to the next entity.
-                        if label_count >= num_examples_per_instance: break
+                        # If all the labels were found, the search skips to the next entity.
+                        if label_count >= num_examples_per_instance:
+                            break
 
         total -= progress_bar.n
         progress_bar.update(n=total)
         progress_bar.close()
 
+        # The examples are formatted into label times.
         label_times = LabelTimes(data=examples, name=label_name, target_entity=self.target_entity, label_type=label_type)
         label_times = label_times.rename_axis('id', axis=0)
-        if label_times.empty: return label_times
 
-        if label_times.is_discrete:
-            label_times[label_name] = label_times[label_name].astype('category')
+        if label_times.empty:
+            return label_times
 
         label_times.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
@@ -375,6 +396,9 @@ class LabelMaker:
             'window_size': str(self.window_size),
             'gap': str(gap),
         })
+
+        if label_times.is_discrete:
+            label_times[label_name] = label_times[label_name].astype('category')
 
         return label_times
 
