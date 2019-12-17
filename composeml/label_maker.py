@@ -270,11 +270,22 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+
+        self.window_size = self.window_size or len(df)
+        gap = to_offset(gap or self.window_size)
+
+        if num_examples_per_instance == -1:
+            num_examples_per_instance = float('inf')
+
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
         n_examples_per_label = isinstance(num_examples_per_instance, dict)
-        n_labels_per_entity = isinstance(num_examples_per_instance, (float, int))
+        n_examples_per_entity = isinstance(num_examples_per_instance, (float, int))
         target_entity = self.set_index(df).groupby(self.target_entity)
         total = len(target_entity)
-        entity_count = 0
 
         if n_examples_per_label:
             assert label_type != 'continuous', 'must be discrete'
@@ -286,128 +297,86 @@ class LabelMaker:
             label_count, label_type = {}, 'discrete'
 
         else:
-            assert n_labels_per_entity, 'invalid num_examples_per_instance'
+            assert n_examples_per_entity, 'invalid num_examples_per_instance'
             finite_examples_per_instance = is_finite(num_examples_per_instance)
             if finite_examples_per_instance: total *= num_examples_per_instance
+            label_count = 0
 
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
         progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
 
-        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        label_name = self.labeling_function.__name__
+        entity_count, examples = 0, []
 
-        label_records = []
         for key, df in target_entity:
-            for ds in self._slice(df=df, minimum_data=minimum_data, gap=gap, drop_empty=drop_empty):
+            if finite_examples_per_instance:
+                # The progress bar is updated for missing examples in the previous entity.
+                skipped_examples = entity_count * num_examples_per_instance - progress_bar.n
+                progress_bar.update(n=skipped_examples)
+            else:
+                progress_bar.update(n=1)
+
+            entity_count += 1
+            label_count = {} if n_examples_per_label else 0
+            for ds in self._slice(df=df, min_data=minimum_data, gap=gap, drop_empty=drop_empty):
                 # The labeling function is applied to the data slice.
                 label_value = self.labeling_function(ds, *args, **kwargs)
-                first_slice_of_entity = ds.context.slice_number == 1
+                if pd.isnull(label_value): continue
 
                 if n_examples_per_label:
-                    if not pd.isnull(label_value):
-                        label_count[label_value] += 1
+                    label_count[label_value] = label_count.get(label_value, 0) + 1
+                    #  If the label count isn't up to the number of examples for this label, the example is appended.
+                    if label_count[label_value] <= num_examples_per_instance[label_value]:
+                        examples.append({
+                            self.target_entity: key,
+                            'cutoff_time': ds.context.window[0],
+                            label_name: label_value,
+                        })
 
-                        #  If the label count isn't up to the number of examples for this label, the example is appended.
-                        if label_count[label_value] <= num_examples_per_instance[label_value]:
-                            label_records.append({
-                                self.target_entity: key,
-                                'cutoff_time': ds.context.window[0],
-                                self.labeling_function.__name__: label_value,
-                            })
+                        if finite_examples_per_instance: progress_bar.update(n=1)
 
-                        # If all the labels were found for this entity, the search skips to the next entity.
                         items = num_examples_per_instance.items()
                         labels_found = [label_count.get(label, 0) >= count for label, count in items]
+
+                        # If all the labels were found for this entity, the search skips to the next entity.
                         if all(labels_found): break
 
                 else:
+                    label_count += 1
                     #  If the label count isn't up to the number of labels for this entity, the example is appended.
-                    if not pd.isnull(label_value) and len(label_records) <= n_labels_per_entity:
-                        label_records.append({
+                    if label_count <= num_examples_per_instance:
+                        examples.append({
                             self.target_entity: key,
                             'cutoff_time': ds.context.window[0],
-                            self.labeling_function.__name__: label_value,
+                            label_name: label_value,
                         })
 
-                    if finite_examples_per_instance:
-                        progress_bar.update(n=1)
+                        if finite_examples_per_instance: progress_bar.update(n=1)
 
-                        # The progress bar is updated for missing examples in the previous entity.
-                        if first_slice_of_entity:
-                            skipped_examples = entity_count * num_examples_per_instance - progress_bar.n
-                            progress_bar.update(n=skipped_examples)
-                            entity_count += 1
-
-                    if not finite_examples_per_instance and first_slice_of_entity: progress_bar.update(n=1)
-
-                    # If all the labels were found for this entity, the search skips to the next entity.
-                    if len(label_records) >= n_labels_per_entity: break
+                        # If all the labels were found for this entity, the search skips to the next entity.
+                        if label_count >= num_examples_per_instance: break
 
         total -= progress_bar.n
         progress_bar.update(n=total)
         progress_bar.close()
 
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        label_times = LabelTimes(data=examples, name=label_name, target_entity=self.target_entity, label_type=label_type)
+        label_times = label_times.rename_axis('id', axis=0)
+        if label_times.empty: return label_times
 
-        slices = self.slice(
-            df=df,
-            num_examples_per_instance=num_examples_per_instance,
-            minimum_data=minimum_data,
-            gap=gap,
-            drop_empty=drop_empty,
-            verbose=False,
-        )
+        if label_times.is_discrete:
+            label_times[label_name] = label_times[label_name].astype('category')
 
-        name = self.labeling_function.__name__
-        labels, instance = [], 0
-
-        for df in slices:
-            label = self.labeling_function(df, *args, **kwargs)
-
-            if not pd.isnull(label):
-                label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
-                labels.append(label)
-
-            first_slice_for_instance = df.context.slice_number == 1
-
-            if finite_examples_per_instance:
-                progress_bar.update(n=1)
-
-                # update skipped examples for previous instance
-                if first_slice_for_instance:
-                    instance += 1
-                    skipped_examples = instance - 1
-                    skipped_examples *= num_examples_per_instance
-                    skipped_examples -= progress_bar.n
-                    progress_bar.update(n=skipped_examples)
-
-            if not finite_examples_per_instance and first_slice_for_instance:
-                progress_bar.update(n=1)
-
-        total -= progress_bar.n
-        progress_bar.update(n=total)
-        progress_bar.close()
-
-        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity, label_type=label_type)
-        labels = labels.rename_axis('id', axis=0)
-
-        if labels.empty:
-            return labels
-
-        if labels.is_discrete:
-            labels[labels.name] = labels[labels.name].astype('category')
-
-        labels.name = name
-        labels.target_entity = self.target_entity
-        labels.settings.update({
+        label_times.settings.update({
             'num_examples_per_instance': num_examples_per_instance,
             'minimum_data': str(minimum_data),
             'window_size': str(self.window_size),
             'gap': str(gap),
         })
 
-        return labels
+        return label_times
 
     def set_index(self, df):
         """Sets the time index in a data frame (if not already set).
