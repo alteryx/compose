@@ -288,7 +288,6 @@ class LabelMaker:
             assert n_labels_per_entity, 'invalid num_examples_per_instance'
             finite_examples_per_instance = is_finite(num_examples_per_instance)
             if finite_examples_per_instance: total *= num_examples_per_instance
-            label_count = 0
 
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
@@ -302,11 +301,13 @@ class LabelMaker:
             for ds in self._slice(df=df, minimum_data=minimum_data, gap=gap, drop_empty=drop_empty):
                 # The labeling function is applied to the data slice.
                 label_value = self.labeling_function(ds, *args, **kwargs)
+                first_slice_of_entity = ds.context.slice_number == 1
 
                 if n_examples_per_label:
                     if not pd.isnull(label_value):
                         label_count[label_value] += 1
-                        #  If the label count isn't up to the number of examples, the label is appended.
+
+                        #  If the label count isn't up to the number of examples for this label, the example is appended.
                         if label_count[label_value] <= num_examples_per_instance[label_value]:
                             label_records.append({
                                 self.target_entity: key,
@@ -320,8 +321,18 @@ class LabelMaker:
                         if all(labels_found): break
 
                 else:
-                    pass
+                    if not pd.isnull(label_value):
 
+                        #  If the label count isn't up to the number of labels for this entity, the example is appended.
+                        if len(label_records) <= n_labels_per_entity:
+                            label_records.append({
+                                self.target_entity: key,
+                                'cutoff_time': ds.context.window[0],
+                                self.labeling_function.__name__: label_value,
+                            })
+
+                        # If all the labels were found for this entity, the search skips to the next entity.
+                        if len(label_records) >= n_labels_per_entity: break
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -340,10 +351,7 @@ class LabelMaker:
         for df in slices:
             label = self.labeling_function(df, *args, **kwargs)
 
-            not_null = not pd.isnull(label)
-            label_count[label] += 1
-
-            if not_null:
+            if not pd.isnull(label):
                 label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
                 labels.append(label)
 
