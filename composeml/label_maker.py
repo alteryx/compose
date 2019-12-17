@@ -270,8 +270,9 @@ class LabelMaker:
         Returns:
             LabelTimes : Calculated labels with cutoff times.
         """
-        target_entity = self.set_index(df).groupby(self.target_entity)
         n_examples_per_label = isinstance(num_examples_per_instance, dict)
+        n_labels_per_entity = isinstance(num_examples_per_instance, (float, int))
+        target_entity = self.set_index(df).groupby(self.target_entity)
         total = len(target_entity)
 
         if n_examples_per_label:
@@ -284,7 +285,7 @@ class LabelMaker:
             label_count, label_type = {}, 'discrete'
 
         else:
-            assert is_number(num_examples_per_instance), 'must be a number'
+            assert n_labels_per_entity, 'invalid num_examples_per_instance'
             finite_examples_per_instance = is_finite(num_examples_per_instance)
             if finite_examples_per_instance: total *= num_examples_per_instance
             label_count = 0
@@ -296,25 +297,31 @@ class LabelMaker:
 
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-        records = []
-
+        label_records = []
         for key, df in target_entity:
             for ds in self._slice(df=df, minimum_data=minimum_data, gap=gap, drop_empty=drop_empty):
-                value = self.labeling_function(ds, *args, **kwargs)
-
-                if not pd.isnull(value):
-                    records.append({
-                        self.target_entity: key,
-                        'cutoff_time': df.context.window[0],
-                        self.labeling_function.__name__: value,
-                    })
+                # The labeling function is applied to the data slice.
+                label_value = self.labeling_function(ds, *args, **kwargs)
 
                 if n_examples_per_label:
-                    items = num_examples_per_instance.items()
-                    labels_found = [label_count.get(label, 0) >= count for label, count in items]
+                    if not pd.isnull(label_value):
+                        label_count[label_value] += 1
+                        #  If the label count isn't up to the number of examples, the label is appended.
+                        if label_count[label_value] <= num_examples_per_instance[label_value]:
+                            label_records.append({
+                                self.target_entity: key,
+                                'cutoff_time': ds.context.window[0],
+                                self.labeling_function.__name__: label_value,
+                            })
 
-                    if all(labels_found):
-                        break
+                        # If all the labels were found for this entity, the search skips to the next entity.
+                        items = num_examples_per_instance.items()
+                        labels_found = [label_count.get(label, 0) >= count for label, count in items]
+                        if all(labels_found): break
+
+                else:
+                    pass
+
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
