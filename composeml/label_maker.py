@@ -277,13 +277,13 @@ class LabelMaker:
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
-        n_examples_per_label = isinstance(num_examples_per_instance, dict)
+        is_examples_per_label = isinstance(num_examples_per_instance, dict)
         target_entity = self.set_index(df).groupby(self.target_entity)
         total = target_entity.ngroups
 
-        if n_examples_per_label:
+        if is_examples_per_label:
             for label, count in num_examples_per_instance.items():
-                info = 'number of examples must be a float or integer'
+                info = 'number of examples per label must be a float or integer'
                 assert is_number(count), info
 
                 if count == -1:
@@ -293,10 +293,10 @@ class LabelMaker:
             finite_examples_per_instance = any(map(is_finite, values))
 
             if finite_examples_per_instance:
-                total *= sum(values)
+                n_examples_per_entity = sum(values)
 
         else:
-            info = 'number of examples must be a float or integer'
+            info = 'number of examples per entity must be a float or integer'
             assert is_number(num_examples_per_instance), info
 
             if num_examples_per_instance == -1:
@@ -305,9 +305,12 @@ class LabelMaker:
             finite_examples_per_instance = is_finite(num_examples_per_instance)
 
             if finite_examples_per_instance:
-                total *= num_examples_per_instance
+                n_examples_per_entity = num_examples_per_instance
 
-        # The progress bar is constructed.
+        if finite_examples_per_instance:
+            total *= n_examples_per_entity
+
+        # The progress bar is initialized.
         bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
         bar_format += "Progress: {l_bar}{bar}| "
         bar_format += self.target_entity + ": {n}/{total} "
@@ -318,67 +321,71 @@ class LabelMaker:
         examples = []
 
         for key, df in target_entity:
+            entity_count += 1
+
             if finite_examples_per_instance:
-                # The progress bar is incremented by the number of missing examples in the previous entity.
-                skipped_examples = entity_count * num_examples_per_instance - progress_bar.n
+                # If the number of examples if finite, the progress bar is incremented
+                # by the number of missing examples from the previous entity.
+                skipped_examples = (entity_count - 1) * n_examples_per_entity - progress_bar.n
                 progress_bar.update(n=skipped_examples)
             else:
-                # The progress bar is incremented by one for each entity.
+                # Otherwise, the progress bar is incremented by one for each entity.
                 progress_bar.update(n=1)
 
+            # The data slices are generated for the entity.
             data_slices = self._slice(df=df, min_data=minimum_data, gap=gap, drop_empty=drop_empty)
-            label_count = {} if n_examples_per_label else 0
-            entity_count += 1
+            label_count = {} if is_examples_per_label else 0
 
             for ds in data_slices:
                 # The labeling function is applied to the data slice.
                 label_value = self.labeling_function(ds, *args, **kwargs)
 
-                # If the label value is null, the search skips to the next data slice.
                 if pd.isnull(label_value):
+                    # If the returned label is null, the search skips to the next data slice.
                     continue
 
-                if n_examples_per_label:
-                    # The number of examples for this label increments by one.
+                # Variables are created to manage control flow.
+                labels_found, label_found = False, False
+
+                if is_examples_per_label:
+                    if label_value not in num_examples_per_instance:
+                        # If the returned label is undefined, the search skips to the next data slice.
+                        continue
+
+                    # The number of examples for the label is incremented by one.
                     label_count[label_value] = label_count.get(label_value, 0) + 1
 
-                    #  If the label count isn't up to the number of examples for this label, the example is appended.
-                    if label_count[label_value] <= num_examples_per_instance[label_value]:
-                        examples.append({
-                            self.target_entity: key,
-                            'cutoff_time': ds.context.window[0],
-                            label_name: label_value,
-                        })
+                    #  If the label count isn't up to the number of examples per label, the example will be stored.
+                    label_found = label_count[label_value] <= num_examples_per_instance[label_value]
 
-                        if finite_examples_per_instance:
-                            progress_bar.update(n=1)
-
-                        # If all the labels were found, the search skips to the next entity.
+                    if label_found:
+                        # Checks whether all labels were found.
                         items = num_examples_per_instance.items()
                         labels_found = [label_count.get(label, 0) >= count for label, count in items]
-
-                        if all(labels_found):
-                            break
+                        labels_found = all(labels_found)
 
                 else:
-                    # The number of labels increments by one.
                     label_count += 1
 
-                    #  If the label count isn't up to the number of labels for this entity, the example is appended.
-                    if label_count <= num_examples_per_instance:
-                        examples.append({
-                            self.target_entity: key,
-                            'cutoff_time': ds.context.window[0],
-                            label_name: label_value,
-                        })
+                    #  If the label count isn't up to the number of examples per entity, the example will be stored.
+                    label_found = label_count <= num_examples_per_instance
 
-                        if finite_examples_per_instance:
-                            progress_bar.update(n=1)
+                    # Checks whether all labels were found.
+                    labels_found = label_found and label_count >= num_examples_per_instance
 
-                        # If all the labels were found, the search skips to the next entity.
-                        if label_count >= num_examples_per_instance:
-                            break
+                if label_found:
+                    # If the returned label matched the search criteria, the example is stored.
+                    examples.append({self.target_entity: key, 'cutoff_time': ds.context.window[0], label_name: label_value})
 
+                    if finite_examples_per_instance:
+                        # If the number of examples if finite, the progress bar is updated per label.
+                        progress_bar.update(n=1)
+
+                    if labels_found:
+                        # If all the labels were found, the search will skip to the next entity.
+                        break
+
+        # The progress bar is finalized.
         total -= progress_bar.n
         progress_bar.update(n=total)
         progress_bar.close()
