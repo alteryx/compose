@@ -57,7 +57,7 @@ def cutoff_data(df, threshold):
 
 
 def is_finite(n):
-    return n > 0 or abs(n) != float('inf')
+    return n > 0 and abs(n) != float('inf')
 
 
 def is_number(n):
@@ -137,9 +137,6 @@ class LabelMaker:
         Returns:
             DataSlice : Returns a data slice.
         """
-        self.window_size = self.window_size or len(df)
-        gap = to_offset(gap or self.window_size)
-
         df = df.loc[df.index.notnull()]
         assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
 
@@ -324,7 +321,7 @@ class LabelMaker:
             entity_count += 1
 
             if finite_examples_per_instance:
-                # If the number of examples if finite, the progress bar is incremented
+                # If the number of examples is finite, the progress bar is incremented
                 # by the number of missing examples from the previous entity.
                 skipped_examples = (entity_count - 1) * n_examples_per_entity - progress_bar.n
                 progress_bar.update(n=skipped_examples)
@@ -378,7 +375,7 @@ class LabelMaker:
                     examples.append({self.target_entity: key, 'cutoff_time': ds.context.window[0], label_name: label_value})
 
                     if finite_examples_per_instance:
-                        # If the number of examples if finite, the progress bar is updated per label.
+                        # If the number of examples is finite, the progress bar is updated per label.
                         progress_bar.update(n=1)
 
                     if labels_found:

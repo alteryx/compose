@@ -22,6 +22,54 @@ def test_search_default(transactions, total_spent_fn):
     assert given_labels == labels
 
 
+def test_search_examples_per_label(transactions, total_spent_fn):
+    def total_spent(ds):
+        return total_spent_fn(ds) > 2
+
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+
+    n_examples = {True: -1, False: 1}
+    given_labels = lm.search(transactions, num_examples_per_instance=n_examples, gap=1, verbose=True)
+    given_labels = to_csv(given_labels, index=False)
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,False',
+        '1,2019-01-01 09:00:00,True',
+        '1,2019-01-01 09:30:00,False',
+        '2,2019-01-01 10:30:00,True',
+        '2,2019-01-01 11:00:00,True',
+        '2,2019-01-01 11:30:00,False',
+        '3,2019-01-01 12:30:00,False',
+    ]
+
+    assert given_labels == labels
+
+
+def test_search_with_undefined_labels(transactions, total_spent_fn):
+    def total_spent(ds):
+        return total_spent_fn(ds) % 3
+
+    lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent)
+
+    n_examples = {1: 1, 2: 1}
+    given_labels = lm.search(transactions, num_examples_per_instance=n_examples, gap=1, verbose=True)
+    given_labels = to_csv(given_labels, index=False)
+
+    labels = [
+        'customer_id,cutoff_time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:30:00,2',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:30:00,1',
+        '2,2019-01-01 11:30:00,2',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert given_labels == labels
+
+
 def test_search_offset_mix_0(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
@@ -261,7 +309,7 @@ def test_search_offset_mix_7(transactions, total_spent_fn):
     given_labels = lm.search(
         transactions,
         num_examples_per_instance=float('inf'),
-        verbose=False,
+        verbose=True,
     )
 
     given_labels = to_csv(given_labels, index=False)
@@ -374,7 +422,7 @@ def test_search_invalid_n_examples(transactions, total_spent_fn):
         lm.search(transactions, num_examples_per_instance=2, verbose=False)
 
 
-def test_search_empty_labels(transactions, total_spent_fn):
+def test_search_on_empty_data_slices(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -395,6 +443,40 @@ def test_search_empty_labels(transactions, total_spent_fn):
     assert given_labels.empty
 
 
+def test_search_on_empty_labels(transactions):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=lambda ds: None,
+        window_size=2,
+    )
+
+    given_labels = lm.search(
+        transactions,
+        minimum_data=1,
+        num_examples_per_instance=2,
+        gap=1,
+        verbose=False,
+    )
+
+    assert given_labels.empty
+
+
+def test_slice_context(transactions, total_spent_fn):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=total_spent_fn,
+        window_size='1h',
+    )
+
+    for ds in lm.slice(transactions, num_examples_per_instance=-1, verbose=True):
+        assert ds.context.target_entity == 'customer_id'
+        assert isinstance(ds.context.target_instance, int)
+        assert isinstance(ds.context.slice_number, int)
+        assert ds.context.window == ds.context.gap
+
+
 def test_slice_overlap(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
@@ -403,9 +485,7 @@ def test_slice_overlap(transactions, total_spent_fn):
         window_size='1h',
     )
 
-    slices = lm.slice(transactions, num_examples_per_instance=2, verbose=True)
-
-    for df in slices:
+    for df in lm.slice(transactions, num_examples_per_instance=2, verbose=True):
         start, end = df.context.window
         is_overlap = df.index == end
         assert not is_overlap.any()
