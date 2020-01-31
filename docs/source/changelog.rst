@@ -2,6 +2,15 @@
 Changelog
 =========
 
+**v0.1.7** January 31, 2020
+    * Enhancements
+        * Added higher-level mappings to offsets.
+        * Track settings for sample transforms.
+    * Fixes
+        * Pinned Pandas version.
+    * Testing Changes
+        * Moved Featuretools to test requirements.
+
 **v0.1.6** October 22, 2019
     * Enhancements
         * Serialization for Label Times
