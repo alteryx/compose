@@ -193,12 +193,12 @@ class LabelTimes(pd.DataFrame):
             keys = ['cutoff_time', self.name]
             value = self.groupby(keys).cutoff_time.count()
             value = value.unstack(self.name).fillna(0)
-            value = value.cumsum()
-            return value
+        else:
+            value = self.groupby('cutoff_time')
+            value = value[self.name].count()
 
-        value = self.groupby('cutoff_time')
-        value = value[self.name].count()
-        value = value.cumsum()
+        value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
+        value = value.astype('int')
         return value
 
     def describe(self):
