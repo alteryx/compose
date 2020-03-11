@@ -2,6 +2,10 @@
 Changelog
 =========
 
+**v0.1.8** March 11, 2020
+    * Fixes
+        * Support for Pandas 1.0
+
 **v0.1.7** January 31, 2020
     * Enhancements
         * Added higher-level mappings to offsets.
