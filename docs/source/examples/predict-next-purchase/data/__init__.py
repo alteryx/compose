@@ -1,5 +1,13 @@
 import os
+import tarfile
+
 import pandas as pd
+import requests
+
+from tqdm import tqdm
+
+PWD = os.path.dirname(__file__)
+PATH = os.path.join(PWD, 'instacart_2017_05_01')
 
 
 def add_time(df, start='2015-01-01'):
@@ -35,19 +43,50 @@ def add_time(df, start='2015-01-01'):
     return df
 
 
-def load_orders(folder=None, nrows=1000000):
-    folder = folder or os.path.dirname(__file__)
+def load_orders(path=None, nrows=1000000):
+    if not exists(): download()
 
-    def path(key):
-        file = '{}.csv'.format(key)
-        value = os.path.join(folder, file)
-        return value
+    path = path or PATH
 
-    order_products = pd.read_csv(path('order_products__prior'), nrows=nrows)
-    orders = pd.read_csv(path('orders'), nrows=nrows)
-    departments = pd.read_csv(path('departments'))
-    products = pd.read_csv(path('products'))
+    file = os.path.join(path, 'order_products__prior.csv')
+    order_products = pd.read_csv(file, nrows=nrows)
+
+    file = os.path.join(path, 'orders.csv')
+    orders = pd.read_csv(file, nrows=nrows)
+
+    file = os.path.join(path, 'departments.csv')
+    departments = pd.read_csv(file)
+
+    file = os.path.join(path, 'products.csv')
+    products = pd.read_csv(file)
 
     df = order_products.merge(products).merge(departments).merge(orders)
     df = df.pipe(add_time)
     return df
+
+
+def exists():
+    return os.path.exists(PATH)
+
+
+def download():
+    url = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_shopping_2017_05_01.tar.gz'
+    response = requests.get(url, stream=True)
+    assert response.status_code == 200, "unable to download data"
+
+    bar_format = "Downloaded: {n}MB / {total}MB -{rate_fmt}, "
+    bar_format += "Elapsed: {elapsed}, Remaining: {remaining}, Progress: {l_bar}{bar}"
+    total = round(int(response.headers.get('content-length', 0)) / 1e+6)
+    data = response.iter_content(chunk_size=int(1e+6))
+    data = tqdm(data, total=total, unit="MB", bar_format=bar_format)
+
+    tar = os.path.join(PWD, 'data.tar.gz')
+    with open(tar, 'wb') as file:
+        for chunk in data:
+            file.write(chunk)
+
+    with tarfile.open(tar, "r:gz") as file:
+        file.extractall('data')
+
+    os.remove(tar)
+    response.close()
