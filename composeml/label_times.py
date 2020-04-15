@@ -237,14 +237,17 @@ class LabelTimes(pd.DataFrame):
         if len(transforms) == 0:
             print('No transforms applied', end='\n\n')
 
-    def copy(self):
+    def copy(self, **kwargs):
         """
         Makes a copy of this object.
+
+        Args:
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.copy method
 
         Returns:
             LabelTimes : Copy of label times.
         """
-        label_times = super().copy()
+        label_times = super().copy(**kwargs)
         label_times.settings = self.settings.copy()
         label_times.transforms = self.transforms.copy()
         return label_times
@@ -523,16 +526,17 @@ class LabelTimes(pd.DataFrame):
 
         return 'continuous'
 
-    def equals(self, other):
+    def equals(self, other, **kwargs):
         """Determines if two label time objects are the same.
 
         Args:
             other (LabelTimes) : Other label time object for comparison.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.equals method
 
         Returns:
             bool : Whether label time objects are the same.
         """
-        return super().equals(other) and self.settings == other.settings
+        return super().equals(other, **kwargs) and self.settings == other.settings
 
     def _load_settings(self, path):
         """Read the settings in json format from disk.
@@ -568,47 +572,50 @@ class LabelTimes(pd.DataFrame):
             json.dump(self.settings, file)
             del self.settings['dtypes']
 
-    def to_csv(self, path, filename='label_times.csv', save_settings=True):
+    def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
         """Write label times in csv format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.csv`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_csv method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_csv(file)
+        super().to_csv(file, **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_parquet(self, path, filename='label_times.parquet', save_settings=True):
+    def to_parquet(self, path, filename='label_times.parquet', save_settings=True, **kwargs):
         """Write label times in parquet format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.parquet`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_parquet method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_parquet(file, compression=None, engine='auto')
+        super().to_parquet(file, compression=None, engine='auto', **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_pickle(self, path, filename='label_times.pickle', save_settings=True):
+    def to_pickle(self, path, filename='label_times.pickle', save_settings=True, **kwargs):
         """Write label times in pickle format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.pickle`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_pickle method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_pickle(file)
+        super().to_pickle(file, **kwargs)
 
         if save_settings:
             self._save_settings(path)
