@@ -241,6 +241,9 @@ class LabelTimes(pd.DataFrame):
         """
         Makes a copy of this object.
 
+        Args:
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.copy method
+
         Returns:
             LabelTimes : Copy of label times.
         """
@@ -528,6 +531,7 @@ class LabelTimes(pd.DataFrame):
 
         Args:
             other (LabelTimes) : Other label time object for comparison.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.equals method
 
         Returns:
             bool : Whether label time objects are the same.
@@ -575,6 +579,7 @@ class LabelTimes(pd.DataFrame):
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.csv`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_csv method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
@@ -590,6 +595,7 @@ class LabelTimes(pd.DataFrame):
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.parquet`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_parquet method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
@@ -598,13 +604,14 @@ class LabelTimes(pd.DataFrame):
         if save_settings:
             self._save_settings(path)
 
-    def to_pickle(self, path, filename='label_times.pickle', save_settings=True):
+    def to_pickle(self, path, filename='label_times.pickle', save_settings=True, **kwargs):
         """Write label times in pickle format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
             filename (str) : Filename for label times. Default value is `label_times.pickle`.
             save_settings (bool) : Whether to save the settings used to make the label times.
+            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_pickle method
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
