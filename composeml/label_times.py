@@ -615,7 +615,7 @@ class LabelTimes(pd.DataFrame):
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_pickle(file)
+        super().to_pickle(file, **kwargs)
 
         if save_settings:
             self._save_settings(path)
