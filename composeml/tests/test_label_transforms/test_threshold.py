@@ -6,5 +6,5 @@ def test_threshold(labels):
     assert transform['value'] == 200
 
     answer = [True, False, True, False]
-    given_answer = labels[labels.name].values.tolist()
+    given_answer = labels[labels.label_name].values.tolist()
     assert given_answer == answer

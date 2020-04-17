@@ -52,7 +52,7 @@ class LabelPlots:
 
             ax.legend(
                 loc='upper left',
-                title=self._label_times.name,
+                title=self._label_times.label_name,
                 facecolor='w',
                 framealpha=.9,
             )
@@ -69,7 +69,7 @@ class LabelPlots:
             )
 
             ax.set_title('Label vs. Cutoff Times')
-            ax.set_ylabel(self._label_times.name)
+            ax.set_ylabel(self._label_times.label_name)
             ax.set_xlabel('Time')
 
         return ax
@@ -81,7 +81,7 @@ class LabelPlots:
 
     def distribution(self, **kwargs):
         """Plots the label distribution."""
-        dist = self._label_times[self._label_times.name]
+        dist = self._label_times[self._label_times.label_name]
 
         if self._label_times.is_discrete:
             ax = sns.countplot(dist, palette=COLOR, **kwargs)
