@@ -240,6 +240,31 @@ class LabelMaker:
                 if ds.context.slice_number >= num_examples_per_instance:
                     break
 
+    def _bar_format(self):
+        value = "Elapsed: {elapsed} | "
+        value += "Remaining: {remaining} | "
+        value += "Progress: {l_bar}{bar}| "
+        value += self.target_entity + ": {n}/{total} "
+        return value
+
+    def _search_by_labels(self, target_entity, labels):
+        for value, count in labels.items():
+            if count == -1 or count == 'inf':
+                count = float('inf')
+                labels[value] = count
+
+            assert is_number(count), 'label count must be numeric'
+
+        counts = labels.values()
+        counts_are_finite = any(map(is_finite, counts))
+
+        if counts_are_finite:
+            n_examples_per_entity = sum(values)
+
+        total = target_entity.ngroups
+        if finite_examples_per_instance:
+            total *= n_examples_per_entity
+
     def search(self,
                df,
                num_examples_per_instance,
@@ -308,10 +333,12 @@ class LabelMaker:
             total *= n_examples_per_entity
 
         # The progress bar is initialized.
-        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-        bar_format += "Progress: {l_bar}{bar}| "
-        bar_format += self.target_entity + ": {n}/{total} "
-        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
+        progress_bar = tqdm(
+            total=total,
+            bar_format=self._bar_format,
+            disable=not verbose,
+            file=stdout,
+        )
 
         label_name = self.labeling_function.__name__
         entity_count = 0
