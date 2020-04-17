@@ -247,23 +247,102 @@ class LabelMaker:
         value += self.target_entity + ": {n}/{total} "
         return value
 
-    def _search_by_labels(self, target_entity, labels):
+    def _check_expected_labels(self, labels):
         for value, count in labels.items():
             if count == -1 or count == 'inf':
                 count = float('inf')
-                labels[value] = count
+                expected_labels[value] = count
 
             assert is_number(count), 'label count must be numeric'
 
-        counts = labels.values()
-        counts_are_finite = any(map(is_finite, counts))
+        return labels
+
+    def _records_to_label_times(
+        self,
+        records,
+        label_name,
+        label_type,
+        num_examples_per_instance,
+        minimum_data,
+        gap,
+    ):
+        label_times = LabelTimes(
+            data=records,
+            name=label_name,
+            target_entity=self.target_entity,
+            label_type=label_type,
+        )
+
+        label_times = label_times.rename_axis('id', axis=0)
+        if label_times.empty: return label_times
+
+        label_times.settings.update({
+            'num_examples_per_instance': num_examples_per_instance,
+            'minimum_data': str(minimum_data),
+            'window_size': str(self.window_size),
+            'gap': str(gap),
+        })
+
+        if label_times.is_discrete:
+            label_times[label_name] = label_times[label_name].astype('category')
+
+        return label_times
+
+    def _search_by_labels(self, target_entity, labels):
+        expected_labels = self._check_expected_labels(labels)
+        counts = expected_labels.values()
+        counts_are_finite = all(map(is_finite, counts))
 
         if counts_are_finite:
-            n_examples_per_entity = sum(values)
+            n_labels = sum(counts)
 
         total = target_entity.ngroups
-        if finite_examples_per_instance:
-            total *= n_examples_per_entity
+        if counts_are_finite: total *= n_labels
+
+        progress_bar = tqdm(
+            total=total,
+            bar_format=self._bar_format,
+            disable=not verbose,
+            file=stdout,
+        )
+
+        records = []
+        for index, group in enumerate(target_entity):
+            n = index * n_labels - progress_bar.n if counts_are_finite else 1
+            progress_bar.update(n=n)
+            key, df = group
+
+            slices, actual_labels = self._slice(
+                df=df,
+                gap=gap,
+                min_data=minimum_data,
+                drop_empty=drop_empty,
+            ), {}
+
+            for ds in slices:
+                label = self.labeling_function(ds, *args, **kwargs)
+                if pd.isnull(label) or label not in expected_labels: continue
+                actual_labels[label] = actual_labels.get(label, 0) + 1
+
+                if actual_labels[label] <= expected_labels[label]:
+                    records.append({
+                        self.target_entity: key,
+                        'cutoff_time': ds.context.window[0],
+                        self.labeling_function.__name__: label,
+                    })
+
+                    if counts_are_finite: progress_bar.update(n=1)
+
+                    done = []
+                    for label in expected_labels.values():
+                        done.append(actual_labels.get(label, 0) >= expected_labels[label])
+
+                    if all(done): break
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
+        return records
 
     def search(self,
                df,
