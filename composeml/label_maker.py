@@ -247,16 +247,6 @@ class LabelMaker:
         value += self.target_entity + ": {n}/{total} "
         return value
 
-    def _check_expected_labels(self, labels):
-        for value, count in labels.items():
-            if count == -1 or count == 'inf':
-                count = float('inf')
-                expected_labels[value] = count
-
-            assert is_number(count), 'label count must be numeric'
-
-        return labels
-
     def _records_to_label_times(
         self,
         records,
@@ -288,27 +278,89 @@ class LabelMaker:
 
         return label_times
 
-    def _search_by_labels(self, target_entity, labels):
-        expected_labels = self._check_expected_labels(labels)
-        counts = expected_labels.values()
-        counts_are_finite = all(map(is_finite, counts))
+    @staticmethod
+    def _check_numeric(n):
+        if n == -1 or n == 'inf':
+            n = float('inf')
 
-        if counts_are_finite:
-            n_labels = sum(counts)
+        numeric = (int, float)
+        assert isinstance(n, numeric), 'example count must be numeric'
+        return n
 
+    @staticmethod
+    def _is_finite(n):
+        return n > 0 and abs(n) != float('inf')
+
+    def _apply_labeling_functions(self, ds, *args, **kwargs):
+        return {name: function(ds, *args, **kwargs) for name, function in self.labeling_function.items()}
+
+    def _search_by_examples(self, target_entity, n_examples):
+        n_examples = self._check_numeric(n_examples)
+        is_finite = self._is_finite(n_examples)
         total = target_entity.ngroups
-        if counts_are_finite: total *= n_labels
+        if is_finite: total *= n_examples
 
-        progress_bar = tqdm(
+        progress_bar, records = tqdm(
             total=total,
             bar_format=self._bar_format,
             disable=not verbose,
             file=stdout,
-        )
+        ), []
 
-        records = []
         for index, group in enumerate(target_entity):
-            n = index * n_labels - progress_bar.n if counts_are_finite else 1
+            n = index * n_examples - progress_bar.n if is_finite else 1
+            progress_bar.update(n=n)
+            key, df = group
+
+            slices, actual_examples = self._slice(
+                df=df,
+                gap=gap,
+                min_data=minimum_data,
+                drop_empty=drop_empty,
+            ), 0
+
+            for ds in slices:
+                actual = self._apply_labeling_functions(ds, *args, **kwargs)
+                is_null = any(pd.isnull(value) for value in actual.values())
+                if is_null: continue
+                actual_examples += 1
+
+                if actual_examples <= n_examples:
+                    records.append({
+                        self.target_entity: key,
+                        'cutoff_time': ds.context.window[0],
+                        self.labeling_function.__name__: label,
+                    })
+
+                    if is_finite: progress_bar.update(n=1)
+                    if actual_examples >= n_examples: break
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
+        return records
+
+    def _search_by_labels(self, target_entity, labels):
+        labels = {key: self._check_numeric(value) for key, value in labels.items()}
+        total, n_examples = target_entity.ngroups, labels.values()
+        is_finite = all(self._is_finite(value) for value in n_examples)
+
+        if is_finite:
+            n_examples = sum(n_examples)
+            total *= n_examples
+
+        progress_bar, records = tqdm(
+            total=total,
+            bar_format=self._bar_format,
+            disable=not verbose,
+            file=stdout,
+        ), []
+
+        def is_invalid(label):
+            return pd.isnull(label) or value not in labels
+
+        for index, group in enumerate(target_entity):
+            n = index * n_examples - progress_bar.n if finite_examples else 1
             progress_bar.update(n=n)
             key, df = group
 
@@ -320,24 +372,19 @@ class LabelMaker:
             ), {}
 
             for ds in slices:
-                label = self.labeling_function(ds, *args, **kwargs)
-                if pd.isnull(label) or label not in expected_labels: continue
+                actual = self._apply_labeling_functions(ds, *args, **kwargs)
+                if any(is_invalid(value) for value in actual.values()): continue
                 actual_labels[label] = actual_labels.get(label, 0) + 1
 
-                if actual_labels[label] <= expected_labels[label]:
+                if acutal[label] <= labels[label]:
                     records.append({
                         self.target_entity: key,
                         'cutoff_time': ds.context.window[0],
                         self.labeling_function.__name__: label,
                     })
 
-                    if counts_are_finite: progress_bar.update(n=1)
-
-                    done = []
-                    for label in expected_labels.values():
-                        done.append(actual_labels.get(label, 0) >= expected_labels[label])
-
-                    if all(done): break
+                    if is_finite: progress_bar.update(n=1)
+                    if all(actual_labels.get(key, 0) >= labels[key] for key in labels): break
 
         total -= progress_bar.n
         progress_bar.update(n=total)
