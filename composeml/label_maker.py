@@ -60,6 +60,7 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 

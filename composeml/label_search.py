@@ -1,5 +1,6 @@
-from composeml.utils import format_number, is_finite_number
 from pandas import isnull
+
+from composeml.utils import format_number, is_finite_number
 
 
 class ExampleSearch:
