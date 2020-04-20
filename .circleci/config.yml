@@ -38,6 +38,7 @@ commands:
 
 jobs:
   lint_tests:
+    working_directory: ~/composeml
     parameters:
       python_version:
         type: string
@@ -58,6 +59,7 @@ jobs:
             make lint-tests
 
   unit_tests:
+    working_directory: ~/composeml
     parameters:
       python_version:
         type: string
