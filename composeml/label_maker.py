@@ -265,7 +265,7 @@ class LabelMaker:
         def missing_examples(entity_count):
             return entity_count * search.expected_count - progress_bar.n
 
-        for index, group in enumerate(target_entity):
+        for entity_count, group in enumerate(target_entity):
             entity_id, df = group
 
             slices = self._slice(
@@ -291,7 +291,7 @@ class LabelMaker:
                 if search.is_finite: progress_bar.update(n=1)
                 if search.is_complete: break
 
-            n = missing_examples(index) if search.is_finite else 1
+            n = missing_examples(entity_count) if search.is_finite else 1
             progress_bar.update(n=n)
             search.reset_count()
 
@@ -300,7 +300,7 @@ class LabelMaker:
         progress_bar.close()
         return records
 
-    def _recrods_to_label_times(self, records, label_name, label_type, settings):
+    def _records_to_label_times(self, records, label_name, label_type, settings):
         lt = LabelTimes(
             data=records,
             name=label_name,
@@ -310,12 +310,7 @@ class LabelMaker:
 
         lt = lt.rename_axis('id', axis=0)
         if lt.empty: return lt
-
         lt.settings.update(settings)
-
-        if lt.is_discrete:
-            lt[label_name] = lt[label_name].astype('category')
-
         return lt
 
     def search(self,
@@ -366,8 +361,7 @@ class LabelMaker:
             **kwargs,
         )
 
-        # Make search records a label times object.
-        lt = self._recrods_to_label_times(
+        lt = self._records_to_label_times(
             records=records,
             label_name=list(self.labeling_function)[0],
             label_type=label_type,

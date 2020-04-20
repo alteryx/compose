@@ -34,18 +34,16 @@ class LabelSearch(ExampleSearch):
 
     @property
     def is_complete(self):
-        return all(map(self.is_label_complete, self.expected_label_counts))
+        return all(map(self.is_complete_label, self.expected_label_counts))
 
-    def is_label_complete(self, label):
+    def is_complete_label(self, label):
         return self.actual_label_counts.get(label, 0) >= self.expected_label_counts[label]
 
-    def is_label_incomplete(self, label):
-        return self.actual_label_counts.get(label, 0) < self.expected_label_counts[label]
-
     def is_valid_labels(self, labels):
+        label_values = labels.values()
         not_null = super().is_valid_labels(labels)
-        is_expected = not_null and all(label in self.expected_label_counts for label in labels.values())
-        return is_expected and all(map(self.is_label_incomplete, labels.values()))
+        is_expected = not_null and any(label in self.expected_label_counts for label in label_values)
+        return is_expected and any(not self.is_complete_label(label) for label in label_values)
 
     def reset_count(self):
         self.actual_label_counts.clear()
