@@ -22,8 +22,8 @@ commands:
       - run:
           name: "Install requirements in a virtual environment."
           command: |
-            virtualenv python -q
-            source python/bin/activate
+            virtualenv circleci -q
+            source circleci/bin/activate
             pip config --site set global.progress_bar off
             pip install .
 
@@ -33,12 +33,11 @@ commands:
             - run:
                 name: "Install test requirements."
                 command: |
-                  source python/bin/activate
+                  source circleci/bin/activate
                   pip install -r test-requirements.txt
 
 jobs:
   lint_tests:
-    working_directory: ~/composeml
     parameters:
       python_version:
         type: string
@@ -55,11 +54,10 @@ jobs:
       - run:
           name: "Run lint tests."
           command: |
-            source python/bin/activate
+            source circleci/bin/activate
             make lint-tests
 
   unit_tests:
-    working_directory: ~/composeml
     parameters:
       python_version:
         type: string
@@ -82,7 +80,7 @@ jobs:
           condition: << parameters.codecov >>
           steps:
             - run: |
-                source python/bin/activate
+                source circleci/bin/activate
                 make unit-tests ADDOPTS="--cov=composeml"
                 codecov
 
@@ -91,7 +89,7 @@ jobs:
           condition: << parameters.codecov >>
           steps:
             - run: |
-                source python/bin/activate
+                source circleci/bin/activate
                 make unit-tests
 
 workflows:
