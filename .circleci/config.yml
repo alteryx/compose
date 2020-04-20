@@ -20,7 +20,7 @@ commands:
     steps:
       - checkout
       - run:
-          name: "Install requirements in a virtual environment."
+          name: "Create virtual environment and install requirements."
           command: |
             virtualenv circleci -q
             source circleci/bin/activate
