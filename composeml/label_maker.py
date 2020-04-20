@@ -340,6 +340,55 @@ class LabelMaker:
         progress_bar.close()
         return records
 
+    def _run_search(self, target_entity, search):
+        multiplier = search.expected_count if search.is_finite else 1
+        total = target_entity.ngroups * multiplier
+
+        progress_bar, records = tqdm(
+            total=total,
+            bar_format=self._bar_format,
+            disable=not verbose,
+            file=stdout,
+        ), []
+
+        def missing_examples(entity_count):
+            return entity_count * search.expected_count - progress_bar.n
+
+        for index, group in enumerate(target_entity):
+            key, df = group
+
+            slices = self._slice(
+                df=df,
+                gap=gap,
+                min_data=minimum_data,
+                drop_empty=drop_empty,
+            )
+
+            for ds in slices:
+                items = self.labeling_function.items()
+                labels = {name: function(ds, *args, **kwargs) for name, function in items}
+                valid_labels = search.is_valid_labels(labels)
+                if not valid_labels: continue
+
+                records.append({
+                    self.target_entity: key,
+                    'cutoff_time': ds.context.window[0],
+                    **labels,
+                })
+
+                search.update_count(labels)
+                if search.is_finite: progress_bar.update(n=1)
+                if search.is_complete: break
+
+            n = missing_examples(index) if search.is_finite else 1
+            progress_bar.update(n=n)
+            search.reset_count()
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
+        return records
+
     def _search_by_labels(self, target_entity, label_counts):
         label_counts = {label: self._check_numeric(count) for label, count in label_counts.items()}
         total, example_count = target_entity.ngroups, label_counts.values()
