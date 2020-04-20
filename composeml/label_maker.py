@@ -116,13 +116,22 @@ class LabelMaker:
             window_size (str or int) : Duration of each data slice.
                 The default value for window size is all future data.
         """
+        self._set_window_size(window_size)
+        self._set_labeling_function(labeling_function)
         self.target_entity = target_entity
         self.time_index = time_index
-        self.labeling_function = labeling_function
+
+    def _set_window_size(self, window_size):
+        if window_size is not None:
+            window_size = to_offset(window_size)
+
         self.window_size = window_size
 
-        if self.window_size is not None:
-            self.window_size = to_offset(self.window_size)
+    def _set_labeling_function(self, labeling_function):
+        if not isinstance(labeling_function, (tuple, list)):
+            labeling_function = [labeling_function]
+
+        self.labeling_function = {lf.__name__: lf for lf in labeling_function}
 
     def _slice(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices for group.
@@ -278,22 +287,6 @@ class LabelMaker:
 
         return label_times
 
-    @staticmethod
-    def _check_numeric(n):
-        if n == -1 or n == 'inf':
-            n = float('inf')
-
-        numeric = (int, float)
-        assert isinstance(n, numeric), 'example count must be numeric'
-        return n
-
-    @staticmethod
-    def _is_finite(n):
-        return n > 0 and abs(n) != float('inf')
-
-    def _apply_labeling_functions(self, ds, *args, **kwargs):
-        return {name: function(ds, *args, **kwargs) for name, function in self.labeling_function.items()}
-
     def _search_by_examples(self, target_entity, example_count):
         example_count = self._check_numeric(example_count)
         is_finite = self._is_finite(example_count)
@@ -340,7 +333,7 @@ class LabelMaker:
         progress_bar.close()
         return records
 
-    def _run_search(self, target_entity, search):
+    def _run_search(self, target_entity, search, verbose=True):
         multiplier = search.expected_count if search.is_finite else 1
         total = target_entity.ngroups * multiplier
 
@@ -355,7 +348,7 @@ class LabelMaker:
             return entity_count * search.expected_count - progress_bar.n
 
         for index, group in enumerate(target_entity):
-            key, df = group
+            entity_id, df = group
 
             slices = self._slice(
                 df=df,
@@ -366,12 +359,12 @@ class LabelMaker:
 
             for ds in slices:
                 items = self.labeling_function.items()
-                labels = {name: function(ds, *args, **kwargs) for name, function in items}
+                labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)
                 if not valid_labels: continue
 
                 records.append({
-                    self.target_entity: key,
+                    self.target_entity: entity_id,
                     'cutoff_time': ds.context.window[0],
                     **labels,
                 })
