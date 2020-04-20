@@ -53,7 +53,12 @@ def total_spent():
         }
     }
 
-    label_times['data'] = read_csv(label_times['data'], index_col='id', parse_dates=['cutoff_time'])
+    label_times['data'] = read_csv(
+        label_times['data'],
+        index_col='id',
+        parse_dates=['cutoff_time'],
+    )
+
     label_times = LabelTimes(**label_times)
     label_times.name = 'total_spent'
     label_times.target_entity = 'customer_id'

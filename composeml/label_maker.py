@@ -3,6 +3,7 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
+from composeml.data_slice import Context, DataSlice
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
 from composeml.offsets import to_offset
@@ -55,46 +56,6 @@ def cutoff_data(df, threshold):
             return df, None
 
     return df, cutoff_time
-
-
-class Context:
-    """Metadata for data slice."""
-    def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
-        """Metadata for data slice.
-
-        Args:
-            gap (tuple) : Start and stop time for gap.
-            window (tuple) : Start and stop time for window.
-            slice (int) : Slice number.
-            target_entity (int) : Target entity.
-            target_instance (int) : Target instance.
-        """
-        self.gap = gap or (None, None)
-        self.window = window or (None, None)
-        self.slice_number = slice_number
-        self.target_entity = target_entity
-        self.target_instance = target_instance
-
-
-class DataSlice(pd.DataFrame):
-    """Data slice for labeling function."""
-    _metadata = ['context']
-
-    @property
-    def _constructor(self):
-        return DataSlice
-
-    def __str__(self):
-        """Metadata of data slice."""
-        info = {
-            'slice_number': self.context.slice_number,
-            self.context.target_entity: self.context.target_instance,
-            'window': '[{}, {})'.format(*self.context.window),
-            'gap': '[{}, {})'.format(*self.context.gap),
-        }
-
-        info = pd.Series(info).to_string()
-        return info
 
 
 class LabelMaker:
