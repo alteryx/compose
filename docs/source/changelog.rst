@@ -1,6 +1,9 @@
 =========
 Changelog
 =========
+**Future Release**
+    * Changes
+        * Rename LabelTimes.name to LabelTimes.label_name
 
 **v0.1.8** March 11, 2020
     * Fixes
