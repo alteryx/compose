@@ -34,7 +34,7 @@ commands:
                 name: "Install test requirements."
                 command: |
                   source circleci/bin/activate
-                  pip install -r test-requirements.txt
+                  pip install -r dev-requirements.txt
 
 jobs:
   lint_tests:
@@ -119,3 +119,4 @@ workflows:
       - unit_tests:
           name: "Unit Tests - Python 3.8"
           python_version: "3.8"
+          codecov: true
