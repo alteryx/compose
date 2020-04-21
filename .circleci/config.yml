@@ -1,48 +1,122 @@
 version: 2.1
 
+executors:
+  python:
+    parameters:
+      version:
+        type: string
+        default: "3.7"
+
+    docker:
+      - image: circleci/python:<< parameters.version >>
+
+commands:
+  installation:
+    parameters:
+      test_requirements:
+        type: boolean
+        default: false
+
+    steps:
+      - checkout
+      - run:
+          name: "Create virtual environment and install requirements."
+          command: |
+            virtualenv circleci -q
+            source circleci/bin/activate
+            pip config --site set global.progress_bar off
+            pip install .
+
+      - when:
+          condition: << parameters.test_requirements >>
+          steps:
+            - run:
+                name: "Install test requirements."
+                command: |
+                  source circleci/bin/activate
+                  pip install -r dev-requirements.txt
+
 jobs:
-  test_python:
+  lint_tests:
     parameters:
       python_version:
         type: string
         default: "3.7"
+
+    executor:
+      name: python
+      version: << parameters.python_version >>
+
+    steps:
+      - installation:
+          test_requirements: true
+
+      - run:
+          name: "Run lint tests."
+          command: |
+            source circleci/bin/activate
+            make lint-tests
+
+  unit_tests:
+    parameters:
+      python_version:
+        type: string
+        default: "3.7"
+
       codecov:
         type: boolean
         default: false
-    working_directory: ~/compose
-    docker:
-        - image: circleci/python:<< parameters.python_version >>
+
+    executor:
+      name: python
+      version: << parameters.python_version >>
+
     steps:
-      - checkout
-      - run: |
-          virtualenv test_python -q
-          source test_python/bin/activate
-          make installdeps
-      - run: |
-          source test_python/bin/activate
-          make lint
-      - run: |
-          source test_python/bin/activate
-          coverage erase
-          make test
+      - installation:
+          test_requirements: true
+
       - when:
+          name: "Run unit tests with code coverage."
           condition: << parameters.codecov >>
           steps:
             - run: |
-                source test_python/bin/activate
+                source circleci/bin/activate
+                make unit-tests ADDOPTS="--cov=composeml"
                 codecov
+
+      - unless:
+          name: "Run unit tests."
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source circleci/bin/activate
+                make unit-tests
 
 workflows:
   version: 2
-  test_all_python_versions:
+  "Integration Tests":
     jobs:
-      - test_python:
-          name: "python 3.5"
-          python_version: "3.5"
-      - test_python:
-          name: "python 3.6"
+      - lint_tests:
+          name: "Lint Tests - Python 3.6"
           python_version: "3.6"
-      - test_python:
-          name: "python 3.7"
+
+      - lint_tests:
+          name: "Lint Tests - Python 3.7"
           python_version: "3.7"
+
+      - lint_tests:
+          name: "Lint Tests - Python 3.8"
+          python_version: "3.8"
+
+      - unit_tests:
+          name: "Unit Tests - Python 3.6"
+          python_version: "3.6"
+
+      - unit_tests:
+          name: "Unit Tests - Python 3.7"
+          python_version: "3.7"
+
+      - unit_tests:
+          name: "Unit Tests - Python 3.8"
+          python_version: "3.8"
           codecov: true
