@@ -5,7 +5,6 @@ import matplotlib as mpl  # isort:skip
 mpl.use('agg')  # noqa
 
 import pandas as pd
-
 import seaborn as sns
 
 pd.plotting.register_matplotlib_converters()

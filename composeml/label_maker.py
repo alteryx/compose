@@ -60,6 +60,7 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -99,7 +100,7 @@ class LabelMaker:
         self.labeling_function = {lf.__name__: lf for lf in labeling_function}
 
     def _slice(self, df, gap=None, min_data=None, drop_empty=True):
-        """Generate data slices for group.
+        """Generate data slices for a group.
 
         Args:
             df (DataFrame): Data frame to generate data slices.
@@ -109,7 +110,7 @@ class LabelMaker:
             drop_empty (bool): Whether to drop empty slices. Default value is True.
 
         Returns:
-            DataSlice : Returns a data slice.
+            df_slice (generator): Returns a generator of data slices.
         """
         df = df.loc[df.index.notnull()]
         assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
@@ -190,7 +191,7 @@ class LabelMaker:
             verbose (bool): Whether to print metadata about slice. Default value is False.
 
         Returns:
-            DataSlice : Returns data slice.
+            ds (generator): Returns a generator of data slices.
         """
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
@@ -216,7 +217,7 @@ class LabelMaker:
 
     @property
     def _bar_format(self):
-        """Template of the progress bar format during a label search."""
+        """Template to format the progress bar during a label search."""
         value = "Elapsed: {elapsed} | "
         value += "Remaining: {remaining} | "
         value += "Progress: {l_bar}{bar}| "
