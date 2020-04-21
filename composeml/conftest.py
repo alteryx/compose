@@ -32,6 +32,14 @@ def total_spent_fn():
     return total_spent
 
 
+@pytest.fixture(scope="session")
+def unique_amounts_fn():
+    def unique_amounts(df):
+        return df.amount.nunique()
+
+    return unique_amounts
+
+
 @pytest.fixture
 def total_spent():
     label_times = {

@@ -70,6 +70,35 @@ def test_search_with_undefined_labels(transactions, total_spent_fn):
     assert given_labels == labels
 
 
+def test_search_with_multiple_targets(transactions, total_spent_fn, unique_amounts_fn):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=[total_spent_fn, unique_amounts_fn],
+        window_size=2,
+    )
+
+    actual = lm.search(
+        transactions,
+        num_examples_per_instance=-1,
+        verbose=True,
+    )
+
+    actual = to_csv(actual, index=False)
+
+    expected = [
+        'customer_id,cutoff_time,total_spent,unique_amounts',
+        '0,2019-01-01 08:00:00,2,1',
+        '1,2019-01-01 09:00:00,2,1',
+        '1,2019-01-01 10:00:00,1,1',
+        '2,2019-01-01 10:30:00,2,1',
+        '2,2019-01-01 11:30:00,2,1',
+        '3,2019-01-01 12:30:00,1,1',
+    ]
+
+    assert actual == expected
+
+
 def test_search_offset_mix_0(transactions, total_spent_fn):
     """
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
