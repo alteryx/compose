@@ -14,14 +14,14 @@ def cutoff_data(df, threshold):
     """Cuts off data before the threshold.
 
     Args:
-        df (DataFrame) : Data frame to cutoff data.
-        threshold (int or str or Timestamp) : Threshold to apply on data.
+        df (DataFrame): Data frame to cutoff data.
+        threshold (int or str or Timestamp): Threshold to apply on data.
             If integer, the threshold will be the time at `n + 1` in the index.
             If string, the threshold can be an offset or timestamp.
             An offset will be applied relative to the first time in the index.
 
     Returns:
-        DataFrame, Timestamp : Returns the data frame and the applied cutoff time.
+        df, cutoff_time (tuple(DataFrame, Timestamp)): Returns the data frame and the applied cutoff time.
     """
     if isinstance(threshold, int):
         assert threshold > 0, 'threshold must be greater than zero'
@@ -60,15 +60,14 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
         Args:
-            target_entity (str) : Entity on which to make labels.
+            target_entity (str): Entity on which to make labels.
             time_index (str): Name of time column in the data frame.
-            labeling_function (function) : Function that transforms a data slice to a label.
-            window_size (str or int) : Duration of each data slice.
+            labeling_function (function or list(function)): Function that transforms a data slice to a label.
+            window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """
         self._set_window_size(window_size)
@@ -77,12 +76,23 @@ class LabelMaker:
         self.time_index = time_index
 
     def _set_window_size(self, window_size):
+        """Set and format initial window size parameter.
+
+        Args:
+            window_size (str or int): Duration of each data slice.
+                The default value for window size is all future data.
+        """
         if window_size is not None:
             window_size = to_offset(window_size)
 
         self.window_size = window_size
 
     def _set_labeling_function(self, labeling_function):
+        """Set and format intial labeling functions.
+
+        Args:
+            labeling_function (function or list(function)): Function that transforms a data slice to a label.
+        """
         if not isinstance(labeling_function, (tuple, list)):
             labeling_function = [labeling_function]
 
@@ -92,11 +102,11 @@ class LabelMaker:
         """Generate data slices for group.
 
         Args:
-            df (DataFrame) : Data frame to generate data slices.
-            gap (str or int) : Time between examples. Default value is window size.
+            df (DataFrame): Data frame to generate data slices.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            min_data (int or str or Timestamp) : Threshold to cutoff data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            min_data (int or str or Timestamp): Threshold to cutoff data.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
 
         Returns:
             DataSlice : Returns a data slice.
@@ -171,13 +181,13 @@ class LabelMaker:
         """Generates data slices of target entity.
 
         Args:
-            df (DataFrame) : Data frame to create slices on.
-            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str or int) : Time between examples. Default value is window size.
+            df (DataFrame): Data frame to create slices on.
+            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
-            verbose (bool) : Whether to print metadata about slice. Default value is False.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            verbose (bool): Whether to print metadata about slice. Default value is False.
 
         Returns:
             DataSlice : Returns data slice.
@@ -206,6 +216,7 @@ class LabelMaker:
 
     @property
     def _bar_format(self):
+        """Template of the progress bar format during a label search."""
         value = "Elapsed: {elapsed} | "
         value += "Remaining: {remaining} | "
         value += "Progress: {l_bar}{bar}| "
@@ -213,6 +224,22 @@ class LabelMaker:
         return value
 
     def _run_search(self, df, search, gap=None, min_data=None, drop_empty=True, verbose=True, *args, **kwargs):
+        """Search implementation to make label records.
+
+        Args:
+            df (DataFrame): Data frame to search and extract labels.
+            search (LabelSearch or ExampleSearch): The type of search to be done.
+            min_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            verbose (bool): Whether to render progress bar. Default value is True.
+            *args: Positional arguments for labeling function.
+            **kwargs: Keyword arguments for labeling function.
+
+        Returns:
+            records (list(dict)): Label Records
+        """
         target_entity = self.set_index(df).groupby(self.target_entity)
         multiplier = search.expected_count if search.is_finite else 1
         total = target_entity.ngroups * multiplier
@@ -263,6 +290,17 @@ class LabelMaker:
         return records
 
     def _records_to_label_times(self, records, label_name, label_type, settings):
+        """Makes a label times object from label records.
+
+        Args:
+            records (list(dict)): The label records as a result from a label search.
+            label_name (str): The column name that contains the label values.
+            label_type (str): The type of label values -- must be "continuous" or "discrete".
+            settings (dict): The parameter settings used to make the labels.
+
+        Returns:
+            lt (LabelTimes): 
+        """
         lt = LabelTimes(
             data=records,
             name=label_name,
@@ -288,19 +326,19 @@ class LabelMaker:
         """Searches the data to calculates labels.
 
         Args:
-            df (DataFrame) : Data frame to search and extract labels.
-            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str or int) : Time between examples. Default value is window size.
+            df (DataFrame): Data frame to search and extract labels.
+            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
-            label_type (str) : The label type can be "continuous" or "categorical". Default value is the inferred label type.
-            verbose (bool) : Whether to render progress bar. Default value is True.
-            *args : Positional arguments for labeling function.
-            **kwargs : Keyword arguments for labeling function.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            label_type (str): The label type can be "continuous" or "categorical". Default value is the inferred label type.
+            verbose (bool): Whether to render progress bar. Default value is True.
+            *args: Positional arguments for labeling function.
+            **kwargs: Keyword arguments for labeling function.
 
         Returns:
-            LabelTimes : Calculated labels with cutoff times.
+            lt (LabelTimes): Calculated labels with cutoff times.
         """
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
@@ -341,10 +379,10 @@ class LabelMaker:
         """Sets the time index in a data frame (if not already set).
 
         Args:
-            df (DataFrame) : Data frame to set time index in.
+            df (DataFrame): Data frame to set time index in.
 
         Returns:
-            DataFrame : Data frame with time index set.
+            df (DataFrame): Data frame with time index set.
         """
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
