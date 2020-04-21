@@ -300,7 +300,7 @@ class LabelMaker:
             settings (dict): The parameter settings used to make the labels.
 
         Returns:
-            lt (LabelTimes): 
+            lt (LabelTimes): A label times object of the search records.
         """
         lt = LabelTimes(
             data=records,
