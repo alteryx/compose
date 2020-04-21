@@ -8,4 +8,4 @@ lint-tests:
 	isort --check-only --recursive composeml
 
 unit-tests:
-	pytest composeml/tests --cache-clear --show-capture=stderr -vv ${ADDOPTS}
+	pytest --pyargs composeml.tests --cache-clear --show-capture=stderr -vv ${ADDOPTS}
