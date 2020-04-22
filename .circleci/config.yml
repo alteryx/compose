@@ -66,7 +66,8 @@ jobs:
           name: "Run lint tests."
           command: |
             source env/bin/activate
-            make lint-tests
+            cd package
+            make lint-tests -f ../Makefile
 
   unit_tests:
     parameters:
@@ -92,7 +93,8 @@ jobs:
           steps:
             - run: |
                 source env/bin/activate
-                make unit-tests ADDOPTS="--cov=composeml"
+                cd package
+                make unit-tests ADDOPTS="--cov=composeml" -f ../Makefile
                 codecov
 
       - unless:
@@ -100,7 +102,8 @@ jobs:
           steps:
             - run: |
                 source env/bin/activate
-                make unit-tests
+                cd package
+                make unit-tests -f ../Makefile
 
 workflows:
   version: 2
