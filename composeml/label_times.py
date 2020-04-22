@@ -360,7 +360,7 @@ class LabelTimes(pd.DataFrame):
             customer_id                             1                    1
             cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function                 high                  low
-        """ # noqa
+        """  # noqa
         label_times = self.copy()
         values = label_times[self.label_name].values
 
@@ -493,7 +493,7 @@ class LabelTimes(pd.DataFrame):
             4      B
             5      A
             6      A
-        """ # noqa
+        """  # noqa
         settings = {
             'transform': 'sample',
             'n': n,
