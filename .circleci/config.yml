@@ -95,7 +95,8 @@ jobs:
                 source env/bin/activate
                 cd package
                 make unit-tests ADDOPTS="--cov=composeml" -f ../Makefile
-                codecov
+                cd ..
+                codecov --file package/.coverage
 
       - unless:
           condition: << parameters.codecov >>
