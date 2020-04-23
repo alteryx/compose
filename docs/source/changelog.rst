@@ -6,7 +6,7 @@ Changelog
     * Changes
         * Dropped Supported for Python 3.5 (:pr:`128`)
         * Rename LabelTimes.name to LabelTimes.label_name (:pr:`126`)
-        * Support keywords arguments in Pandas methods. (:pr:`121`)
+        * Support keyword arguments in Pandas methods. (:pr:`121`)
     * Documentation Changes
         * Improved data download in Predict Next Purchase (:pr:`76`)
     * Testing Changes
