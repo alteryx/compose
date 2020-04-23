@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='composeml',
-    version='0.1.8',
+    version='0.2.0',
     author='Feature Labs, Inc.',
     author_email='support@featurelabs.com',
     license='BSD 3-clause',
@@ -12,4 +12,5 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     packages=find_packages(),
+    python_requires='>=3.6',
 )
