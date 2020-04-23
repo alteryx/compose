@@ -38,9 +38,9 @@ def labels():
 def test_dfs(labels):
     es = ft.demo.load_mock_customer(return_entityset=True, random_seed=0)
     feature_matrix, _ = ft.dfs(entityset=es, target_entity='customers', cutoff_time=labels, cutoff_time_in_index=True)
-    assert labels.name in feature_matrix
+    assert labels.label_name in feature_matrix
 
-    columns = ['customer_id', 'time', labels.name]
+    columns = ['customer_id', 'time', labels.label_name]
     given_labels = feature_matrix.reset_index()[columns]
     given_labels = given_labels.rename(columns={'time': 'cutoff_time'})
     given_labels = given_labels.sort_values(['customer_id', 'cutoff_time'])

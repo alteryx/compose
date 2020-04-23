@@ -122,12 +122,12 @@ class LabelTimes(pd.DataFrame):
         return LabelTimes
 
     @property
-    def name(self):
+    def label_name(self):
         """Get name of label times."""
         return self.settings.get('labeling_function')
 
-    @name.setter
-    def name(self, value):
+    @label_name.setter
+    def label_name(self, value):
         """Set name of label times."""
         self.settings['labeling_function'] = value
 
@@ -174,7 +174,7 @@ class LabelTimes(pd.DataFrame):
         """Returns label distribution if labels are discrete."""
         if self.is_discrete:
             labels = self.assign(count=1)
-            labels = labels.groupby(self.name)
+            labels = labels.groupby(self.label_name)
             distribution = labels['count'].count()
             return distribution
 
@@ -182,7 +182,7 @@ class LabelTimes(pd.DataFrame):
     def count(self):
         """Returns label count per instance."""
         count = self.groupby(self.target_entity)
-        count = count[self.name].count()
+        count = count[self.label_name].count()
         count = count.to_frame('count')
         return count
 
@@ -190,12 +190,12 @@ class LabelTimes(pd.DataFrame):
     def count_by_time(self):
         """Returns label count across cutoff times."""
         if self.is_discrete:
-            keys = ['cutoff_time', self.name]
+            keys = ['cutoff_time', self.label_name]
             value = self.groupby(keys).cutoff_time.count()
-            value = value.unstack(self.name).fillna(0)
+            value = value.unstack(self.label_name).fillna(0)
         else:
             value = self.groupby('cutoff_time')
-            value = value[self.name].count()
+            value = value[self.label_name].count()
 
         value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
         value = value.astype('int')
@@ -203,9 +203,9 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out label info with transform settings that reproduce labels."""
-        if self.name is not None and self.is_discrete:
+        if self.label_name is not None and self.is_discrete:
             print('Label Distribution\n' + '-' * 18, end='\n')
-            distribution = self[self.name].value_counts()
+            distribution = self[self.label_name].value_counts()
             distribution.index = distribution.index.astype('str')
             distribution.sort_index(inplace=True)
             distribution['Total:'] = distribution.sum()
@@ -264,7 +264,7 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels[self.name] = labels[self.name].gt(value)
+        labels[self.label_name] = labels[self.label_name].gt(value)
 
         labels.label_type = 'discrete'
         labels.settings['label_type'] = 'discrete'
@@ -362,13 +362,13 @@ class LabelTimes(pd.DataFrame):
             my_labeling_function                 high                  low
         """  # noqa
         label_times = self.copy()
-        values = label_times[self.name].values
+        values = label_times[self.label_name].values
 
         if quantiles:
-            label_times[self.name] = pd.qcut(values, q=bins, labels=labels)
+            label_times[self.label_name] = pd.qcut(values, q=bins, labels=labels)
 
         else:
-            label_times[self.name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            label_times[self.label_name] = pd.cut(values, bins=bins, labels=labels, right=right)
 
         transform = {
             'transform': 'bin',
@@ -420,7 +420,7 @@ class LabelTimes(pd.DataFrame):
 
         sample_per_label = []
         for label, value, in value.items():
-            label = self[self[self.name] == label]
+            label = self[self[self.label_name] == label]
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
@@ -516,7 +516,7 @@ class LabelTimes(pd.DataFrame):
         Returns:
             str : Inferred label type. Either "continuous" or "discrete".
         """
-        dtype = self[self.name].dtype
+        dtype = self[self.label_name].dtype
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
         is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)

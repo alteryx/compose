@@ -325,9 +325,9 @@ class LabelMaker:
             return labels
 
         if labels.is_discrete:
-            labels[labels.name] = labels[labels.name].astype('category')
+            labels[labels.label_name] = labels[labels.label_name].astype('category')
 
-        labels.name = name
+        labels.label_name = name
         labels.target_entity = self.target_entity
         labels.settings.update({
             'num_examples_per_instance': num_examples_per_instance,

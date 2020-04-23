@@ -1,6 +1,13 @@
 =========
 Changelog
 =========
+**Future Release**
+    * Changes
+        * Rename LabelTimes.name to LabelTimes.label_name (:pr:`126`)
+
+**Breaking Changes**
+
+* ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
 
 **v0.1.8** March 11, 2020
     * Fixes
