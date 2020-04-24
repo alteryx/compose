@@ -1,12 +1,13 @@
-================
-What is Compose?
-================
 
 .. image:: images/compose.png
     :width: 450px
     :align: center
 
 |
+
+================
+What is Compose?
+================
 
 Creating labels from raw data for a machine learning problem is difficult and time consuming. This is where `Compose` helps by making it easier to quickly generate complex labels from raw data.
 
@@ -21,8 +22,10 @@ In Python 3.6 or later, you can install Compose by running the following commman
 
 .. toctree::
     :caption: Getting Started
+    :hidden:
 
     self
+    quick_start
     main_concepts
 
 .. toctree::
