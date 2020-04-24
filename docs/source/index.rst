@@ -27,7 +27,9 @@ What is Compose?
     :hidden:
     :includehidden:
 
-    guides/*
+    guides/using_label_transforms
+    guides/using_compose_with_featuretools
+    guides/data_slice_generator
 
 .. toctree::
     :caption: Examples
