@@ -1,9 +1,10 @@
+.. include:: getting_started
+
 .. toctree::
     :caption: Table of Contents
     :hidden:
 
     self
-    getting_started
     main_concepts
 
 .. toctree::
