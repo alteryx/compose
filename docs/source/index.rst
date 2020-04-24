@@ -2,8 +2,6 @@
     :caption: Table of Contents
     :hidden:
 
-    self
-    install
     getting_started
     main_concepts
 
