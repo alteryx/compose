@@ -67,7 +67,7 @@ class LabelMaker:
         Args:
             target_entity (str): Entity on which to make labels.
             time_index (str): Name of time column in the data frame.
-            labeling_function (function or list(function)): Function that transforms a data slice to a label.
+            labeling_function (function or list(function)): Function or list of functions that transform a data slice.
             window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """

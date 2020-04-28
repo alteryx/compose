@@ -10,7 +10,7 @@ class Context:
         Args:
             gap (tuple) : Start and stop time for gap.
             window (tuple) : Start and stop time for window.
-            slice (int) : Slice number.
+            slice_number (int) : Slice number.
             target_entity (int) : Target entity.
             target_instance (int) : Target instance.
         """
