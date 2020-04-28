@@ -2,6 +2,19 @@
 Changelog
 =========
 
+**v0.2.0** April 23, 2020
+    * Changes
+        * Dropped Support for Python 3.5 (:pr:`128`)
+        * Rename LabelTimes.name to LabelTimes.label_name (:pr:`126`)
+        * Support keyword arguments in Pandas methods. (:pr:`121`)
+    * Documentation Changes
+        * Improved data download in Predict Next Purchase (:pr:`76`)
+    * Testing Changes
+        * Added tests that use Python 3.8 in CirlceCI (:pr:`128`)
+
+**Breaking Changes**
+    * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
+
 **v0.1.8** March 11, 2020
     * Fixes
         * Support for Pandas 1.0

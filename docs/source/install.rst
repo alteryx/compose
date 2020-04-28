@@ -2,6 +2,6 @@
 Install
 =======
 
-Compose is available for Python >= 3.5. To install, use :code:`pip` by running the following commmand::
+In Python 3.6 or later, Compose can be installed by running the following commmand:
 
     pip install composeml

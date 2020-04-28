@@ -13,11 +13,13 @@ executors:
 commands:
   build_package:
     steps:
-      - run: |
-          python setup.py sdist
-          PACKAGE=$(python setup.py --fullname)
-          tar -zxvf "dist/${PACKAGE}.tar.gz"
-          mv $PACKAGE package
+      - run:
+          name: "Build the source distribution to install the package."
+          command: |
+            python setup.py sdist
+            PACKAGE=$(python setup.py --fullname)
+            tar -zxvf "dist/${PACKAGE}.tar.gz"
+            mv $PACKAGE package
 
   installation:
     parameters:
@@ -29,7 +31,7 @@ commands:
       - checkout
       - build_package
       - run:
-          name: "Create virtual environment and install requirements."
+          name: "Create a virtual environment and install the requirements to use the package."
           command: |
             virtualenv env -q
             source env/bin/activate
@@ -40,7 +42,7 @@ commands:
           condition: << parameters.test_requirements >>
           steps:
             - run:
-                name: "Install test requirements."
+                name: "Install the requirements to test the package."
                 command: |
                   source env/bin/activate
                   pip install -r package/dev-requirements.txt
@@ -64,7 +66,8 @@ jobs:
           name: "Run lint tests."
           command: |
             source env/bin/activate
-            make lint-tests
+            cd package
+            make lint-tests -f ../Makefile
 
   unit_tests:
     parameters:
@@ -90,8 +93,17 @@ jobs:
           steps:
             - run: |
                 source env/bin/activate
-                make unit-tests ADDOPTS="--cov=composeml"
-                codecov
+                cd package
+                make unit-tests ADDOPTS="--cov=composeml" -f ../Makefile
+                codecov --root ..
+
+      - unless:
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source env/bin/activate
+                cd package
+                make unit-tests -f ../Makefile
 
       - unless:
           condition: << parameters.codecov >>
