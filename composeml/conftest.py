@@ -68,7 +68,7 @@ def total_spent():
     )
 
     label_times = LabelTimes(**label_times)
-    label_times.name = 'total_spent'
+    label_times.label_name = 'total_spent'
     label_times.target_entity = 'customer_id'
     return label_times
 
