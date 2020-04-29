@@ -295,7 +295,7 @@ class LabelTimes(pd.DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, quantiles=False, labels=None, right=True):
+    def bin(self, bins, quantiles=False, labels=None, right=True, precision=3, include_lowest=False):
         """
         Bin labels into discrete intervals.
 
@@ -365,10 +365,22 @@ class LabelTimes(pd.DataFrame):
         values = label_times[self.label_name].values
 
         if quantiles:
-            label_times[self.label_name] = pd.qcut(values, q=bins, labels=labels)
+            label_times[self.label_name] = pd.qcut(
+                values,
+                q=bins,
+                labels=labels,
+                precision=precision,
+                include_lowest=include_lowest,
+            )
 
         else:
-            label_times[self.label_name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            label_times[self.label_name] = pd.cut(
+                values,
+                bins=bins,
+                labels=labels,
+                right=right,
+                precision=precision,
+            )
 
         transform = {
             'transform': 'bin',
