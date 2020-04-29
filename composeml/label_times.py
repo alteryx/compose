@@ -370,7 +370,6 @@ class LabelTimes(pd.DataFrame):
                 q=bins,
                 labels=labels,
                 precision=precision,
-                include_lowest=include_lowest,
             )
 
         else:
@@ -380,6 +379,7 @@ class LabelTimes(pd.DataFrame):
                 labels=labels,
                 right=right,
                 precision=precision,
+                include_lowest=include_lowest,
             )
 
         transform = {
