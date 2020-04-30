@@ -313,6 +313,9 @@ class LabelTimes(pd.DataFrame):
             quantiles (bool) : Determines whether to use a quantile-based discretization function.
             labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
+            precision (int) : The precision at which to store and display the bins labels. The default value is 3.
+            include_lowest (bool) : Whether the first interval should be left-inclusive or not.
+                Does not apply to quantile-based bins. The default value is False.
 
         Returns:
             LabelTimes : Instance of labels.
