@@ -323,7 +323,7 @@ class LabelTimes(pd.DataFrame):
             labels (list) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             include_lowest (bool) : Whether the first edge should be infinite. This only applies to a list of real edges. Default is False.
             include_highest (bool) : Whether the last edge should be infinite. This only applies to a list of real edges. Default is False.
-            precision (int) : The precision at which to store and display the bins labels. The default value is 3.
+            precision (int) : The precision at which to store and display bin labels. Default is 3.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
 
         Returns:
@@ -404,6 +404,7 @@ class LabelTimes(pd.DataFrame):
             'labels': labels,
             'include_lowest': include_lowest,
             'include_highest': include_highest,
+            'precision': precision,
             'right': right,
         }
 
