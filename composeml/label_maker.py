@@ -306,7 +306,7 @@ class LabelMaker:
                 if search.is_finite: progress_bar.update(n=1)
                 if search.is_complete: break
 
-            n = missing_examples(entity_count) if search.is_finite else 1
+            n = missing_examples(entity_count + 1) if search.is_finite else 1
             progress_bar.update(n=n)
             search.reset_count()
 
