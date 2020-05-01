@@ -74,8 +74,11 @@ def test_search_with_multiple_targets(transactions, total_spent_fn, unique_amoun
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
-        labeling_function=[total_spent_fn, unique_amounts_fn],
         window_size=2,
+        labeling_function={
+            'total_spent': total_spent_fn,
+            'unique_amounts': unique_amounts_fn,
+        },
     )
 
     actual = lm.search(

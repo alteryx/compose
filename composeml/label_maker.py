@@ -60,19 +60,19 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
-    def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
+    def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
         Args:
             target_entity (str): Entity on which to make labels.
             time_index (str): Name of time column in the data frame.
-            labeling_function (function or list(function)): Function or list of functions that transform a data slice.
+            labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
+                When set as a dictionary, the key is used as the name of the labeling function.
             window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """
         self._set_window_size(window_size)
-        self._set_labeling_function(labeling_function)
+        self.labeling_function = labeling_function
         self.target_entity = target_entity
         self.time_index = time_index
 
@@ -88,16 +88,41 @@ class LabelMaker:
 
         self.window_size = window_size
 
-    def _set_labeling_function(self, labeling_function):
-        """Set and format intial labeling functions.
+    def _name_labeling_function(self, function):
+        """Gets the names of the labeling functions."""
+        has_name = hasattr(function, '__name__')
+        return function.__name__ if has_name else type(function).__name__
+
+    def _check_labeling_function(self, function, name=None):
+        """Checks whether the labeling function is callable."""
+        assert callable(function), 'labeling function must be callabe'
+        return function
+
+    @property
+    def labeling_function(self):
+        """Gets the labeling function(s)."""
+        return self._labeling_function
+
+    @labeling_function.setter
+    def labeling_function(self, value):
+        """Sets and formats the intial labeling function(s).
 
         Args:
-            labeling_function (function or list(function)): Function that transforms a data slice to a label.
+            value (function or list(function) or dict(str=function)): Function that transforms a data slice to a label.
         """
-        if not isinstance(labeling_function, (tuple, list)):
-            labeling_function = [labeling_function]
+        if isinstance(value, dict):
+            for name, function in value.items():
+                self._check_labeling_function(function)
+                assert isinstance(name, str), 'labeling function name must be string'
 
-        self.labeling_function = {lf.__name__: lf for lf in labeling_function}
+        if callable(value):
+            value = [value]
+
+        if isinstance(value, (tuple, list)):
+            value = {self._name_labeling_function(function): self._check_labeling_function(function) for function in value}
+
+        assert isinstance(value, dict), 'value type for labeling function not supported'
+        self._labeling_function = value
 
     def _slice(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices for a group.
@@ -341,6 +366,8 @@ class LabelMaker:
         Returns:
             lt (LabelTimes): Calculated labels with cutoff times.
         """
+        assert self.labeling_function, 'missing labeling function(s)'
+
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
             assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
