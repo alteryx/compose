@@ -295,27 +295,36 @@ class LabelTimes(pd.DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, quantiles=False, labels=None, right=True, precision=3, include_lowest=False):
+    def bin(
+        self,
+        bins,
+        quantiles=False,
+        labels=None,
+        right=True,
+        precision=3,
+        include_lowest=False,
+        include_highest=False,
+    ):
         """
         Bin labels into discrete intervals.
 
         Args:
-            bins (int or array) : The criteria to bin by.
+            bins (int or list) : The criteria to bin by.
 
                 * bins (int) : Number of bins either equal-width or quantile-based.
                     If `quantiles` is `False`, defines the number of equal-width bins.
                     The range is extended by .1% on each side to include the minimum and maximum values.
                     If `quantiles` is `True`, defines the number of quantiles (e.g. 10 for deciles, 4 for quartiles, etc.)
-                * bins (array) : Bin edges either user defined or quantile-based.
+                * bins (list) : Either real or quantile-based edges for bins.
                     If `quantiles` is `False`, defines the bin edges allowing for non-uniform width. No extension is done.
-                    If `quantiles` is `True`, defines the bin edges usings an array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
+                    If `quantiles` is `True`, defines the bin edges usings a list of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
             quantiles (bool) : Determines whether to use a quantile-based discretization function.
-            labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
-            right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
+            labels (list) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
+            include_lowest (bool) : Whether the first edge should be infinite. This only applies to a list of real edges. Default is False.
+            include_highest (bool) : Whether the last edge should be infinite. This only applies to a list of real edges. Default is False.
             precision (int) : The precision at which to store and display the bins labels. The default value is 3.
-            include_lowest (bool) : Whether the first interval should be left-inclusive or not.
-                Does not apply to quantile-based bins. The default value is False.
+            right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
 
         Returns:
             LabelTimes : Instance of labels.
@@ -376,13 +385,16 @@ class LabelTimes(pd.DataFrame):
             )
 
         else:
+            is_list = isinstance(bins, list)
+            if is_list and include_lowest: bins.insert(0, -float('inf'))
+            if is_list and include_highest: bins.append(float('inf'))
+
             label_times[self.label_name] = pd.cut(
                 values,
                 bins=bins,
                 labels=labels,
                 right=right,
                 precision=precision,
-                include_lowest=include_lowest,
             )
 
         transform = {
@@ -390,6 +402,8 @@ class LabelTimes(pd.DataFrame):
             'bins': bins,
             'quantiles': quantiles,
             'labels': labels,
+            'include_lowest': include_lowest,
+            'include_highest': include_highest,
             'right': right,
         }
 
