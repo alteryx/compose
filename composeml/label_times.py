@@ -510,6 +510,17 @@ class LabelTimes(pd.DataFrame):
         sample = method(key, value, settings, random_state=random_state, replace=replace)
         return sample
 
+    def select(self, name):
+        """Selects a target variable with cutoff times.
+
+        Args:
+            name (str): the name of a target variable
+
+        Returns:
+            lt (LabelTimes): the label times object for the target variable
+        """
+        pass
+
     def infer_type(self):
         """Infer label type.
 
