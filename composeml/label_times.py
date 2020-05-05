@@ -372,6 +372,15 @@ class LabelTimes(pd.DataFrame):
             customer_id                             1                    1
             cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
             my_labeling_function                 high                  low
+
+            Use infinite edges.
+
+            >>> labels.my_labeling_function.values
+            array([226.93,  47.95, 283.46,  31.54])
+            >>> binned = labels.bin([200], include_lowest=True, include_highest=True)
+            >>> binned.my_labeling_function.values
+            [(200.0, inf], (-inf, 200.0], (200.0, inf], (-inf, 200.0]]
+            Categories (2, interval[float64]): [(-inf, 200.0] < (200.0, inf]]
         """  # noqa
         label_times = self.copy()
         values = label_times[self.label_name].values
