@@ -128,6 +128,10 @@ class LabelTimes(pd.DataFrame):
 
         return super().__finalize__(other=other, method=method, **kwargs)
 
+    def _assert_single_target(self):
+        info = 'must first select a target'
+        assert len(self.settings['labeling_function']) == 1, info
+
     @property
     def _constructor(self):
         return LabelTimes
@@ -135,7 +139,9 @@ class LabelTimes(pd.DataFrame):
     @property
     def label_name(self):
         """Get name of label times."""
-        return self.settings.get('labeling_function')
+        keys = list(self.settings.get('labeling_function'))
+        if len(keys) == 1: return keys.pop()
+        if keys: return keys
 
     @label_name.setter
     def label_name(self, value):
