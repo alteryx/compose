@@ -83,16 +83,27 @@ class LabelTimes(pd.DataFrame):
     """
     _metadata = ['settings']
 
-    def __init__(self, data=None, target_entity=None, name=None, label_type=None, settings=None, *args, **kwargs):
+    def __init__(self,
+                 data=None,
+                 target_entity=None,
+                 labeling_function=None,
+                 label_type=None,
+                 settings=None,
+                 *args,
+                 **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
-        if label_type is not None:
-            error = 'label type must be "continuous" or "discrete"'
-            assert label_type in ['continuous', 'discrete'], error
+        if label_type:
+            info = 'label type must be "continuous" or "discrete"'
+            assert value in ['continuous', 'discrete'], info
+
+        if labeling_function:
+            info = 'labeling function must be in a dictionary'
+            assert isinstance(labeling_function, dict), info
 
         self.settings = settings or {
             'target_entity': target_entity,
-            'labeling_function': name,
+            'labeling_function': labeling_function or {},
             'label_type': label_type,
             'transforms': [],
         }
