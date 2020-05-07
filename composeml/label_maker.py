@@ -266,9 +266,9 @@ class LabelMaker:
         Returns:
             records (list(dict)): Label Records
         """
-        target_entity = self.set_index(df).groupby(self.target_entity)
+        entity_groups = self.set_index(df).groupby(self.target_entity)
         multiplier = search.expected_count if search.is_finite else 1
-        total = target_entity.ngroups * multiplier
+        total = entity_groups.ngroups * multiplier
 
         progress_bar, records = tqdm(
             total=total,
@@ -280,7 +280,7 @@ class LabelMaker:
         def missing_examples(entity_count):
             return entity_count * search.expected_count - progress_bar.n
 
-        for entity_count, group in enumerate(target_entity):
+        for entity_count, group in enumerate(entity_groups):
             entity_id, df = group
 
             slices = self._slice(
