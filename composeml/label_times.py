@@ -93,20 +93,15 @@ class LabelTimes(pd.DataFrame):
                  **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
-        if label_type:
-            info = 'label type must be "continuous" or "discrete"'
-            assert value in ['continuous', 'discrete'], info
-
-        if labeling_function:
-            info = 'labeling function must be in a dictionary'
-            assert isinstance(labeling_function, dict), info
-
         self.settings = settings or {
             'target_entity': target_entity,
             'labeling_function': labeling_function or {},
             'label_type': label_type,
             'transforms': [],
         }
+
+        self._check_label_type()
+        self._check_labeling_function()
 
         self.plot = LabelPlots(self)
 
@@ -131,6 +126,21 @@ class LabelTimes(pd.DataFrame):
     def _assert_single_target(self):
         info = 'must first select a target'
         assert len(self.settings['labeling_function']) == 1, info
+
+    def _check_label_type(self):
+        if self.label_type:
+            info = 'label type must be "continuous" or "discrete"'
+            assert self.label_type in ['continuous', 'discrete'], info
+
+    def _check_labeling_function(self):
+        value = self.settings.get('labeling_function')
+
+        if not value:
+            ignore = [self.target_entity, 'cutoff_time']
+            self.columns.difference(ignore)
+
+        if isinstance(value, str):
+            value = {value: None}
 
     @property
     def _constructor(self):
@@ -466,7 +476,7 @@ class LabelTimes(pd.DataFrame):
             Create mock data:
 
             >>> labels = {'labels': list('AABBBAA')}
-            >>> labels = LabelTimes(labels, name='labels')
+            >>> labels = LabelTimes(labels)
             >>> labels
               labels
             0      A
