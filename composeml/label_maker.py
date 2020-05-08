@@ -218,10 +218,7 @@ class LabelMaker:
         Returns:
             ds (generator): Returns a generator of data slices.
         """
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
+        self._check_example_count(num_examples_per_instance, gap)
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
         groups = self.set_index(df).groupby(self.target_entity)
@@ -339,6 +336,12 @@ class LabelMaker:
         lt.settings.update(settings)
         return lt
 
+    def _check_example_count(self, num_examples_per_instance, gap):
+        """Checks whether example count corresponds to data slices."""
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+
     def search(self,
                df,
                num_examples_per_instance,
@@ -367,11 +370,7 @@ class LabelMaker:
             lt (LabelTimes): Calculated labels with cutoff times.
         """
         assert self.labeling_function, 'missing labeling function(s)'
-
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
+        self._check_example_count(num_examples_per_instance, gap)
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
