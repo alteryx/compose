@@ -1,3 +1,5 @@
+from collections import Counter
+
 from pandas import isnull
 
 from composeml.utils import format_number, is_finite_number
@@ -47,14 +49,14 @@ class LabelSearch(ExampleSearch):
 
     def __init__(self, expected_label_counts):
         items = expected_label_counts.items()
-        self.expected_label_counts = {label: format_number(count) for label, count in items}
+        self.expected_label_counts = Counter({label: format_number(count) for label, count in items})
         self.expected_count = sum(self.expected_label_counts.values())
-        self.actual_label_counts = {}
+        self.actual_label_counts = Counter()
 
     @property
     def is_complete(self):
         """Whether the search has found the expected number of examples for each label."""
-        return all(map(self.is_complete_label, self.expected_label_counts))
+        return len(self.expected_label_counts - self.actual_label_counts) == 0
 
     def is_complete_label(self, label):
         """Whether the search has found the expected number of examples for a label."""
@@ -89,5 +91,4 @@ class LabelSearch(ExampleSearch):
         Args:
             labels (dict): The actual label values found during a search.
         """
-        for label in labels.values():
-            self.actual_label_counts[label] = self.actual_label_counts.get(label, 0) + 1
+        self.actual_label_counts.update(labels.values())
