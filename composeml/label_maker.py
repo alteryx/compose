@@ -60,6 +60,7 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -218,10 +219,7 @@ class LabelMaker:
         Returns:
             ds (generator): Returns a generator of data slices.
         """
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
+        self._check_example_count(num_examples_per_instance, gap)
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
         groups = self.set_index(df).groupby(self.target_entity)
@@ -266,9 +264,9 @@ class LabelMaker:
         Returns:
             records (list(dict)): Label Records
         """
-        target_entity = self.set_index(df).groupby(self.target_entity)
+        entity_groups = self.set_index(df).groupby(self.target_entity)
         multiplier = search.expected_count if search.is_finite else 1
-        total = target_entity.ngroups * multiplier
+        total = entity_groups.ngroups * multiplier
 
         progress_bar, records = tqdm(
             total=total,
@@ -280,7 +278,7 @@ class LabelMaker:
         def missing_examples(entity_count):
             return entity_count * search.expected_count - progress_bar.n
 
-        for entity_count, group in enumerate(target_entity):
+        for entity_count, group in enumerate(entity_groups):
             entity_id, df = group
 
             slices = self._slice(
@@ -339,6 +337,12 @@ class LabelMaker:
         lt.settings.update(settings)
         return lt
 
+    def _check_example_count(self, num_examples_per_instance, gap):
+        """Checks whether example count corresponds to data slices."""
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+
     def search(self,
                df,
                num_examples_per_instance,
@@ -367,11 +371,7 @@ class LabelMaker:
             lt (LabelTimes): Calculated labels with cutoff times.
         """
         assert self.labeling_function, 'missing labeling function(s)'
-
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
+        self._check_example_count(num_examples_per_instance, gap)
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
 
