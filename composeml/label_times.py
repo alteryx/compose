@@ -101,8 +101,7 @@ class LabelTimes(pd.DataFrame):
         }
 
         self._check_label_type()
-        self._check_labeling_function()
-
+        self._set_target_names()
         self.plot = LabelPlots(self)
 
     def __finalize__(self, other, method=None, **kwargs):
@@ -132,15 +131,22 @@ class LabelTimes(pd.DataFrame):
             info = 'label type must be "continuous" or "discrete"'
             assert self.label_type in ['continuous', 'discrete'], info
 
-    def _check_labeling_function(self):
-        value = self.settings.get('labeling_function')
+    def _set_target_names(self):
+        labeling_function = self.settings.get('labeling_function')
 
-        if not value:
-            ignore = [self.target_entity, 'cutoff_time']
-            self.columns.difference(ignore)
+        if labeling_function:
+            assert isinstance(labeling_function, dict)
+            target_names = pd.Index(labeling_function)
+            in_columns = target_names.isin(self.columns)
+            missing = target_names[~in_columns].tolist()
+            info = 'these target variables were not found: %s' % missing
+            assert in_columns.all(), info % missing
 
-        if isinstance(value, str):
-            value = {value: None}
+        else:
+            not_targets = [self.target_entity, 'cutoff_time']
+            target_names = self.columns.difference(not_targets)
+
+        self._target_names = target_names
 
     @property
     def _constructor(self):
@@ -149,9 +155,9 @@ class LabelTimes(pd.DataFrame):
     @property
     def label_name(self):
         """Get name of label times."""
-        keys = list(self.settings.get('labeling_function'))
-        if len(keys) == 1: return keys.pop()
-        if keys: return keys
+        names = self._target_names.tolist()
+        if len(names) == 1: return names.pop()
+        return names
 
     @label_name.setter
     def label_name(self, value):

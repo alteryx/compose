@@ -60,7 +60,6 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -313,7 +312,7 @@ class LabelMaker:
         progress_bar.close()
         return records
 
-    def _records_to_label_times(self, records, label_name, label_type, settings):
+    def _records_to_label_times(self, records, labeling_function, label_type, settings):
         """Makes a label times object from label records.
 
         Args:
@@ -327,9 +326,9 @@ class LabelMaker:
         """
         lt = LabelTimes(
             data=records,
-            name=label_name,
             label_type=label_type,
             target_entity=self.target_entity,
+            labeling_function=labeling_function,
         )
 
         lt = lt.rename_axis('id', axis=0)
@@ -391,7 +390,7 @@ class LabelMaker:
 
         lt = self._records_to_label_times(
             records=records,
-            label_name=list(self.labeling_function)[0],
+            labeling_function=self.labeling_function,
             label_type=label_type,
             settings={
                 'num_examples_per_instance': num_examples_per_instance,
