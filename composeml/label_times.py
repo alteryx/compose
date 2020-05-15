@@ -83,25 +83,18 @@ class LabelTimes(pd.DataFrame):
     """
     _metadata = ['settings']
 
-    def __init__(self,
-                 data=None,
-                 target_entity=None,
-                 labeling_function=None,
-                 label_type=None,
-                 settings=None,
-                 *args,
-                 **kwargs):
+    def __init__(self, data=None, target_entity=None, target_names=None, label_type=None, settings=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
         self.settings = settings or {
             'target_entity': target_entity,
-            'labeling_function': labeling_function or {},
+            'target_names': target_names,
             'label_type': label_type,
             'transforms': [],
         }
 
         self._check_label_type()
-        self._set_target_names()
+        self._check_target_names()
         self.plot = LabelPlots(self)
 
     def __finalize__(self, other, method=None, **kwargs):
@@ -131,22 +124,22 @@ class LabelTimes(pd.DataFrame):
             info = 'label type must be "continuous" or "discrete"'
             assert self.label_type in ['continuous', 'discrete'], info
 
-    def _set_target_names(self):
-        labeling_function = self.settings.get('labeling_function')
+    def _check_target_names(self):
+        target_names = self.settings['target_names']
+        if not target_names:
+            target_names = self._infer_target_names()
+            self.settings['target_names'] = self._infer_target_names()
 
-        if labeling_function:
-            assert isinstance(labeling_function, dict)
-            target_names = pd.Index(labeling_function)
-            in_columns = target_names.isin(self.columns)
-            missing = target_names[~in_columns].tolist()
-            info = 'these target variables were not found: %s' % missing
-            assert in_columns.all(), info % missing
+        target_names = pd.Index(self.label_name)
+        in_columns = target_names.isin(self.columns)
+        missing = target_names[~in_columns].tolist()
+        info = 'these target variables were not found: %s' % missing
+        assert in_columns.all(), info % missing
 
-        else:
-            not_targets = [self.target_entity, 'cutoff_time']
-            target_names = self.columns.difference(not_targets)
-
-        self._target_names = target_names
+    def _infer_target_names(self):
+        not_targets = [self.target_entity, 'cutoff_time']
+        target_names = self.columns.difference(not_targets)
+        return target_names
 
     @property
     def _constructor(self):
@@ -155,7 +148,7 @@ class LabelTimes(pd.DataFrame):
     @property
     def label_name(self):
         """Get name of label times."""
-        names = self._target_names.tolist()
+        names = self.target_names
         if len(names) == 1: return names.pop()
         return names
 

@@ -58,6 +58,7 @@ def total_spent():
         ],
         'settings': {
             'num_examples_per_instance': -1,
+            'labeling_function': {},
         }
     }
 
@@ -68,7 +69,7 @@ def total_spent():
     )
 
     label_times = LabelTimes(**label_times)
-    label_times.label_name = 'total_spent'
+    # label_times.label_name = 'total_spent'
     label_times.target_entity = 'customer_id'
     return label_times
 
@@ -105,8 +106,7 @@ def labels():
     dtype = {'cutoff_time': 'datetime64[ns]'}
     values = pd.DataFrame(records).astype(dtype).set_index('label_id')
     values = values[['customer_id', 'cutoff_time', 'my_labeling_function']]
-    labeling_function = {'my_labeling_function': None}
-    values = LabelTimes(values, labeling_function=labeling_function, target_entity='customer_id')
+    values = LabelTimes(values, target_entity='customer_id')
     return values
 
 

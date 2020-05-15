@@ -312,7 +312,7 @@ class LabelMaker:
         progress_bar.close()
         return records
 
-    def _records_to_label_times(self, records, labeling_function, label_type, settings):
+    def _records_to_label_times(self, records, target_names, label_type, settings):
         """Makes a label times object from label records.
 
         Args:
@@ -328,7 +328,7 @@ class LabelMaker:
             data=records,
             label_type=label_type,
             target_entity=self.target_entity,
-            labeling_function=labeling_function,
+            target_names=target_names,
         )
 
         lt = lt.rename_axis('id', axis=0)
@@ -390,7 +390,7 @@ class LabelMaker:
 
         lt = self._records_to_label_times(
             records=records,
-            labeling_function=self.labeling_function,
+            target_names=list(self.labeling_function),
             label_type=label_type,
             settings={
                 'num_examples_per_instance': num_examples_per_instance,
