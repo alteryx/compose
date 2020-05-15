@@ -130,7 +130,7 @@ class LabelTimes(pd.DataFrame):
             target_names = self._infer_target_names()
             self.settings['target_names'] = self._infer_target_names()
 
-        target_names = pd.Index(self.label_name)
+        target_names = pd.Index(target_names)
         in_columns = target_names.isin(self.columns)
         missing = target_names[~in_columns].tolist()
         info = 'these target variables were not found: %s' % missing
@@ -139,7 +139,7 @@ class LabelTimes(pd.DataFrame):
     def _infer_target_names(self):
         not_targets = [self.target_entity, 'cutoff_time']
         target_names = self.columns.difference(not_targets)
-        return target_names
+        return target_names.tolist()
 
     @property
     def _constructor(self):
@@ -148,7 +148,7 @@ class LabelTimes(pd.DataFrame):
     @property
     def label_name(self):
         """Get name of label times."""
-        names = self.target_names
+        names = self.settings['target_names']
         if len(names) == 1: return names.pop()
         return names
 
