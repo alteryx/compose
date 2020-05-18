@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from .data_frame import LabelTimes
+from .object import LabelTimes
 
 
 def read_csv(path, filename='label_times.csv', load_settings=True):
