@@ -48,11 +48,10 @@ def total_spent():
             '8,2,2019-01-01 12:00:00,1',
             '9,3,2019-01-01 12:30:00,0',
         ],
-        'settings': {
-            'target_entity': 'customer_id',
-            'labeling_function': 'total_spent',
-            'num_examples_per_instance': -1,
-        }
+        # 'settings': {
+        #     'labeling_function': 'total_spent',
+        #     'num_examples_per_instance': -1,
+        # }
     }
 
     label_times['data'] = read_csv(
@@ -61,7 +60,12 @@ def total_spent():
         parse_dates=['cutoff_time'],
     )
 
-    label_times = LabelTimes(**label_times)
+    label_times = LabelTimes(
+        target_entity='customer_id',
+        name='total_spent',
+        **label_times,
+    )
+
     return label_times
 
 

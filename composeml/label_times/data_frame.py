@@ -7,7 +7,13 @@ class DataFrame(pd.DataFrame):
     Attributes:
         settings
     """
-    _metadata = ['settings']
+    _metadata = [
+        '_cache',
+        'label_name',
+        'label_type',
+        'target_entity',
+        'transforms',
+    ]
 
     def __finalize__(self, other, method=None, **kwargs):
         """Propagate metadata from other label times data frames.

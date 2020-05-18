@@ -8,66 +8,28 @@ from .label_plots import LabelPlots
 
 
 class LabelTimes(DataFrame):
-    """A data frame containing labels made by a label maker.
-
-    Attributes:
-        settings
-    """
-    def __init__(self, data=None, target_entity=None, name=None, label_type=None, settings=None, *args, **kwargs):
+    """A data frame containing labels made by a label maker."""
+    def __init__(self, data=None, target_entity=None, name=None, label_type=None, transforms=None, *args, **kwargs):
         super().__init__(data=data, *args, **kwargs)
 
         if label_type is not None:
             error = 'label type must be "continuous" or "discrete"'
             assert label_type in ['continuous', 'discrete'], error
 
-        self.settings = settings or {
-            'target_entity': target_entity,
-            'labeling_function': name,
-            'label_type': label_type,
-            'transforms': [],
-        }
-
+        self.target_entity = target_entity
+        self.label_name = name
+        self.label_type = label_type
+        self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
     @property
-    def label_name(self):
-        """Get name of label times."""
-        return self.settings.get('labeling_function')
-
-    @label_name.setter
-    def label_name(self, value):
-        """Set name of label times."""
-        self.settings['labeling_function'] = value
-
-    @property
-    def target_entity(self):
-        """Get target entity of label times."""
-        return self.settings.get('target_entity')
-
-    @target_entity.setter
-    def target_entity(self, value):
-        """Set target entity of label times."""
-        self.settings['target_entity'] = value
-
-    @property
-    def label_type(self):
-        """Get label type."""
-        return self.settings.get('label_type')
-
-    @label_type.setter
-    def label_type(self, value):
-        """Set label type."""
-        self.settings['label_type'] = value
-
-    @property
-    def transforms(self):
-        """Get transforms of label times."""
-        return self.settings.get('transforms', [])
-
-    @transforms.setter
-    def transforms(self, value):
-        """Set transforms of label times."""
-        self.settings['transforms'] = value
+    def settings(self):
+        return {
+            'target_entity': self.target_entity,
+            'labeling_function': self.label_name,
+            'label_type': self.label_type,
+            'transforms': self.transforms,
+        }
 
     @property
     def is_discrete(self):
@@ -156,8 +118,8 @@ class LabelTimes(DataFrame):
             LabelTimes : Copy of label times.
         """
         label_times = super().copy(**kwargs)
-        label_times.settings = self.settings.copy()
-        label_times.transforms = self.transforms.copy()
+        #label_times.settings = self.settings.copy()
+        #label_times.transforms = self.transforms.copy()
         return label_times
 
     def threshold(self, value, inplace=False):
@@ -324,7 +286,7 @@ class LabelTimes(DataFrame):
         Returns:
             LabelTimes : Random sample per label.
         """
-        self.settings['sample_in_transforms'] = True
+        self._cache = True
 
         sample_per_label = []
         for label, value, in value.items():
@@ -332,7 +294,7 @@ class LabelTimes(DataFrame):
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
-        del self.settings['sample_in_transforms']
+        del self._cache
         sample = pd.concat(sample_per_label, axis=0, sort=False)
         sample = sample.copy()
         sample.transforms.append(settings)
