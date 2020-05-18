@@ -60,7 +60,6 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -357,7 +356,8 @@ class LabelMaker:
 
         Args:
             df (DataFrame): Data frame to search and extract labels.
-            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
+                A dictionary can be used to further specify the expected number of examples to return from each label.
             minimum_data (str): Minimum data before starting search. Default value is first time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
