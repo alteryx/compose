@@ -67,7 +67,8 @@ class LabelTimes(DataFrame):
             value = self.groupby('cutoff_time')
             value = value[self.label_name].count()
 
-        value = value.cumsum()
+        value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
+        value = value.astype('int')
         return value
 
     def describe(self):
