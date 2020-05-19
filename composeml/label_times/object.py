@@ -118,8 +118,7 @@ class LabelTimes(DataFrame):
             LabelTimes : Copy of label times.
         """
         label_times = super().copy(**kwargs)
-        #label_times.settings = self.settings.copy()
-        #label_times.transforms = self.transforms.copy()
+        label_times.transforms = self.transforms.copy()
         return label_times
 
     def threshold(self, value, inplace=False):
