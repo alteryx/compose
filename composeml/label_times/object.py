@@ -26,7 +26,7 @@ class LabelTimes(DataFrame):
     def settings(self):
         return {
             'target_entity': self.target_entity,
-            'labeling_function': self.label_name,
+            'label_name': self.label_name,
             'label_type': self.label_type,
             'transforms': self.transforms,
         }
@@ -424,7 +424,8 @@ class LabelTimes(DataFrame):
             dtypes = settings.pop('dtypes')
             self = LabelTimes(self.astype(dtypes))
 
-        self.settings.update(settings)
+        for attr, value in settings.items():
+            setattr(self, attr, value)
 
         return self
 
