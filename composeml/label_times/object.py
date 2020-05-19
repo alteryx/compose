@@ -61,8 +61,8 @@ class LabelTimes(DataFrame):
         """
         dtype = self[self.label_name].dtype
         is_discrete = pd.api.types.is_bool_dtype(dtype)
-        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
-        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
+        is_discrete |= pd.api.types.is_categorical_dtype(dtype)
+        is_discrete |= pd.api.types.is_object_dtype(dtype)
         return 'discrete' if is_discrete else 'continuous'
 
     @property
