@@ -86,11 +86,11 @@ class LabelTimes(DataFrame):
         return value
 
     def describe(self):
+        """Prints out the settings used to make the label times."""
         describe_label_times(self)
 
     def copy(self, **kwargs):
-        """
-        Makes a copy of this object.
+        """Makes a copy of this object.
 
         Args:
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.copy method
@@ -103,8 +103,7 @@ class LabelTimes(DataFrame):
         return label_times
 
     def threshold(self, value, inplace=False):
-        """
-        Creates binary labels by testing if labels are above threshold.
+        """Creates binary labels by testing if labels are above threshold.
 
         Args:
             value (float) : Value of threshold.
@@ -126,8 +125,7 @@ class LabelTimes(DataFrame):
             return labels
 
     def apply_lead(self, value, inplace=False):
-        """
-        Shifts the label times earlier for predicting in advance.
+        """Shifts the label times earlier for predicting in advance.
 
         Args:
             value (str) : Time to shift earlier.
@@ -146,8 +144,7 @@ class LabelTimes(DataFrame):
             return labels
 
     def bin(self, bins, quantiles=False, labels=None, right=True):
-        """
-        Bin labels into discrete intervals.
+        """Bin labels into discrete intervals.
 
         Args:
             bins (int or array) : The criteria to bin by.
