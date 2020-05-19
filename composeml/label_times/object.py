@@ -10,7 +10,6 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """A data frame containing labels made by a label maker."""
-
     def __init__(
         self,
         data=None,
@@ -26,15 +25,45 @@ class LabelTimes(DataFrame):
         self.target_entity = target_entity
         self.label_name = name
         self.label_type = label_type
-        self._check_label_type()
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
+        self._check_label_name()
+        self._check_label_type()
+
+    def _check_label_name(self):
+        if self.label_name is None and not self.empty:
+            self.label_name = self._infer_label_name()
+
+        if self.label_name is None: return
+        info = 'target variable not found: %s' % self.label_name
+        assert self.label_name in self.columns, info
+
+    def _infer_label_name(self):
+        not_targets = [self.target_entity, 'cutoff_time']
+        target_names = self.columns.difference(not_targets)
+        return target_names.tolist()[0]
+
     def _check_label_type(self):
-        if self.label_type:
-            error = 'label type must be "continuous" or "discrete"'
-            assert self.label_type in ['continuous', 'discrete'], error
+        if self.label_type is None and not self.empty:
+            self.label_type = self._infer_label_type()
+
+        if self.label_type is None: return
+        error = 'label type must be "continuous" or "discrete"'
+        assert self.label_type in ['continuous', 'discrete'], error
+
+    def _infer_label_type(self):
+        """Infer label type.
+
+        Returns:
+            str : Inferred label type. Either "continuous" or "discrete".
+        """
+        dtype = self[self.label_name].dtype
+        is_discrete = pd.api.types.is_bool_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
+        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
+        return 'discrete' if is_discrete else 'continuous'
 
     @property
     def settings(self):
@@ -49,9 +78,6 @@ class LabelTimes(DataFrame):
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        if self.label_type is None:
-            self.label_type = self.infer_type()
-
         return self.label_type == 'discrete'
 
     @property
@@ -356,22 +382,6 @@ class LabelTimes(DataFrame):
         method = self._sample_per_label if per_label else self._sample
         sample = method(key, value, settings, random_state=random_state, replace=replace)
         return sample
-
-    def infer_type(self):
-        """Infer label type.
-
-        Returns:
-            str : Inferred label type. Either "continuous" or "discrete".
-        """
-        dtype = self[self.label_name].dtype
-        is_discrete = pd.api.types.is_bool_dtype(dtype)
-        is_discrete = is_discrete or pd.api.types.is_categorical_dtype(dtype)
-        is_discrete = is_discrete or pd.api.types.is_object_dtype(dtype)
-
-        if is_discrete:
-            return 'discrete'
-
-        return 'continuous'
 
     def equals(self, other, **kwargs):
         """Determines if two label time objects are the same.
