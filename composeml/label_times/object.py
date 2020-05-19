@@ -434,13 +434,13 @@ class LabelTimes(DataFrame):
         Args:
             path (str) : Directory on disk to write to.
         """
+        settings = self.settings
         dtypes = self.dtypes.astype('str')
-        self.settings['dtypes'] = dtypes.to_dict()
+        settings['dtypes'] = dtypes.to_dict()
 
         file = os.path.join(path, 'settings.json')
         with open(file, 'w') as file:
-            json.dump(self.settings, file)
-            del self.settings['dtypes']
+            json.dump(settings, file)
 
     def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
         """Write label times in csv format to disk.
