@@ -10,6 +10,7 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """A data frame containing labels made by a label maker."""
+
     def __init__(
         self,
         data=None,
