@@ -2,11 +2,7 @@ import pandas as pd
 
 
 class DataFrame(pd.DataFrame):
-    """A data frame containing labels made by a label maker.
-
-    Attributes:
-        settings
-    """
+    """Subclassing pandas data frames for label times objects."""
     _metadata = [
         '_cache',
         'label_name',
