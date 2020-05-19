@@ -9,18 +9,30 @@ from .label_plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """A data frame containing labels made by a label maker."""
-    def __init__(self, data=None, target_entity=None, name=None, label_type=None, transforms=None, *args, **kwargs):
+    def __init__(
+        self,
+        data=None,
+        target_entity=None,
+        name=None,
+        label_type=None,
+        search_settings=None,
+        transforms=None,
+        *args,
+        **kwargs,
+    ):
         super().__init__(data=data, *args, **kwargs)
-
-        if label_type is not None:
-            error = 'label type must be "continuous" or "discrete"'
-            assert label_type in ['continuous', 'discrete'], error
-
         self.target_entity = target_entity
         self.label_name = name
         self.label_type = label_type
+        self._check_label_type()
+        self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
+
+    def _check_label_type(self):
+        if self.label_type:
+            error = 'label type must be "continuous" or "discrete"'
+            assert self.label_type in ['continuous', 'discrete'], error
 
     @property
     def settings(self):
@@ -28,6 +40,7 @@ class LabelTimes(DataFrame):
             'target_entity': self.target_entity,
             'label_name': self.label_name,
             'label_type': self.label_type,
+            'search_settings': self.search_settings,
             'transforms': self.transforms,
         }
 
@@ -81,7 +94,9 @@ class LabelTimes(DataFrame):
             distribution['Total:'] = distribution.sum()
             print(distribution.to_string(), end='\n\n\n')
 
-        settings = pd.Series(self.settings)
+        settings = self.settings.copy()
+        settings.update(settings.pop('search_settings'))
+        settings = pd.Series(settings)
         transforms = settings.pop('transforms')
 
         print('Settings\n' + '-' * 8, end='\n')
@@ -286,7 +301,6 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample per label.
         """
         self._cache = True
-
         sample_per_label = []
         for label, value, in value.items():
             label = self[self[self.label_name] == label]

@@ -11,6 +11,7 @@ class DataFrame(pd.DataFrame):
         '_cache',
         'label_name',
         'label_type',
+        'search_settings',
         'target_entity',
         'transforms',
     ]

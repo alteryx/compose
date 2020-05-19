@@ -58,7 +58,6 @@ def cutoff_data(df, threshold):
 
 class Context:
     """Metadata for data slice."""
-
     def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
         """Metadata for data slice.
 
@@ -99,7 +98,6 @@ class DataSlice(pd.DataFrame):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -318,7 +316,19 @@ class LabelMaker:
         progress_bar.update(n=total)
         progress_bar.close()
 
-        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity, label_type=label_type)
+        labels = LabelTimes(
+            data=labels,
+            name=name,
+            target_entity=self.target_entity,
+            label_type=label_type,
+            search_settings={
+                'num_examples_per_instance': num_examples_per_instance,
+                'minimum_data': str(minimum_data),
+                'window_size': str(self.window_size),
+                'gap': str(gap),
+            },
+        )
+
         labels = labels.rename_axis('id', axis=0)
 
         if labels.empty:
@@ -326,15 +336,6 @@ class LabelMaker:
 
         if labels.is_discrete:
             labels[labels.label_name] = labels[labels.label_name].astype('category')
-
-        labels.label_name = name
-        labels.target_entity = self.target_entity
-        labels.settings.update({
-            'num_examples_per_instance': num_examples_per_instance,
-            'minimum_data': str(minimum_data),
-            'window_size': str(self.window_size),
-            'gap': str(gap),
-        })
 
         return labels
 

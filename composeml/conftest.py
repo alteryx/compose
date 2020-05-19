@@ -34,38 +34,36 @@ def total_spent_fn():
 
 @pytest.fixture
 def total_spent():
-    label_times = {
-        'data': [
-            'id,customer_id,cutoff_time,total_spent',
-            '0,0,2019-01-01 08:00:00,9',
-            '1,0,2019-01-01 08:30:00,8',
-            '2,1,2019-01-01 09:00:00,7',
-            '3,1,2019-01-01 09:30:00,6',
-            '4,1,2019-01-01 10:00:00,5',
-            '5,2,2019-01-01 10:30:00,4',
-            '6,2,2019-01-01 11:00:00,3',
-            '7,2,2019-01-01 11:30:00,2',
-            '8,2,2019-01-01 12:00:00,1',
-            '9,3,2019-01-01 12:30:00,0',
-        ],
-        # 'settings': {
-        #     'labeling_function': 'total_spent',
-        #     'num_examples_per_instance': -1,
-        # }
+    data = [
+        'id,customer_id,cutoff_time,total_spent',
+        '0,0,2019-01-01 08:00:00,9',
+        '1,0,2019-01-01 08:30:00,8',
+        '2,1,2019-01-01 09:00:00,7',
+        '3,1,2019-01-01 09:30:00,6',
+        '4,1,2019-01-01 10:00:00,5',
+        '5,2,2019-01-01 10:30:00,4',
+        '6,2,2019-01-01 11:00:00,3',
+        '7,2,2019-01-01 11:30:00,2',
+        '8,2,2019-01-01 12:00:00,1',
+        '9,3,2019-01-01 12:30:00,0',
+    ]
+
+    kwargs = {
+        'data': data,
+        'target_entity': 'customer_id',
+        'name': 'total_spent',
+        'search_settings': {
+            'num_examples_per_instance': -1,
+        }
     }
 
-    label_times['data'] = read_csv(
-        label_times['data'],
+    kwargs['data'] = read_csv(
+        kwargs['data'],
         index_col='id',
         parse_dates=['cutoff_time'],
     )
 
-    label_times = LabelTimes(
-        target_entity='customer_id',
-        name='total_spent',
-        **label_times,
-    )
-
+    label_times = LabelTimes(**kwargs)
     return label_times
 
 
