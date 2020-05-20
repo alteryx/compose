@@ -192,7 +192,6 @@ class LabelTimes(DataFrame):
             LabelTimes : Instance of labels.
 
         Examples:
-
             This is the data used for the following examples.
             >>> data = [226.93, 47.95, 283.46, 31.54]
             >>> lt = LabelTimes({'target': data})
@@ -319,9 +318,7 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
 
         Examples:
-
             Create mock data:
-
             >>> lt = LabelTimes({'labels': list('AABBBAA')})
             >>> lt
               labels
@@ -334,7 +331,6 @@ class LabelTimes(DataFrame):
             6      A
 
             Sample number of labels:
-
             >>> lt.sample(n=3, random_state=0)
               labels
             1      A
@@ -342,7 +338,6 @@ class LabelTimes(DataFrame):
             6      A
 
             Sample number per label:
-
             >>> n_per_label = {'A': 1, 'B': 2}
             >>> lt.sample(n=n_per_label, random_state=0)
               labels
@@ -351,7 +346,6 @@ class LabelTimes(DataFrame):
             5      A
 
             Sample fraction of labels:
-
             >>> lt.sample(frac=.4, random_state=2)
               labels
             1      A
@@ -359,7 +353,6 @@ class LabelTimes(DataFrame):
             4      B
 
             Sample fraction per label:
-
             >>> frac_per_label = {'A': .5, 'B': .34}
             >>> lt.sample(frac=frac_per_label, random_state=2)
               labels
