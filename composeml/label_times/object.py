@@ -9,7 +9,7 @@ from .plots import LabelPlots
 
 
 class LabelTimes(DataFrame):
-    """A data frame containing labels made by a label maker."""
+    """The data frame that contains labels and cutoff times for the target entity."""
 
     def __init__(
         self,
@@ -35,6 +35,7 @@ class LabelTimes(DataFrame):
             self._check_label_type()
 
     def _check_label_name(self):
+        """Checks whether the target exists in the data frame."""
         if self.label_name is None:
             self.label_name = self._infer_label_name()
 
@@ -42,11 +43,18 @@ class LabelTimes(DataFrame):
         assert self.label_name in self.columns, info
 
     def _infer_label_name(self):
+        """Infers the target name from the data frame.
+
+        Returns:
+            value (str): Inferred target name.
+        """
         not_targets = [self.target_entity, 'cutoff_time']
         target_names = self.columns.difference(not_targets)
-        return target_names.tolist()[0]
+        value = target_names.tolist()[0]
+        return value
 
     def _check_label_type(self):
+        """Checks whether the target type is continuous or discrete."""
         if self.label_type is None:
             self.label_type = self._infer_label_type()
 
@@ -54,19 +62,21 @@ class LabelTimes(DataFrame):
         assert self.label_type in ['continuous', 'discrete'], error
 
     def _infer_label_type(self):
-        """Infer label type.
+        """Infers the target type from the data type.
 
         Returns:
-            str : Inferred label type. Either "continuous" or "discrete".
+            value (str): Inferred label type. Either "continuous" or "discrete".
         """
         dtype = self[self.label_name].dtype
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete |= pd.api.types.is_categorical_dtype(dtype)
         is_discrete |= pd.api.types.is_object_dtype(dtype)
-        return 'discrete' if is_discrete else 'continuous'
+        value = 'discrete' if is_discrete else 'continuous'
+        return value
 
     @property
     def settings(self):
+        """Returns metadata about the label times."""
         return {
             'target_entity': self.target_entity,
             'label_name': self.label_name,
@@ -318,7 +328,7 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
 
         Examples:
-            Create mock data:
+            This is the data used for the following examples.
             >>> lt = LabelTimes({'labels': list('AABBBAA')})
             >>> lt
               labels
