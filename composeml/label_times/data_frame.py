@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class DataFrame(pd.DataFrame):
-    """Subclassing pandas data frames for label times objects."""
+    """Subclasses pandas data frame for label times object."""
     _metadata = [
         '_recursive',
         'label_name',

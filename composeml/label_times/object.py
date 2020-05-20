@@ -335,7 +335,7 @@ class LabelTimes(DataFrame):
 
             Sample number of labels:
 
-            >>> lt.sample(n=3, random_state=0).sort_index()
+            >>> lt.sample(n=3, random_state=0)
               labels
             1      A
             2      B
