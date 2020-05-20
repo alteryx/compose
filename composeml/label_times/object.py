@@ -10,6 +10,7 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """A data frame containing labels made by a label maker."""
+
     def __init__(
         self,
         data=None,
@@ -29,14 +30,14 @@ class LabelTimes(DataFrame):
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
-        self._check_label_name()
-        self._check_label_type()
+        if not self.empty:
+            self._check_label_name()
+            self._check_label_type()
 
     def _check_label_name(self):
-        if self.label_name is None and not self.empty:
+        if self.label_name is None:
             self.label_name = self._infer_label_name()
 
-        if self.label_name is None: return
         info = 'target variable not found: %s' % self.label_name
         assert self.label_name in self.columns, info
 
@@ -46,10 +47,9 @@ class LabelTimes(DataFrame):
         return target_names.tolist()[0]
 
     def _check_label_type(self):
-        if self.label_type is None and not self.empty:
+        if self.label_type is None:
             self.label_type = self._infer_label_type()
 
-        if self.label_type is None: return
         error = 'label type must be "continuous" or "discrete"'
         assert self.label_type in ['continuous', 'discrete'], error
 
