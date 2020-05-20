@@ -184,25 +184,25 @@ class LabelTimes(DataFrame):
         """Bin labels into discrete intervals.
 
         Args:
-            bins (int or array) : The criteria to bin by.
+            bins (int or array): The criteria to bin by.
+                As an integer, the value can be the number of equal-width or quantile-based bins.
+                If :code:`quantiles` is False, the value is defined as the number of equal-width bins.
+                The range is extended by .1% on each side to include the minimum and maximum values.
+                If :code:`quantiles` is True, the value is defined as the number of quantiles (e.g. 10 for deciles, 4 for quartiles, etc.)
+                As an array, the value can be custom or quantile-based edges.
+                If :code:`quantiles` is False, the value is defined as bin edges allowing for non-uniform width. No extension is done.
+                If :code:`quantiles` is True, the value is defined as bin edges usings an array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
 
-                * bins (int) : Number of bins either equal-width or quantile-based.
-                    If `quantiles` is `False`, defines the number of equal-width bins.
-                    The range is extended by .1% on each side to include the minimum and maximum values.
-                    If `quantiles` is `True`, defines the number of quantiles (e.g. 10 for deciles, 4 for quartiles, etc.)
-                * bins (array) : Bin edges either user defined or quantile-based.
-                    If `quantiles` is `False`, defines the bin edges allowing for non-uniform width. No extension is done.
-                    If `quantiles` is `True`, defines the bin edges usings an array of quantiles (e.g. [0, .25, .5, .75, 1.] for quartiles)
-
-            quantiles (bool) : Determines whether to use a quantile-based discretization function.
-            labels (array) : Specifies the labels for the returned bins. Must be the same length as the resulting bins.
+            quantiles (bool): Determines whether to use a quantile-based discretization function.
+            labels (array): Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
 
         Returns:
             LabelTimes : Instance of labels.
 
         Examples:
-            This is the data used for the following examples.
+            These are the target values for the examples.
+
             >>> data = [226.93, 47.95, 283.46, 31.54]
             >>> lt = LabelTimes({'target': data})
             >>> lt
@@ -213,6 +213,7 @@ class LabelTimes(DataFrame):
             3   31.54
 
             Bin values using equal-widths.
+
             >>> lt.bin(2)
                         target
             0  (157.5, 283.46]
@@ -221,6 +222,7 @@ class LabelTimes(DataFrame):
             3  (31.288, 157.5]
 
             Bin values using custom-widths.
+
             >>> lt.bin([0, 200, 400])
                    target
             0  (200, 400]
@@ -229,6 +231,7 @@ class LabelTimes(DataFrame):
             3    (0, 200]
 
             Bin values using quartiles.
+
             >>> lt.bin(4, quantiles=True)
                                      target
             0             (137.44, 241.062]
@@ -237,6 +240,7 @@ class LabelTimes(DataFrame):
             3  (31.538999999999998, 43.848]
 
             Assign labels to bins.
+
             >>> lt.bin(2, labels=['low', 'high'])
               target
             0   high
@@ -328,7 +332,8 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
 
         Examples:
-            This is the data used for the following examples.
+            These are the label values for the examples.
+
             >>> lt = LabelTimes({'labels': list('AABBBAA')})
             >>> lt
               labels
@@ -340,14 +345,16 @@ class LabelTimes(DataFrame):
             5      A
             6      A
 
-            Sample number of labels:
+            Sample a number of examples.
+
             >>> lt.sample(n=3, random_state=0)
               labels
             1      A
             2      B
             6      A
 
-            Sample number per label:
+            Sample a number of examples for specific labels.
+
             >>> n_per_label = {'A': 1, 'B': 2}
             >>> lt.sample(n=n_per_label, random_state=0)
               labels
@@ -355,14 +362,16 @@ class LabelTimes(DataFrame):
             4      B
             5      A
 
-            Sample fraction of labels:
+            Sample a fraction of the examples.
+
             >>> lt.sample(frac=.4, random_state=2)
               labels
             1      A
             3      B
             4      B
 
-            Sample fraction per label:
+            Sample a fraction of the examples for specific labels.
+
             >>> frac_per_label = {'A': .5, 'B': .34}
             >>> lt.sample(frac=frac_per_label, random_state=2)
               labels
