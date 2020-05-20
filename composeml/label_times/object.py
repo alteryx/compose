@@ -394,7 +394,9 @@ class LabelTimes(DataFrame):
         Returns:
             bool : Whether label time objects are the same.
         """
-        return super().equals(other, **kwargs) and self.settings == other.settings
+        is_equal = super().equals(other, **kwargs)
+        is_equal &= self.settings == other.settings
+        return is_equal
 
     def _load_settings(self, path):
         """Read the settings in json format from disk.
