@@ -4,7 +4,7 @@ import pandas as pd
 class DataFrame(pd.DataFrame):
     """Subclassing pandas data frames for label times objects."""
     _metadata = [
-        '_cache',
+        '_recursive',
         'label_name',
         'label_type',
         'search_settings',

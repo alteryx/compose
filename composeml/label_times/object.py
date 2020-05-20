@@ -271,7 +271,7 @@ class LabelTimes(DataFrame):
         """
         sample = super().sample(random_state=random_state, replace=replace, **{key: value})
 
-        if not self.settings.get('sample_in_transforms'):
+        if getattr(self, '_recursive', False):
             sample = sample.copy()
             sample.transforms.append(settings)
 
@@ -290,14 +290,14 @@ class LabelTimes(DataFrame):
         Returns:
             LabelTimes : Random sample per label.
         """
-        self._cache = True
+        self._recursive = True
         sample_per_label = []
         for label, value, in value.items():
             label = self[self[self.label_name] == label]
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
-        del self._cache
+        del self._recursive
         sample = pd.concat(sample_per_label, axis=0, sort=False)
         sample = sample.copy()
         sample.transforms.append(settings)
@@ -321,9 +321,8 @@ class LabelTimes(DataFrame):
 
             Create mock data:
 
-            >>> labels = {'labels': list('AABBBAA')}
-            >>> labels = LabelTimes(labels)
-            >>> labels
+            >>> lt = LabelTimes({'labels': list('AABBBAA')})
+            >>> lt
               labels
             0      A
             1      A
@@ -335,7 +334,7 @@ class LabelTimes(DataFrame):
 
             Sample number of labels:
 
-            >>> labels.sample(n=3, random_state=0).sort_index()
+            >>> lt.sample(n=3, random_state=0).sort_index()
               labels
             1      A
             2      B
@@ -344,7 +343,7 @@ class LabelTimes(DataFrame):
             Sample number per label:
 
             >>> n_per_label = {'A': 1, 'B': 2}
-            >>> labels.sample(n=n_per_label, random_state=0).sort_index()
+            >>> lt.sample(n=n_per_label, random_state=0)
               labels
             3      B
             4      B
@@ -352,7 +351,7 @@ class LabelTimes(DataFrame):
 
             Sample fraction of labels:
 
-            >>> labels.sample(frac=.4, random_state=2).sort_index()
+            >>> lt.sample(frac=.4, random_state=2)
               labels
             1      A
             3      B
@@ -361,7 +360,7 @@ class LabelTimes(DataFrame):
             Sample fraction per label:
 
             >>> frac_per_label = {'A': .5, 'B': .34}
-            >>> labels.sample(frac=frac_per_label, random_state=2).sort_index()
+            >>> lt.sample(frac=frac_per_label, random_state=2)
               labels
             4      B
             5      A
@@ -381,6 +380,7 @@ class LabelTimes(DataFrame):
         per_label = isinstance(value, dict)
         method = self._sample_per_label if per_label else self._sample
         sample = method(key, value, settings, random_state=random_state, replace=replace)
+        sample.sort_index(inplace=True)
         return sample
 
     def equals(self, other, **kwargs):
