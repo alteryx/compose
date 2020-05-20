@@ -13,4 +13,5 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     python_requires='>=3.6',
+    include_package_data=True,
 )
