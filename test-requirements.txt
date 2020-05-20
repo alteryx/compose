@@ -1,5 +1,11 @@
-fastparquet>=0.1.6
-pytest==4.4.1
-pytest-xdist==1.26.1
-pytest-cov==2.6.1
+autopep8==1.4.3
+codecov==2.1.1
+fastparquet==0.1.6
 featuretools>=0.9.0
+flake8==3.7.0
+isort==4.3.4
+jupyter==1.0.0
+nbconvert==5.5.0
+nbsphinx==0.4.2
+pytest==4.4.1
+pytest-cov==2.6.1
