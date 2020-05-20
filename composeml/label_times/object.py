@@ -322,7 +322,7 @@ class LabelTimes(DataFrame):
             Create mock data:
 
             >>> labels = {'labels': list('AABBBAA')}
-            >>> labels = LabelTimes(labels, name='labels')
+            >>> labels = LabelTimes(labels)
             >>> labels
               labels
             0      A
