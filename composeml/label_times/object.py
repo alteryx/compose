@@ -270,8 +270,9 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
         """
         sample = super().sample(random_state=random_state, replace=replace, **{key: value})
+        recursive = getattr(self, '_recursive', False)
 
-        if getattr(self, '_recursive', False):
+        if not recursive:
             sample = sample.copy()
             sample.transforms.append(settings)
 
