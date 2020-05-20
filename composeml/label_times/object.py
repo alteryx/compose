@@ -192,48 +192,48 @@ class LabelTimes(DataFrame):
             LabelTimes : Instance of labels.
 
         Examples:
-            .. _equal-widths:
 
-            Using bins of `equal-widths`_:
+            This is the data used for the following examples.
+            >>> data = [226.93, 47.95, 283.46, 31.54]
+            >>> lt = LabelTimes({'target': data})
+            >>> lt
+               target
+            0  226.93
+            1   47.95
+            2  283.46
+            3   31.54
 
-            >>> labels.bin(2).head(2).T
-            label_id                                0                    1
-            customer_id                             1                    1
-            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
-            my_labeling_function      (157.5, 283.46]      (31.288, 157.5]
+            Bin values using equal-widths.
+            >>> lt.bin(2)
+                        target
+            0  (157.5, 283.46]
+            1  (31.288, 157.5]
+            2  (157.5, 283.46]
+            3  (31.288, 157.5]
 
-            .. _custom-widths:
+            Bin values using custom-widths.
+            >>> lt.bin([0, 200, 400])
+                   target
+            0  (200, 400]
+            1    (0, 200]
+            2  (200, 400]
+            3    (0, 200]
 
-            Using bins of `custom-widths`_:
+            Bin values using quartiles.
+            >>> lt.bin(4, quantiles=True)
+                                     target
+            0             (137.44, 241.062]
+            1              (43.848, 137.44]
+            2             (241.062, 283.46]
+            3  (31.538999999999998, 43.848]
 
-            >>> values = labels.bin([0, 200, 400])
-            >>> values.head(2).T
-            label_id                                0                    1
-            customer_id                             1                    1
-            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
-            my_labeling_function           (200, 400]             (0, 200]
-
-            .. _quantile-based:
-
-            Using `quantile-based`_ bins:
-
-            >>> values = labels.bin(4, quantiles=True) # (i.e. quartiles)
-            >>> values.head(2).T
-            label_id                                0                    1
-            customer_id                             1                    1
-            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
-            my_labeling_function    (137.44, 241.062]     (43.848, 137.44]
-
-            .. _labels:
-
-            Assigning `labels`_ to bins:
-
-            >>> values = labels.bin(3, labels=['low', 'medium', 'high'])
-            >>> values.head(2).T
-            label_id                                0                    1
-            customer_id                             1                    1
-            cutoff_time           2014-01-01 00:45:00  2014-01-01 00:48:00
-            my_labeling_function                 high                  low
+            Assign labels to bins.
+            >>> lt.bin(2, labels=['low', 'high'])
+              target
+            0   high
+            1    low
+            2   high
+            3    low
         """  # noqa
         label_times = self.copy()
         values = label_times[self.label_name].values
