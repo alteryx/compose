@@ -38,8 +38,15 @@ class LabelTimes(DataFrame):
         if self.label_name is None:
             self.label_name = self._infer_label_name()
 
-        info = 'target variable not found: %s' % self.label_name
-        assert self.label_name in self.columns, info
+        if not isinstance(self.label_name, list):
+            self.label_name = [self.label_name]
+
+        missing = pd.Index(self.label_name).difference(self.columns)
+        info = 'target variable(s) not found: %s' % missing.tolist()
+        assert not missing.empty, info
+
+        if len(self.label_name) == 1:
+            self.label_name = self.label_name.pop()
 
     def _infer_label_name(self):
         """Infers the target name from the data frame.
@@ -50,10 +57,6 @@ class LabelTimes(DataFrame):
         not_targets = [self.target_entity, 'cutoff_time']
         target_names = self.columns.difference(not_targets)
         value = target_names.tolist()
-
-        if len(value) == 1:
-            value = value.pop()
-
         return value
 
     def _is_single_target(self):
