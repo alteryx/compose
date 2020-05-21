@@ -312,30 +312,6 @@ class LabelMaker:
         progress_bar.close()
         return records
 
-    def _records_to_label_times(self, records, target_names, label_type, settings):
-        """Makes a label times object from label records.
-
-        Args:
-            records (list(dict)): The label records as a result from a label search.
-            label_name (str): The column name that contains the label values.
-            label_type (str): The type of label values -- must be "continuous" or "discrete".
-            settings (dict): The parameter settings used to make the labels.
-
-        Returns:
-            lt (LabelTimes): A label times object of the search records.
-        """
-        lt = LabelTimes(
-            data=records,
-            label_type=label_type,
-            target_entity=self.target_entity,
-            target_names=target_names,
-        )
-
-        lt = lt.rename_axis('id', axis=0)
-        if lt.empty: return lt
-        lt.settings.update(settings)
-        return lt
-
     def _check_example_count(self, num_examples_per_instance, gap):
         """Checks whether example count corresponds to data slices."""
         if self.window_size is None and gap is None:
@@ -388,11 +364,12 @@ class LabelMaker:
             **kwargs,
         )
 
-        lt = self._records_to_label_times(
-            records=records,
-            target_names=list(self.labeling_function),
+        lt = LabelTimes(
+            data=records,
             label_type=label_type,
-            settings={
+            target_name=list(self.labeling_function),
+            target_entity=self.target_entity,
+            search_settings={
                 'num_examples_per_instance': num_examples_per_instance,
                 'minimum_data': str(minimum_data),
                 'window_size': str(self.window_size),

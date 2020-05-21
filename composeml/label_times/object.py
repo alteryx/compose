@@ -10,7 +10,6 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -50,8 +49,15 @@ class LabelTimes(DataFrame):
         """
         not_targets = [self.target_entity, 'cutoff_time']
         target_names = self.columns.difference(not_targets)
-        value = target_names.tolist()[0]
+        value = target_names.tolist()
+
+        if len(value) == 1:
+            value = value.pop()
+
         return value
+
+    def _is_single_target(self):
+        return isinstance(self.label_name, str)
 
     def _check_label_type(self):
         """Checks whether the target type is continuous or discrete."""
