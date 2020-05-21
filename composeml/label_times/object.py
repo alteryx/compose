@@ -60,6 +60,7 @@ class LabelTimes(DataFrame):
         value = target_names.tolist()
         return value
 
+    @property
     def _is_single_target(self):
         return isinstance(self.label_name, str)
 
@@ -85,7 +86,7 @@ class LabelTimes(DataFrame):
         return {
             'target_entity': self.target_entity,
             'label_name': self.label_name,
-            'label_type': self.label_type,
+            'target_types': self._target_types.to_dict(),
             'search_settings': self.search_settings,
             'transforms': self.transforms,
         }
@@ -160,7 +161,7 @@ class LabelTimes(DataFrame):
         self._assert_single_target()
         labels = self if inplace else self.copy()
         labels[self.label_name] = labels[self.label_name].gt(value)
-        self._target_types[self.label_name] = 'discrete'
+        labels._target_types[self.label_name] = 'discrete'
 
         transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)
@@ -274,7 +275,7 @@ class LabelTimes(DataFrame):
         }
 
         label_times.transforms.append(transform)
-        label_times.label_type = 'discrete'
+        label_times._target_types[self.label_name] = 'discrete'
         return label_times
 
     def _sample(self, key, value, settings, random_state=None, replace=False):

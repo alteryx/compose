@@ -108,7 +108,7 @@ def labels():
     dtype = {'cutoff_time': 'datetime64[ns]'}
     values = pd.DataFrame(records).astype(dtype).set_index('label_id')
     values = values[['customer_id', 'cutoff_time', 'my_labeling_function']]
-    values = LabelTimes(values, target_entity='customer_id', target_names=['my_labeling_function'])
+    values = LabelTimes(values, target_entity='customer_id', name=['my_labeling_function'])
     return values
 
 

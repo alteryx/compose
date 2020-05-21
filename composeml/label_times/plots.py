@@ -15,7 +15,6 @@ COLOR = sns.color_palette("Set1", n_colors=100, desat=.75)
 
 class LabelPlots:
     """Creates plots for Label Times."""
-
     def __init__(self, label_times):
         """Initializes Label Plots.
 
@@ -82,8 +81,10 @@ class LabelPlots:
     def distribution(self, **kwargs):
         """Plots the label distribution."""
         dist = self._label_times[self._label_times.label_name]
+        is_discrete = self._label_times.is_discrete
+        target_name = self._label_times._label_name
 
-        if self._label_times.is_discrete:
+        if is_discrete[target_name]:
             ax = sns.countplot(dist, palette=COLOR, **kwargs)
         else:
             ax = sns.distplot(dist, kde=True, color=COLOR[1], **kwargs)
