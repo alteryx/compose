@@ -331,8 +331,6 @@ class LabelMaker:
             },
         )
 
-        labels = labels.rename_axis('id', axis=0)
-
         if labels.empty:
             return labels
 
