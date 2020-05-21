@@ -467,7 +467,7 @@ class LabelTimes(DataFrame):
         """
         os.makedirs(path, exist_ok=True)
         file = os.path.join(path, filename)
-        super().to_csv(file, **kwargs)
+        super().to_csv(file, index=False, **kwargs)
 
         if save_settings:
             self._save_settings(path)
