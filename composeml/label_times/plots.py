@@ -82,7 +82,7 @@ class LabelPlots:
         """Plots the label distribution."""
         dist = self._label_times[self._label_times.label_name]
         is_discrete = self._label_times.is_discrete
-        target_name = self._label_times._label_name
+        target_name = self._label_times.label_name
 
         if is_discrete[target_name]:
             ax = sns.countplot(dist, palette=COLOR, **kwargs)
