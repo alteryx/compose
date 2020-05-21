@@ -117,11 +117,12 @@ def test_distribution_continous(total_spent):
     assert total_spent.distribution is None
 
 
-def test_infer_type(total_spent):
-    assert total_spent._infer_label_type() == 'continuous'
+def test_target_type(total_spent):
+    types = total_spent.target_types
+    assert types['total_spent'] == 'continuous'
     total_spent = total_spent.threshold(5)
-    total_spent.label_type = None
-    assert total_spent._infer_label_type() == 'discrete'
+    types = total_spent.target_types
+    assert types['total_spent'] == 'discrete'
 
 
 def test_count(total_spent):
