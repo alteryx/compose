@@ -5,6 +5,7 @@ class DataFrame(pd.DataFrame):
     """Subclasses pandas data frame for label times object."""
     _metadata = [
         '_recursive',
+        '_target_types',
         'label_name',
         'label_type',
         'search_settings',

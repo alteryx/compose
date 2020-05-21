@@ -15,7 +15,6 @@ class LabelTimes(DataFrame):
         data=None,
         target_entity=None,
         name=None,
-        label_type=None,
         search_settings=None,
         transforms=None,
         *args,
@@ -24,14 +23,11 @@ class LabelTimes(DataFrame):
         super().__init__(data=data, *args, **kwargs)
         self.target_entity = target_entity
         self.label_name = name
-        self.label_type = label_type
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
-        if not self.empty:
-            self._check_label_name()
-            self._check_label_type()
+        if not self.empty: self._check_label_name()
 
     def _assert_single_target(self):
         info = 'must first select an individual target'
@@ -46,9 +42,10 @@ class LabelTimes(DataFrame):
             self.label_name = [self.label_name]
 
         missing = pd.Index(self.label_name).difference(self.columns)
-        info = 'target variable(s) not found: %s' % missing.tolist()
-        assert not missing.empty, info
+        info = 'target variable(s) not found: %s'
+        assert missing.empty, info % missing.tolist()
 
+        self._set_target_types()
         if len(self.label_name) == 1:
             self.label_name = self.label_name.pop()
 
@@ -66,27 +63,21 @@ class LabelTimes(DataFrame):
     def _is_single_target(self):
         return isinstance(self.label_name, str)
 
-    def _check_label_type(self):
-        """Checks whether the target type is continuous or discrete."""
-        if self.label_type is None:
-            self.label_type = self._infer_label_type()
-
-        error = 'label type must be "continuous" or "discrete"'
-        assert self.label_type in ['continuous', 'discrete'], error
-
-    def _infer_label_type(self):
-        """Infers the target type from the data type.
-
-        Returns:
-            value (str): Inferred label type. Either "continuous" or "discrete".
-        """
-        self._assert_single_target()
-        dtype = self[self.label_name].dtype
+    def _get_target_type(self, dtype):
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete |= pd.api.types.is_categorical_dtype(dtype)
         is_discrete |= pd.api.types.is_object_dtype(dtype)
         value = 'discrete' if is_discrete else 'continuous'
         return value
+
+    def _set_target_types(self):
+        """Infers the target type from the data type.
+
+        Returns:
+            value (str): Inferred label type. Either "continuous" or "discrete".
+        """
+        dtypes = self.dtypes[self.label_name]
+        self._target_types = dtypes.apply(self._get_target_type)
 
     @property
     def settings(self):
@@ -102,14 +93,13 @@ class LabelTimes(DataFrame):
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        return self.label_type == 'discrete'
+        return self._target_types.eq('discrete')
 
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
         self._assert_single_target()
-
-        if self.is_discrete:
+        if self.is_discrete[self.label_name]:
             labels = self.assign(count=1)
             labels = labels.groupby(self.label_name)
             distribution = labels['count'].count()
@@ -128,8 +118,7 @@ class LabelTimes(DataFrame):
     def count_by_time(self):
         """Returns label count across cutoff times."""
         self._assert_single_target()
-
-        if self.is_discrete:
+        if self.is_discrete[self.label_name]:
             keys = ['cutoff_time', self.label_name]
             value = self.groupby(keys).cutoff_time.count()
             value = value.unstack(self.label_name).fillna(0)
@@ -171,9 +160,7 @@ class LabelTimes(DataFrame):
         self._assert_single_target()
         labels = self if inplace else self.copy()
         labels[self.label_name] = labels[self.label_name].gt(value)
-
-        labels.label_type = 'discrete'
-        labels.settings['label_type'] = 'discrete'
+        self._target_types[self.label_name] = 'discrete'
 
         transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)

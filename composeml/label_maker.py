@@ -366,8 +366,7 @@ class LabelMaker:
 
         lt = LabelTimes(
             data=records,
-            label_type=label_type,
-            target_name=list(self.labeling_function),
+            name=list(self.labeling_function),
             target_entity=self.target_entity,
             search_settings={
                 'num_examples_per_instance': num_examples_per_instance,
