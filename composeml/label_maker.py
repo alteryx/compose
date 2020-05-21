@@ -300,9 +300,12 @@ class LabelMaker:
                 })
 
                 search.update_count(labels)
+                # if finite search, progress bar is updated for each example found
                 if search.is_finite: progress_bar.update(n=1)
                 if search.is_complete: break
 
+            # if finite search, progress bar is updated for examples not found
+            # otherwise, progress bar is updated for each entity group
             n = missing_examples(entity_count + 1) if search.is_finite else 1
             progress_bar.update(n=n)
             search.reset_count()
