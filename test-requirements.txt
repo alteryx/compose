@@ -5,6 +5,5 @@ codecov==2.1.0
 flake8==3.7.8
 autopep8==1.4.4
 isort==4.3.21
-nbconvert==5.5.0
 nbsphinx==0.4.2
 featuretools>=0.9.0
