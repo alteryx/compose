@@ -19,7 +19,7 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
     file = os.path.join(path, filename)
     assert os.path.exists(file), "data not found: '%s'" % file
 
-    data = pd.read_csv(file, index_col='id')
+    data = pd.read_csv(file)
     label_times = LabelTimes(data=data)
 
     if load_settings:
