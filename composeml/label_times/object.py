@@ -33,6 +33,10 @@ class LabelTimes(DataFrame):
             self._check_label_name()
             self._check_label_type()
 
+    def _assert_single_target(self):
+        info = 'must first select an individual target'
+        assert self._is_single_target, info
+
     def _check_label_name(self):
         """Checks whether the target exists in the data frame."""
         if self.label_name is None:
@@ -76,6 +80,7 @@ class LabelTimes(DataFrame):
         Returns:
             value (str): Inferred label type. Either "continuous" or "discrete".
         """
+        self._assert_single_target()
         dtype = self[self.label_name].dtype
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete |= pd.api.types.is_categorical_dtype(dtype)
@@ -102,6 +107,8 @@ class LabelTimes(DataFrame):
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
+        self._assert_single_target()
+
         if self.is_discrete:
             labels = self.assign(count=1)
             labels = labels.groupby(self.label_name)
@@ -111,6 +118,7 @@ class LabelTimes(DataFrame):
     @property
     def count(self):
         """Returns label count per instance."""
+        self._assert_single_target()
         count = self.groupby(self.target_entity)
         count = count[self.label_name].count()
         count = count.to_frame('count')
@@ -119,6 +127,8 @@ class LabelTimes(DataFrame):
     @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
+        self._assert_single_target()
+
         if self.is_discrete:
             keys = ['cutoff_time', self.label_name]
             value = self.groupby(keys).cutoff_time.count()
@@ -158,6 +168,7 @@ class LabelTimes(DataFrame):
         Returns:
             labels (LabelTimes) : Instance of labels.
         """
+        self._assert_single_target()
         labels = self if inplace else self.copy()
         labels[self.label_name] = labels[self.label_name].gt(value)
 
@@ -257,6 +268,7 @@ class LabelTimes(DataFrame):
             2   high
             3    low
         """  # noqa
+        self._assert_single_target()
         label_times = self.copy()
         values = label_times[self.label_name].values
 
@@ -388,6 +400,8 @@ class LabelTimes(DataFrame):
             5      A
             6      A
         """  # noqa
+        self._assert_single_target()
+
         settings = {
             'transform': 'sample',
             'n': n,
