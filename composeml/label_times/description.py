@@ -3,7 +3,9 @@ import pandas as pd
 
 def describe_label_times(label_times):
     """Prints out label info with transform settings that reproduce labels."""
-    if label_times.label_name is not None and label_times.is_discrete:
+    is_discrete = label_times.is_discrete[label_times.label_name]
+
+    if  is_discrete:
         print('Label Distribution\n' + '-' * 18, end='\n')
         distribution = label_times[label_times.label_name].value_counts()
         distribution.index = distribution.index.astype('str')

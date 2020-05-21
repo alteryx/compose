@@ -64,7 +64,6 @@ def total_spent():
         'name': 'total_spent',
         'search_settings': {
             'num_examples_per_instance': -1,
-            'labeling_function': {},
         }
     }
 

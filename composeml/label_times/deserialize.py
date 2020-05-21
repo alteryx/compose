@@ -1,8 +1,34 @@
 import os
 
 import pandas as pd
-
+import json
 from .object import LabelTimes
+
+
+def load_label_times(path, df):
+    """Read the settings in json format from disk.
+
+    Args:
+        path (str) : Directory on disk to read from.
+    """
+    file = os.path.join(path, 'settings.json')
+
+    if not os.path.exists(file):
+        return LabelTimes(df)
+
+    with open(file, 'r') as file:
+        settings = json.load(file)
+
+    lt = LabelTimes(
+        data=df.astype(settings['dtypes']),
+        target_entity=settings['target_entity'],
+        target_types=settings['target_types'],
+        name=settings['label_name'],
+        search_settings=settings['search_settings'],
+        transforms=settings['transforms'],
+    )
+
+    return lt
 
 
 def read_csv(path, filename='label_times.csv', load_settings=True):
@@ -18,14 +44,9 @@ def read_csv(path, filename='label_times.csv', load_settings=True):
     """
     file = os.path.join(path, filename)
     assert os.path.exists(file), "data not found: '%s'" % file
-
-    data = pd.read_csv(file)
-    label_times = LabelTimes(data=data)
-
-    if load_settings:
-        label_times = label_times._load_settings(path)
-
-    return label_times
+    df = pd.read_csv(file)
+    lt = load_label_times(path, df)
+    return lt
 
 
 def read_parquet(path, filename='label_times.parquet', load_settings=True):
@@ -41,14 +62,9 @@ def read_parquet(path, filename='label_times.parquet', load_settings=True):
     """
     file = os.path.join(path, filename)
     assert os.path.exists(file), "data not found: '%s'" % file
-
-    data = pd.read_parquet(file)
-    label_times = LabelTimes(data=data)
-
-    if load_settings:
-        label_times = label_times._load_settings(path)
-
-    return label_times
+    df = pd.read_parquet(file)
+    lt = load_label_times(path, df)
+    return lt
 
 
 def read_pickle(path, filename='label_times.pickle', load_settings=True):
@@ -64,11 +80,6 @@ def read_pickle(path, filename='label_times.pickle', load_settings=True):
     """
     file = os.path.join(path, filename)
     assert os.path.exists(file), "data not found: '%s'" % file
-
-    data = pd.read_pickle(file)
-    label_times = LabelTimes(data=data)
-
-    if load_settings:
-        label_times = label_times._load_settings(path)
-
-    return label_times
+    df = pd.read_pickle(file)
+    lt = load_label_times(path, df)
+    return lt

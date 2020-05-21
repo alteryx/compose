@@ -14,6 +14,7 @@ class LabelTimes(DataFrame):
         self,
         data=None,
         target_entity=None,
+        target_types=None,
         name=None,
         search_settings=None,
         transforms=None,
@@ -23,19 +24,20 @@ class LabelTimes(DataFrame):
         super().__init__(data=data, *args, **kwargs)
         self.target_entity = target_entity
         self.label_name = name
+        self.target_types = pd.Series(target_types or {})
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
-        if not self.empty: self._check_label_name()
+        if not self.empty: self._check_label_times()
 
     def _assert_single_target(self):
         info = 'must first select an individual target'
         assert self._is_single_target, info
 
-    def _check_label_name(self):
+    def _check_label_times(self):
         """Checks whether the target exists in the data frame."""
-        if self.label_name is None:
+        if not self.label_name:
             self.label_name = self._infer_label_name()
 
         if not isinstance(self.label_name, list):
@@ -45,7 +47,9 @@ class LabelTimes(DataFrame):
         info = 'target variable(s) not found: %s'
         assert missing.empty, info % missing.tolist()
 
-        self._set_target_types()
+        if self.target_types.empty:
+            self.target_types = self._infer_target_types()
+
         if len(self.label_name) == 1:
             self.label_name = self.label_name.pop()
 
@@ -71,14 +75,15 @@ class LabelTimes(DataFrame):
         value = 'discrete' if is_discrete else 'continuous'
         return value
 
-    def _set_target_types(self):
+    def _infer_target_types(self):
         """Infers the target type from the data type.
 
         Returns:
-            value (str): Inferred label type. Either "continuous" or "discrete".
+            types (Series): Inferred label type. Either "continuous" or "discrete".
         """
         dtypes = self.dtypes[self.label_name]
-        self._target_types = dtypes.apply(self._get_target_type)
+        types = dtypes.apply(self._get_target_type)
+        return types
 
     @property
     def settings(self):
@@ -86,7 +91,7 @@ class LabelTimes(DataFrame):
         return {
             'target_entity': self.target_entity,
             'label_name': self.label_name,
-            'target_types': self._target_types.to_dict(),
+            'target_types': self.target_types.to_dict(),
             'search_settings': self.search_settings,
             'transforms': self.transforms,
         }
@@ -94,7 +99,7 @@ class LabelTimes(DataFrame):
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        return self._target_types.eq('discrete')
+        return self.target_types.eq('discrete')
 
     @property
     def distribution(self):
@@ -133,6 +138,7 @@ class LabelTimes(DataFrame):
 
     def describe(self):
         """Prints out the settings used to make the label times."""
+        self._assert_single_target()
         describe_label_times(self)
 
     def copy(self, **kwargs):
@@ -161,7 +167,7 @@ class LabelTimes(DataFrame):
         self._assert_single_target()
         labels = self if inplace else self.copy()
         labels[self.label_name] = labels[self.label_name].gt(value)
-        labels._target_types[self.label_name] = 'discrete'
+        labels.target_types[self.label_name] = 'discrete'
 
         transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)
@@ -275,7 +281,7 @@ class LabelTimes(DataFrame):
         }
 
         label_times.transforms.append(transform)
-        label_times._target_types[self.label_name] = 'discrete'
+        label_times.target_types[self.label_name] = 'discrete'
         return label_times
 
     def _sample(self, key, value, settings, random_state=None, replace=False):
@@ -420,27 +426,6 @@ class LabelTimes(DataFrame):
         is_equal = super().equals(other, **kwargs)
         is_equal &= self.settings == other.settings
         return is_equal
-
-    def _load_settings(self, path):
-        """Read the settings in json format from disk.
-
-        Args:
-            path (str) : Directory on disk to read from.
-        """
-        file = os.path.join(path, 'settings.json')
-        assert os.path.exists(file), 'settings not found'
-
-        with open(file, 'r') as file:
-            settings = json.load(file)
-
-        if 'dtypes' in settings:
-            dtypes = settings.pop('dtypes')
-            self = LabelTimes(self.astype(dtypes))
-
-        for attr, value in settings.items():
-            setattr(self, attr, value)
-
-        return self
 
     def _save_settings(self, path):
         """Write the settings in json format to disk.
