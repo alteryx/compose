@@ -10,7 +10,6 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -180,7 +179,16 @@ class LabelTimes(DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, quantiles=False, labels=None, right=True):
+    def bin(
+        self,
+        bins,
+        quantiles=False,
+        labels=None,
+        right=True,
+        precision=3,
+        include_lowest=False,
+        include_highest=False,
+    ):
         """Bin labels into discrete intervals.
 
         Args:
@@ -255,7 +263,17 @@ class LabelTimes(DataFrame):
             label_times[self.label_name] = pd.qcut(values, q=bins, labels=labels)
 
         else:
-            label_times[self.label_name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            custom_widths = isinstance(bins, list)
+            if custom_widths and include_lowest: bins.insert(0, -float('inf'))
+            if custom_widths and include_highest: bins.append(float('inf'))
+
+            label_times[self.label_name] = pd.cut(
+                values,
+                bins=bins,
+                labels=labels,
+                right=right,
+                precision=precision,
+            )
 
         transform = {
             'transform': 'bin',
@@ -263,6 +281,9 @@ class LabelTimes(DataFrame):
             'quantiles': quantiles,
             'labels': labels,
             'right': right,
+            'precision': precision,
+            'include_lowest': include_lowest,
+            'include_highest': include_highest,
         }
 
         label_times.transforms.append(transform)
