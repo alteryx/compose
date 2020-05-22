@@ -32,6 +32,14 @@ def total_spent_fn():
     return total_spent
 
 
+@pytest.fixture(scope="session")
+def unique_amounts_fn():
+    def unique_amounts(df):
+        return df.amount.nunique()
+
+    return unique_amounts
+
+
 @pytest.fixture
 def total_spent():
     label_times = {
@@ -49,8 +57,6 @@ def total_spent():
             '9,3,2019-01-01 12:30:00,0',
         ],
         'settings': {
-            'target_entity': 'customer_id',
-            'labeling_function': 'total_spent',
             'num_examples_per_instance': -1,
         }
     }
@@ -62,6 +68,8 @@ def total_spent():
     )
 
     label_times = LabelTimes(**label_times)
+    label_times.label_name = 'total_spent'
+    label_times.target_entity = 'customer_id'
     return label_times
 
 

@@ -14,3 +14,16 @@ def can_be_type(type, string):
 
     except ValueError:
         return False
+
+
+def format_number(n):
+    if n == -1 or n == 'inf':
+        n = float('inf')
+
+    numeric = (int, float)
+    assert isinstance(n, numeric), 'value must be numeric'
+    return n
+
+
+def is_finite_number(n):
+    return n > 0 and abs(n) != float('inf')

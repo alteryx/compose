@@ -3,6 +3,8 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
+from composeml.data_slice import DataSlice, DataSliceContext
+from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
 from composeml.offsets import to_offset
 from composeml.utils import can_be_type
@@ -12,14 +14,14 @@ def cutoff_data(df, threshold):
     """Cuts off data before the threshold.
 
     Args:
-        df (DataFrame) : Data frame to cutoff data.
-        threshold (int or str or Timestamp) : Threshold to apply on data.
+        df (DataFrame): Data frame to cutoff data.
+        threshold (int or str or Timestamp): Threshold to apply on data.
             If integer, the threshold will be the time at `n + 1` in the index.
             If string, the threshold can be an offset or timestamp.
             An offset will be applied relative to the first time in the index.
 
     Returns:
-        DataFrame, Timestamp : Returns the data frame and the applied cutoff time.
+        df, cutoff_time (tuple(DataFrame, Timestamp)): Returns the data frame and the applied cutoff time.
     """
     if isinstance(threshold, int):
         assert threshold > 0, 'threshold must be greater than zero'
@@ -56,85 +58,86 @@ def cutoff_data(df, threshold):
     return df, cutoff_time
 
 
-class Context:
-    """Metadata for data slice."""
-
-    def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
-        """Metadata for data slice.
-
-        Args:
-            gap (tuple) : Start and stop time for gap.
-            window (tuple) : Start and stop time for window.
-            slice (int) : Slice number.
-            target_entity (int) : Target entity.
-            target_instance (int) : Target instance.
-        """
-        self.gap = gap or (None, None)
-        self.window = window or (None, None)
-        self.slice_number = slice_number
-        self.target_entity = target_entity
-        self.target_instance = target_instance
-
-
-class DataSlice(pd.DataFrame):
-    """Data slice for labeling function."""
-    _metadata = ['context']
-
-    @property
-    def _constructor(self):
-        return DataSlice
-
-    def __str__(self):
-        """Metadata of data slice."""
-        info = {
-            'slice_number': self.context.slice_number,
-            self.context.target_entity: self.context.target_instance,
-            'window': '[{}, {})'.format(*self.context.window),
-            'gap': '[{}, {})'.format(*self.context.gap),
-        }
-
-        info = pd.Series(info).to_string()
-        return info
-
-
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
-    def __init__(self, target_entity, time_index, labeling_function, window_size=None, label_type=None):
+    def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
         Args:
-            target_entity (str) : Entity on which to make labels.
+            target_entity (str): Entity on which to make labels.
             time_index (str): Name of time column in the data frame.
-            labeling_function (function) : Function that transforms a data slice to a label.
-            window_size (str or int) : Duration of each data slice.
+            labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
+                When set as a dictionary, the key is used as the name of the labeling function.
+            window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """
+        self._set_window_size(window_size)
+        self.labeling_function = labeling_function
         self.target_entity = target_entity
         self.time_index = time_index
-        self.labeling_function = labeling_function
-        self.window_size = window_size
 
-        if self.window_size is not None:
-            self.window_size = to_offset(self.window_size)
-
-    def _get_slices(self, group, gap=None, min_data=None, drop_empty=True):
-        """Generate data slices for group.
+    def _set_window_size(self, window_size):
+        """Set and format initial window size parameter.
 
         Args:
-            df (DataFrame) : Data frame to generate data slices.
-            gap (str or int) : Time between examples. Default value is window size.
+            window_size (str or int): Duration of each data slice.
+                The default value for window size is all future data.
+        """
+        if window_size is not None:
+            window_size = to_offset(window_size)
+
+        self.window_size = window_size
+
+    def _name_labeling_function(self, function):
+        """Gets the names of the labeling functions."""
+        has_name = hasattr(function, '__name__')
+        return function.__name__ if has_name else type(function).__name__
+
+    def _check_labeling_function(self, function, name=None):
+        """Checks whether the labeling function is callable."""
+        assert callable(function), 'labeling function must be callabe'
+        return function
+
+    @property
+    def labeling_function(self):
+        """Gets the labeling function(s)."""
+        return self._labeling_function
+
+    @labeling_function.setter
+    def labeling_function(self, value):
+        """Sets and formats the intial labeling function(s).
+
+        Args:
+            value (function or list(function) or dict(str=function)): Function that transforms a data slice to a label.
+        """
+        if isinstance(value, dict):
+            for name, function in value.items():
+                self._check_labeling_function(function)
+                assert isinstance(name, str), 'labeling function name must be string'
+
+        if callable(value):
+            value = [value]
+
+        if isinstance(value, (tuple, list)):
+            value = {self._name_labeling_function(function): self._check_labeling_function(function) for function in value}
+
+        assert isinstance(value, dict), 'value type for labeling function not supported'
+        self._labeling_function = value
+
+    def _slice(self, df, gap=None, min_data=None, drop_empty=True):
+        """Generate data slices for a group.
+
+        Args:
+            df (DataFrame): Data frame to generate data slices.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            min_data (int or str or Timestamp) : Threshold to cutoff data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
+            min_data (int or str or Timestamp): Threshold to cutoff data.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
 
         Returns:
-            DataSlice : Returns a data slice.
+            df_slice (generator): Returns a generator of data slices.
         """
-        key, df = group
-        self.window_size = self.window_size or len(df)
-        gap = to_offset(gap or self.window_size)
-
         df = df.loc[df.index.notnull()]
         assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
 
@@ -151,7 +154,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice_number=0, target_entity=self.target_entity, target_instance=key)
+        df.context = DataSliceContext(slice_number=0, target_entity=self.target_entity)
 
         def iloc(index, i):
             if i < index.size:
@@ -172,10 +175,9 @@ class LabelMaker:
                 # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
 
                 if not df_slice.empty:
-                    is_overlap = df_slice.index == window_end
-
-                    if df_slice.index.size > 1 and is_overlap.any():
-                        df_slice = df_slice[~is_overlap]
+                    overlap = df_slice.index == window_end
+                    if overlap.any():
+                        df_slice = df_slice[~overlap]
 
             df_slice.context.window = (cutoff_time, window_end)
 
@@ -206,40 +208,143 @@ class LabelMaker:
         """Generates data slices of target entity.
 
         Args:
-            df (DataFrame) : Data frame to create slices on.
-            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str or int) : Time between examples. Default value is window size.
+            df (DataFrame): Data frame to create slices on.
+            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
-            verbose (bool) : Whether to print metadata about slice. Default value is False.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            verbose (bool): Whether to print metadata about slice. Default value is False.
 
         Returns:
-            DataSlice : Returns data slice.
+            ds (generator): Returns a generator of data slices.
         """
-        if self.window_size is None and gap is None:
-            more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
-
+        self._check_example_count(num_examples_per_instance, gap)
         self.window_size = self.window_size or len(df)
         gap = to_offset(gap or self.window_size)
-
-        df = self.set_index(df)
+        groups = self.set_index(df).groupby(self.target_entity)
 
         if num_examples_per_instance == -1:
             num_examples_per_instance = float('inf')
 
-        for group in df.groupby(self.target_entity):
-            slices = self._get_slices(group=group, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+        for key, df in groups:
+            slices = self._slice(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
-            for df in slices:
-                if verbose:
-                    print(df)
+            for ds in slices:
+                ds.context.target_instance = key
+                if verbose: print(ds)
+                yield ds
 
-                yield df
-
-                if df.context.slice_number >= num_examples_per_instance:
+                if ds.context.slice_number >= num_examples_per_instance:
                     break
+
+    @property
+    def _bar_format(self):
+        """Template to format the progress bar during a label search."""
+        value = "Elapsed: {elapsed} | "
+        value += "Remaining: {remaining} | "
+        value += "Progress: {l_bar}{bar}| "
+        value += self.target_entity + ": {n}/{total} "
+        return value
+
+    def _run_search(self, df, search, gap=None, min_data=None, drop_empty=True, verbose=True, *args, **kwargs):
+        """Search implementation to make label records.
+
+        Args:
+            df (DataFrame): Data frame to search and extract labels.
+            search (LabelSearch or ExampleSearch): The type of search to be done.
+            min_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
+                If an integer, search will start on the first event after the minimum data.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            verbose (bool): Whether to render progress bar. Default value is True.
+            *args: Positional arguments for labeling function.
+            **kwargs: Keyword arguments for labeling function.
+
+        Returns:
+            records (list(dict)): Label Records
+        """
+        entity_groups = self.set_index(df).groupby(self.target_entity)
+        multiplier = search.expected_count if search.is_finite else 1
+        total = entity_groups.ngroups * multiplier
+
+        progress_bar, records = tqdm(
+            total=total,
+            bar_format=self._bar_format,
+            disable=not verbose,
+            file=stdout,
+        ), []
+
+        def missing_examples(entity_count):
+            return entity_count * search.expected_count - progress_bar.n
+
+        for entity_count, group in enumerate(entity_groups):
+            entity_id, df = group
+
+            slices = self._slice(
+                df=df,
+                gap=gap,
+                min_data=min_data,
+                drop_empty=drop_empty,
+            )
+
+            for ds in slices:
+                items = self.labeling_function.items()
+                labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
+                valid_labels = search.is_valid_labels(labels)
+                if not valid_labels: continue
+
+                records.append({
+                    self.target_entity: entity_id,
+                    'cutoff_time': ds.context.window[0],
+                    **labels,
+                })
+
+                search.update_count(labels)
+                # if finite search, progress bar is updated for each example found
+                if search.is_finite: progress_bar.update(n=1)
+                if search.is_complete: break
+
+            # if finite search, progress bar is updated for examples not found
+            # otherwise, progress bar is updated for each entity group
+            n = missing_examples(entity_count + 1) if search.is_finite else 1
+            progress_bar.update(n=n)
+            search.reset_count()
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
+        return records
+
+    def _records_to_label_times(self, records, label_name, label_type, settings):
+        """Makes a label times object from label records.
+
+        Args:
+            records (list(dict)): The label records as a result from a label search.
+            label_name (str): The column name that contains the label values.
+            label_type (str): The type of label values -- must be "continuous" or "discrete".
+            settings (dict): The parameter settings used to make the labels.
+
+        Returns:
+            lt (LabelTimes): A label times object of the search records.
+        """
+        lt = LabelTimes(
+            data=records,
+            name=label_name,
+            label_type=label_type,
+            target_entity=self.target_entity,
+        )
+
+        lt = lt.rename_axis('id', axis=0)
+        if lt.empty: return lt
+        lt.settings.update(settings)
+        return lt
+
+    def _check_example_count(self, num_examples_per_instance, gap):
+        """Checks whether example count corresponds to data slices."""
+        if self.window_size is None and gap is None:
+            more_than_one = num_examples_per_instance > 1
+            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
 
     def search(self,
                df,
@@ -254,98 +359,62 @@ class LabelMaker:
         """Searches the data to calculates labels.
 
         Args:
-            df (DataFrame) : Data frame to search and extract labels.
-            num_examples_per_instance (int) : Number of examples per unique instance of target entity.
-            minimum_data (str) : Minimum data before starting search. Default value is first time of index.
-            gap (str or int) : Time between examples. Default value is window size.
+            df (DataFrame): Data frame to search and extract labels.
+            num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
+                A dictionary can be used to further specify the expected number of examples to return from each label.
+            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
-            drop_empty (bool) : Whether to drop empty slices. Default value is True.
-            label_type (str) : The label type can be "continuous" or "categorical". Default value is the inferred label type.
-            verbose (bool) : Whether to render progress bar. Default value is True.
-            *args : Positional arguments for labeling function.
-            **kwargs : Keyword arguments for labeling function.
+            drop_empty (bool): Whether to drop empty slices. Default value is True.
+            label_type (str): The label type can be "continuous" or "categorical". Default value is the inferred label type.
+            verbose (bool): Whether to render progress bar. Default value is True.
+            *args: Positional arguments for labeling function.
+            **kwargs: Keyword arguments for labeling function.
 
         Returns:
-            LabelTimes : Calculated labels with cutoff times.
+            lt (LabelTimes): Calculated labels with cutoff times.
         """
-        bar_format = "Elapsed: {elapsed} | Remaining: {remaining} | "
-        bar_format += "Progress: {l_bar}{bar}| "
-        bar_format += self.target_entity + ": {n}/{total} "
-        total = len(df.groupby(self.target_entity))
-        finite_examples_per_instance = num_examples_per_instance > -1 and num_examples_per_instance != float('inf')
+        assert self.labeling_function, 'missing labeling function(s)'
+        self._check_example_count(num_examples_per_instance, gap)
+        self.window_size = self.window_size or len(df)
+        gap = to_offset(gap or self.window_size)
 
-        if finite_examples_per_instance:
-            total *= num_examples_per_instance
+        is_label_search = isinstance(num_examples_per_instance, dict)
+        search = (LabelSearch if is_label_search else ExampleSearch)(num_examples_per_instance)
 
-        progress_bar = tqdm(total=total, bar_format=bar_format, disable=not verbose, file=stdout)
-
-        slices = self.slice(
+        records = self._run_search(
             df=df,
-            num_examples_per_instance=num_examples_per_instance,
-            minimum_data=minimum_data,
+            search=search,
             gap=gap,
+            min_data=minimum_data,
             drop_empty=drop_empty,
-            verbose=False,
+            verbose=verbose,
+            *args,
+            **kwargs,
         )
 
-        name = self.labeling_function.__name__
-        labels, instance = [], 0
+        lt = self._records_to_label_times(
+            records=records,
+            label_name=list(self.labeling_function)[0],
+            label_type=label_type,
+            settings={
+                'num_examples_per_instance': num_examples_per_instance,
+                'minimum_data': str(minimum_data),
+                'window_size': str(self.window_size),
+                'gap': str(gap)
+            },
+        )
 
-        for df in slices:
-            label = self.labeling_function(df, *args, **kwargs)
-
-            if not pd.isnull(label):
-                label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
-                labels.append(label)
-
-            first_slice_for_instance = df.context.slice_number == 1
-
-            if finite_examples_per_instance:
-                progress_bar.update(n=1)
-
-                # update skipped examples for previous instance
-                if first_slice_for_instance:
-                    instance += 1
-                    skipped_examples = instance - 1
-                    skipped_examples *= num_examples_per_instance
-                    skipped_examples -= progress_bar.n
-                    progress_bar.update(n=skipped_examples)
-
-            if not finite_examples_per_instance and first_slice_for_instance:
-                progress_bar.update(n=1)
-
-        total -= progress_bar.n
-        progress_bar.update(n=total)
-        progress_bar.close()
-
-        labels = LabelTimes(data=labels, name=name, target_entity=self.target_entity, label_type=label_type)
-        labels = labels.rename_axis('id', axis=0)
-
-        if labels.empty:
-            return labels
-
-        if labels.is_discrete:
-            labels[labels.label_name] = labels[labels.label_name].astype('category')
-
-        labels.label_name = name
-        labels.target_entity = self.target_entity
-        labels.settings.update({
-            'num_examples_per_instance': num_examples_per_instance,
-            'minimum_data': str(minimum_data),
-            'window_size': str(self.window_size),
-            'gap': str(gap),
-        })
-
-        return labels
+        return lt
 
     def set_index(self, df):
         """Sets the time index in a data frame (if not already set).
 
         Args:
-            df (DataFrame) : Data frame to set time index in.
+            df (DataFrame): Data frame to set time index in.
 
         Returns:
-            DataFrame : Data frame with time index set.
+            df (DataFrame): Data frame with time index set.
         """
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
