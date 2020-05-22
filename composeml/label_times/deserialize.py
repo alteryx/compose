@@ -13,9 +13,7 @@ def load_label_times(path, df):
         path (str) : Directory on disk to read from.
     """
     file = os.path.join(path, 'settings.json')
-
-    if not os.path.exists(file):
-        return LabelTimes(df)
+    assert os.path.exists(file), "settings not found: '%s'" % file
 
     with open(file, 'r') as file:
         settings = json.load(file)
