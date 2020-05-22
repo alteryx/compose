@@ -295,7 +295,7 @@ class LabelMaker:
             label = self.labeling_function(df, *args, **kwargs)
 
             if not pd.isnull(label):
-                label = {self.target_entity: df.context.target_instance, 'cutoff_time': df.context.window[0], name: label}
+                label = {self.target_entity: df.context.target_instance, 'time': df.context.window[0], name: label}
                 labels.append(label)
 
             first_slice_for_instance = df.context.slice_number == 1

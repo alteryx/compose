@@ -48,7 +48,7 @@ class LabelTimes(DataFrame):
         Returns:
             value (str): Inferred target name.
         """
-        not_targets = [self.target_entity, 'cutoff_time']
+        not_targets = [self.target_entity, 'time']
         target_names = self.columns.difference(not_targets)
         value = target_names.tolist()[0]
         return value
@@ -111,11 +111,11 @@ class LabelTimes(DataFrame):
     def count_by_time(self):
         """Returns label count across cutoff times."""
         if self.is_discrete:
-            keys = ['cutoff_time', self.label_name]
-            value = self.groupby(keys).cutoff_time.count()
+            keys = ['time', self.label_name]
+            value = self.groupby(keys).time.count()
             value = value.unstack(self.label_name).fillna(0)
         else:
-            value = self.groupby('cutoff_time')
+            value = self.groupby('time')
             value = value[self.label_name].count()
 
         value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
@@ -172,7 +172,7 @@ class LabelTimes(DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
+        labels['time'] = labels['time'].sub(pd.Timedelta(value))
 
         transform = {'transform': 'apply_lead', 'value': value}
         labels.transforms.append(transform)

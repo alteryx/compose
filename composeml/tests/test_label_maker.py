@@ -12,7 +12,7 @@ def test_search_default(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:00:00,2',
         '1,2019-01-01 09:00:00,3',
         '2,2019-01-01 10:30:00,4',
@@ -45,7 +45,7 @@ def test_search_offset_mix_0(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:30:00,1',
         '1,2019-01-01 09:30:00,2',
         '2,2019-01-01 11:00:00,3',
@@ -76,7 +76,7 @@ def test_search_offset_mix_1(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '1,2019-01-01 10:00:00,1',
         '2,2019-01-01 10:00:00,4',
         '3,2019-01-01 10:00:00,1',
@@ -106,7 +106,7 @@ def test_search_offset_mix_2(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '1,2019-01-01 10:00:00,1',
         '2,2019-01-01 11:30:00,1',
         '2,2019-01-01 12:00:00,1',
@@ -137,7 +137,7 @@ def test_search_offset_mix_3(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:00:00,2',
         '0,2019-01-01 08:30:00,1',
         '1,2019-01-01 09:00:00,3',
@@ -174,7 +174,7 @@ def test_search_offset_mix_4(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:00:00,1',
         '0,2019-01-01 08:30:00,1',
         '1,2019-01-01 09:00:00,1',
@@ -209,7 +209,7 @@ def test_search_offset_mix_5(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '1,2019-01-01 10:00:00,1',
         '2,2019-01-01 11:30:00,2',
     ]
@@ -239,7 +239,7 @@ def test_search_offset_mix_6(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '2,2019-01-01 12:00:00,1',
     ]
 
@@ -267,7 +267,7 @@ def test_search_offset_mix_7(transactions, total_spent_fn):
     given_labels = to_csv(given_labels, index=False)
 
     labels = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:00:00,2',
         '1,2019-01-01 09:00:00,3',
         '2,2019-01-01 10:30:00,4',
