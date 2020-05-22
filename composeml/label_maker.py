@@ -3,7 +3,7 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
-from composeml.data_slice import Context, DataSlice
+from composeml.data_slice import DataSliceContext, DataSlice
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
 from composeml.offsets import to_offset
@@ -153,7 +153,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice_number=0, target_entity=self.target_entity)
+        df.context = DataSliceContext(slice_number=0, target_entity=self.target_entity)
 
         def iloc(index, i):
             if i < index.size:

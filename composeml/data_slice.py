@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class Context:
+class DataSliceContext:
     """Metadata for data slice."""
 
     def __init__(self, gap=None, window=None, slice_number=None, target_entity=None, target_instance=None):
