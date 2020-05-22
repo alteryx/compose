@@ -45,7 +45,7 @@ commands:
                 name: "Install the requirements to test the package."
                 command: |
                   source env/bin/activate
-                  pip install -r package/dev-requirements.txt
+                  pip install -r package/test-requirements.txt
 
 jobs:
   lint_tests:
@@ -104,6 +104,13 @@ jobs:
                 source env/bin/activate
                 cd package
                 make unit-tests -f ../Makefile
+
+      - unless:
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source env/bin/activate
+                make unit-tests
 
 workflows:
   version: 2
