@@ -1,7 +1,8 @@
+import json
 import os
 
 import pandas as pd
-import json
+
 from .object import LabelTimes
 
 

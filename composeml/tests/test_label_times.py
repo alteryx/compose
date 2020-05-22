@@ -79,14 +79,16 @@ def test_describe(capsys, total_spent):
     assert captured.out == out
 
 
-def test_describe_empty(capsys):
-    LabelTimes().describe()
+def test_describe_no_transforms(capsys):
+    data = {'target': range(3)}
+    lt = LabelTimes(data).describe()
     captured = capsys.readouterr()
-
     out = '\n'.join([
         'Settings',
         '--------',
-        'No settings',
+        'label_name           target',
+        'label_type       continuous',
+        'target_entity          None',
         '',
         '',
         'Transforms',

@@ -18,16 +18,19 @@ def describe_label_times(label_times):
     label_name = metadata['label_name']
     label_type = metadata['target_types'].get(metadata['label_name'])
     target_entity = metadata['target_entity']
-    settings = {'label_name': label_name, 'label_type': label_type, 'target_entity': target_entity}
+
+    settings = {
+        'label_name': label_name,
+        'label_type': label_type,
+        'target_entity': target_entity,
+    }
+
     settings.update(metadata['search_settings'])
     settings = pd.Series(settings)
 
     print('Settings\n' + '-' * 8, end='\n')
-    if settings.isnull().all():
-        print('No settings', end='\n\n\n')
-    else:
-        settings.sort_index(inplace=True)
-        print(settings.to_string(), end='\n\n\n')
+    settings.sort_index(inplace=True)
+    print(settings.to_string(), end='\n\n\n')
 
     print('Transforms\n' + '-' * 10, end='\n')
     for step, transform in enumerate(transforms):

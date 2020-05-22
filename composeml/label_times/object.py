@@ -10,6 +10,7 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
+
     def __init__(
         self,
         data=None,
@@ -138,8 +139,9 @@ class LabelTimes(DataFrame):
 
     def describe(self):
         """Prints out the settings used to make the label times."""
-        self._assert_single_target()
-        describe_label_times(self)
+        if not self.empty:
+            self._assert_single_target()
+            describe_label_times(self)
 
     def copy(self, **kwargs):
         """Makes a copy of this object.

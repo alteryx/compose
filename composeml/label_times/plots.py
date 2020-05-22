@@ -15,6 +15,7 @@ COLOR = sns.color_palette("Set1", n_colors=100, desat=.75)
 
 class LabelPlots:
     """Creates plots for Label Times."""
+
     def __init__(self, label_times):
         """Initializes Label Plots.
 
