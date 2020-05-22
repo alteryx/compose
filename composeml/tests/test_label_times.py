@@ -81,7 +81,7 @@ def test_describe(capsys, total_spent):
 
 def test_describe_no_transforms(capsys):
     data = {'target': range(3)}
-    lt = LabelTimes(data).describe()
+    LabelTimes(data).describe()
     captured = capsys.readouterr()
     out = '\n'.join([
         'Settings',
