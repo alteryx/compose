@@ -105,6 +105,13 @@ jobs:
                 cd package
                 make unit-tests -f ../Makefile
 
+      - unless:
+          condition: << parameters.codecov >>
+          steps:
+            - run: |
+                source env/bin/activate
+                make unit-tests
+
 workflows:
   version: 2
   "Integration Tests":
