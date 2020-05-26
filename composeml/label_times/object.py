@@ -60,7 +60,7 @@ class LabelTimes(DataFrame):
         Returns:
             value (str): Inferred target name.
         """
-        not_targets = [self.target_entity, 'cutoff_time']
+        not_targets = [self.target_entity, 'time']
         target_names = self.columns.difference(not_targets)
         value = target_names.tolist()
         return value
@@ -125,12 +125,13 @@ class LabelTimes(DataFrame):
     def count_by_time(self):
         """Returns label count across cutoff times."""
         self._assert_single_target()
-        if self.is_discrete[self.label_name]:
-            keys = ['cutoff_time', self.label_name]
-            value = self.groupby(keys).cutoff_time.count()
+
+        if self.is_discrete:
+            keys = ['time', self.label_name]
+            value = self.groupby(keys).time.count()
             value = value.unstack(self.label_name).fillna(0)
         else:
-            value = self.groupby('cutoff_time')
+            value = self.groupby('time')
             value = value[self.label_name].count()
 
         value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
@@ -188,7 +189,7 @@ class LabelTimes(DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels['cutoff_time'] = labels['cutoff_time'].sub(pd.Timedelta(value))
+        labels['time'] = labels['time'].sub(pd.Timedelta(value))
 
         transform = {'transform': 'apply_lead', 'value': value}
         labels.transforms.append(transform)
@@ -196,7 +197,7 @@ class LabelTimes(DataFrame):
         if not inplace:
             return labels
 
-    def bin(self, bins, quantiles=False, labels=None, right=True):
+    def bin(self, bins, quantiles=False, labels=None, right=True, precision=3):
         """Bin labels into discrete intervals.
 
         Args:
@@ -212,6 +213,7 @@ class LabelTimes(DataFrame):
             quantiles (bool): Determines whether to use a quantile-based discretization function.
             labels (array): Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
+            precision (int): The precision at which to store and display the bins labels. Default value is 3.
 
         Returns:
             LabelTimes : Instance of labels.
@@ -246,6 +248,15 @@ class LabelTimes(DataFrame):
             2  (200, 400]
             3    (0, 200]
 
+            Bin values using infinite edges.
+
+            >>> lt.bin(['-inf', 100, 'inf'])
+                      target
+            0   (100.0, inf]
+            1  (-inf, 100.0]
+            2   (100.0, inf]
+            3  (-inf, 100.0]
+
             Bin values using quartiles.
 
             >>> lt.bin(4, quantiles=True)
@@ -254,6 +265,15 @@ class LabelTimes(DataFrame):
             1              (43.848, 137.44]
             2             (241.062, 283.46]
             3  (31.538999999999998, 43.848]
+
+            Bin values using custom quantiles with precision.
+
+            >>> lt.bin([0, .5, 1], quantiles=True, precision=1)
+                       target
+            0  (137.4, 283.5]
+            1   (31.4, 137.4]
+            2  (137.4, 283.5]
+            3   (31.4, 137.4]
 
             Assign labels to bins.
 
@@ -265,14 +285,20 @@ class LabelTimes(DataFrame):
             3    low
         """  # noqa
         self._assert_single_target()
-        label_times = self.copy()
-        values = label_times[self.label_name].values
+
+        lt = self.copy()
+        values = lt[self.label_name].values
 
         if quantiles:
-            label_times[self.label_name] = pd.qcut(values, q=bins, labels=labels)
+            values = pd.qcut(values, q=bins, labels=labels, precision=precision)
 
         else:
-            label_times[self.label_name] = pd.cut(values, bins=bins, labels=labels, right=right)
+            if isinstance(bins, list):
+                for i, edge in enumerate(bins):
+                    if edge in ['-inf', 'inf']:
+                        bins[i] = float(edge)
+
+            values = pd.cut(values, bins=bins, labels=labels, right=right, precision=precision)
 
         transform = {
             'transform': 'bin',
@@ -280,11 +306,13 @@ class LabelTimes(DataFrame):
             'quantiles': quantiles,
             'labels': labels,
             'right': right,
+            'precision': precision,
         }
 
-        label_times.transforms.append(transform)
-        label_times.target_types[self.label_name] = 'discrete'
-        return label_times
+        lt[self.label_name] = values
+        lt.transforms.append(transform)
+        lt.target_types[self.label_name] = 'discrete'
+        return lt
 
     def _sample(self, key, value, settings, random_state=None, replace=False):
         """Returns a random sample of labels.

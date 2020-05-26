@@ -43,7 +43,7 @@ def unique_amounts_fn():
 @pytest.fixture
 def total_spent():
     data = [
-        'customer_id,cutoff_time,total_spent',
+        'customer_id,time,total_spent',
         '0,2019-01-01 08:00:00,9',
         '0,2019-01-01 08:30:00,8',
         '1,2019-01-01 09:00:00,7',
@@ -56,7 +56,7 @@ def total_spent():
         '3,2019-01-01 12:30:00,0',
     ]
 
-    data = read_csv(data, parse_dates=['cutoff_time'])
+    data = read_csv(data, parse_dates=['time'])
 
     kwargs = {
         'data': data,
@@ -77,33 +77,33 @@ def labels():
         {
             'label_id': 0,
             'customer_id': 1,
-            'cutoff_time': '2014-01-01 00:45:00',
+            'time': '2014-01-01 00:45:00',
             'my_labeling_function': 226.92999999999998
         },
         {
             'label_id': 1,
             'customer_id': 1,
-            'cutoff_time': '2014-01-01 00:48:00',
+            'time': '2014-01-01 00:48:00',
             'my_labeling_function': 47.95
         },
         {
             'label_id': 2,
             'customer_id': 2,
-            'cutoff_time': '2014-01-01 00:01:00',
+            'time': '2014-01-01 00:01:00',
             'my_labeling_function': 283.46000000000004
         },
         {
             'label_id': 3,
             'customer_id': 2,
-            'cutoff_time': '2014-01-01 00:04:00',
+            'time': '2014-01-01 00:04:00',
             'my_labeling_function': 31.54
         },
     ]
 
-    dtype = {'cutoff_time': 'datetime64[ns]'}
+    dtype = {'time': 'datetime64[ns]'}
     values = pd.DataFrame(records).astype(dtype).set_index('label_id')
-    values = values[['customer_id', 'cutoff_time', 'my_labeling_function']]
-    values = LabelTimes(values, target_entity='customer_id', name=['my_labeling_function'])
+    values = values[['customer_id', 'time', 'my_labeling_function']]
+    values = LabelTimes(values, name='my_labeling_function', target_entity='customer_id')
     return values
 
 

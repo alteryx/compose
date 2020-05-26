@@ -3,7 +3,7 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
-from composeml.data_slice import Context, DataSlice
+from composeml.data_slice import DataSlice, DataSliceContext
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
 from composeml.offsets import to_offset
@@ -154,7 +154,7 @@ class LabelMaker:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = Context(slice_number=0, target_entity=self.target_entity)
+        df.context = DataSliceContext(slice_number=0, target_entity=self.target_entity)
 
         def iloc(index, i):
             if i < index.size:
@@ -296,14 +296,17 @@ class LabelMaker:
 
                 records.append({
                     self.target_entity: entity_id,
-                    'cutoff_time': ds.context.window[0],
+                    'time': ds.context.window[0],
                     **labels,
                 })
 
                 search.update_count(labels)
+                # if finite search, progress bar is updated for each example found
                 if search.is_finite: progress_bar.update(n=1)
                 if search.is_complete: break
 
+            # if finite search, progress bar is updated for examples not found
+            # otherwise, progress bar is updated for each entity group
             n = missing_examples(entity_count + 1) if search.is_finite else 1
             progress_bar.update(n=n)
             search.reset_count()
@@ -333,7 +336,8 @@ class LabelMaker:
 
         Args:
             df (DataFrame): Data frame to search and extract labels.
-            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
+                A dictionary can be used to further specify the expected number of examples to return from each label.
             minimum_data (str): Minimum data before starting search. Default value is first time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.

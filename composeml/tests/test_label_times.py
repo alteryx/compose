@@ -7,7 +7,7 @@ def test_count_by_time_categorical(total_spent):
     given_answer = to_csv(given_answer.count_by_time)
 
     answer = [
-        'cutoff_time,0,1',
+        'time,0,1',
         '2019-01-01 08:00:00,0,1',
         '2019-01-01 08:30:00,0,2',
         '2019-01-01 09:00:00,0,3',
@@ -28,7 +28,7 @@ def test_count_by_time_continuous(total_spent):
     given_answer = to_csv(given_answer, header=True, index=True)
 
     answer = [
-        'cutoff_time,total_spent',
+        'time,total_spent',
         '2019-01-01 08:00:00,1',
         '2019-01-01 08:30:00,2',
         '2019-01-01 09:00:00,3',
@@ -70,6 +70,7 @@ def test_describe(capsys, total_spent):
         '1. bin',
         '  - bins:              2',
         '  - labels:       [A, B]',
+        '  - precision:         3',
         '  - quantiles:     False',
         '  - right:          True',
         '',
