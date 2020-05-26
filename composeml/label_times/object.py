@@ -272,6 +272,7 @@ class LabelTimes(DataFrame):
 
         if quantiles:
             values = pd.qcut(values, q=bins, labels=labels, precision=precision)
+
         else:
             if isinstance(bins, list):
                 for i, edge in enumerate(bins):
