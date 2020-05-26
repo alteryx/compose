@@ -247,6 +247,15 @@ class LabelTimes(DataFrame):
             2             (241.062, 283.46]
             3  (31.538999999999998, 43.848]
 
+            Bin values using custom quantiles with precision.
+
+            >>> lt.bin([0, .5, 1], quantiles=True, precision=1)
+                       target
+            0  (137.4, 283.5]
+            1   (31.4, 137.4]
+            2  (137.4, 283.5]
+            3   (31.4, 137.4]
+
             Assign labels to bins.
 
             >>> lt.bin(2, labels=['low', 'high'])
@@ -260,7 +269,12 @@ class LabelTimes(DataFrame):
         values = label_times[self.label_name].values
 
         if quantiles:
-            label_times[self.label_name] = pd.qcut(values, q=bins, labels=labels)
+            label_times[self.label_name] = pd.qcut(
+                values,
+                q=bins,
+                labels=labels,
+                precision=precision,
+            )
 
         else:
             custom_widths = isinstance(bins, list)
