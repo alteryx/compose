@@ -180,16 +180,7 @@ class LabelTimes(DataFrame):
         if not inplace:
             return labels
 
-    def bin(
-        self,
-        bins,
-        quantiles=False,
-        labels=None,
-        right=True,
-        precision=3,
-        include_lowest=False,
-        include_highest=False,
-    ):
+    def bin(self, bins, quantiles=False, labels=None, right=True, precision=3):
         """Bin labels into discrete intervals.
 
         Args:
@@ -205,6 +196,7 @@ class LabelTimes(DataFrame):
             quantiles (bool): Determines whether to use a quantile-based discretization function.
             labels (array): Specifies the labels for the returned bins. Must be the same length as the resulting bins.
             right (bool) : Indicates whether bins includes the rightmost edge or not. Does not apply to quantile-based bins.
+            precision (int): The precision at which to store and display the bins labels. Default value is 3.
 
         Returns:
             LabelTimes : Instance of labels.
