@@ -238,6 +238,15 @@ class LabelTimes(DataFrame):
             2  (200, 400]
             3    (0, 200]
 
+            Bin values using infinite edges.
+
+            >>> lt.bin(['-inf', 100, 'inf'])
+                      target
+            0   (100.0, inf]
+            1  (-inf, 100.0]
+            2   (100.0, inf]
+            3  (-inf, 100.0]
+
             Bin values using quartiles.
 
             >>> lt.bin(4, quantiles=True)
@@ -265,29 +274,18 @@ class LabelTimes(DataFrame):
             2   high
             3    low
         """  # noqa
-        label_times = self.copy()
-        values = label_times[self.label_name].values
+        lt = self.copy()
+        values = lt[self.label_name].values
 
         if quantiles:
-            label_times[self.label_name] = pd.qcut(
-                values,
-                q=bins,
-                labels=labels,
-                precision=precision,
-            )
-
+            values = pd.qcut(values, q=bins, labels=labels, precision=precision)
         else:
-            custom_widths = isinstance(bins, list)
-            if custom_widths and include_lowest: bins.insert(0, -float('inf'))
-            if custom_widths and include_highest: bins.append(float('inf'))
+            if isinstance(bins, list):
+                for i, edge in enumerate(bins):
+                    if edge in ['-inf', 'inf']:
+                        bins[i] = float(edge)
 
-            label_times[self.label_name] = pd.cut(
-                values,
-                bins=bins,
-                labels=labels,
-                right=right,
-                precision=precision,
-            )
+            values = pd.cut(values, bins=bins, labels=labels, right=right, precision=precision)
 
         transform = {
             'transform': 'bin',
@@ -296,13 +294,12 @@ class LabelTimes(DataFrame):
             'labels': labels,
             'right': right,
             'precision': precision,
-            'include_lowest': include_lowest,
-            'include_highest': include_highest,
         }
 
-        label_times.transforms.append(transform)
-        label_times.label_type = 'discrete'
-        return label_times
+        lt[self.label_name] = values
+        lt.transforms.append(transform)
+        lt.label_type = 'discrete'
+        return lt
 
     def _sample(self, key, value, settings, random_state=None, replace=False):
         """Returns a random sample of labels.

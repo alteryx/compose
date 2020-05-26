@@ -2,8 +2,6 @@ from collections import Counter
 
 from pandas import isnull
 
-from composeml.utils import format_number, is_finite_number
-
 
 class ExampleSearch:
     """A label search based on the number of examples.
@@ -11,10 +9,20 @@ class ExampleSearch:
     Args:
         expected_count (int): The expected number of examples to find.
     """
-
     def __init__(self, expected_count):
-        self.expected_count = format_number(expected_count)
+        self.expected_count = self._check_count(expected_count)
         self.reset_count()
+
+    def _check_count(self, n):
+        if n == -1 or n == 'inf':
+            return float('inf')
+        else:
+            assert isinstance(n, (int, float)), 'count must be numeric'
+            return n
+
+    @staticmethod
+    def _is_finite_number(n):
+        return n > 0 and abs(n) != float('inf')
 
     @property
     def is_complete(self):
@@ -24,7 +32,7 @@ class ExampleSearch:
     @property
     def is_finite(self):
         """Whether the expected number of examples is a finite number."""
-        return is_finite_number(self.expected_count)
+        return self._is_finite_number(self.expected_count)
 
     def is_valid_labels(self, labels):
         """Whether the label values are not null."""
@@ -46,10 +54,9 @@ class LabelSearch(ExampleSearch):
         expected_label_counts (dict): The expected number of examples to be find for each label.
             The dictionary should map a label to the number of examples to find for the label.
     """
-
     def __init__(self, expected_label_counts):
         items = expected_label_counts.items()
-        self.expected_label_counts = Counter({label: format_number(count) for label, count in items})
+        self.expected_label_counts = Counter({label: self._check_count(count) for label, count in items})
         self.expected_count = sum(self.expected_label_counts.values())
         self.actual_label_counts = Counter()
 
