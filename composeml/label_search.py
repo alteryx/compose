@@ -9,6 +9,7 @@ class ExampleSearch:
     Args:
         expected_count (int): The expected number of examples to find.
     """
+
     def __init__(self, expected_count):
         self.expected_count = self._check_count(expected_count)
         self.reset_count()
@@ -54,6 +55,7 @@ class LabelSearch(ExampleSearch):
         expected_label_counts (dict): The expected number of examples to be find for each label.
             The dictionary should map a label to the number of examples to find for the label.
     """
+
     def __init__(self, expected_label_counts):
         items = expected_label_counts.items()
         self.expected_label_counts = Counter({label: self._check_count(count) for label, count in items})
