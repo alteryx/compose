@@ -511,5 +511,6 @@ def test_slice_overlap(transactions, total_spent_fn):
 
 def test_label_type(transactions, total_spent_fn):
     lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
-    lt = lm.search(transactions, num_examples_per_instance=1, label_type='discrete')
-    assert lt.label_type == 'discrete'
+    lt = lm.search(transactions, num_examples_per_instance=1)
+    assert lt.target_types['total_spent'] == 'continuous'
+    assert lt.bin(2).target_types['total_spent'] == 'discrete'

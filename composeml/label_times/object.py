@@ -126,7 +126,7 @@ class LabelTimes(DataFrame):
         """Returns label count across cutoff times."""
         self._assert_single_target()
 
-        if self.is_discrete:
+        if self.is_discrete[self.label_name]:
             keys = ['time', self.label_name]
             value = self.groupby(keys).time.count()
             value = value.unstack(self.label_name).fillna(0)
