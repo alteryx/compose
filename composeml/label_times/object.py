@@ -24,7 +24,7 @@ class LabelTimes(DataFrame):
         super().__init__(data=data, *args, **kwargs)
         self.target_entity = target_entity
         self.label_name = name
-        self.target_types = pd.Series(target_types or {})
+        self.target_types = target_types or {}
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
@@ -46,6 +46,9 @@ class LabelTimes(DataFrame):
         missing = pd.Index(self.label_name).difference(self.columns)
         info = 'target variable(s) not found: %s'
         assert missing.empty, info % missing.tolist()
+
+        if not isinstance(self.target_types, pd.Series):
+            self.target_types = pd.Series(self.target_types)
 
         if self.target_types.empty:
             self.target_types = self._infer_target_types()
@@ -147,18 +150,23 @@ class LabelTimes(DataFrame):
             self._assert_single_target()
             describe_label_times(self)
 
-    def copy(self, **kwargs):
-        """Makes a copy of this object.
+    def copy(self, deep=True):
+        """Make a copy of this object's indices and data.
 
         Args:
-            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.copy method
+            deep (bool): Make a deep copy, including a copy of the data and the indices.
+                With ``deep=False`` neither the indices nor the data are copied.
 
         Returns:
-            LabelTimes : Copy of label times.
+            copy (LabelTimes): Object type matches caller.
         """
-        label_times = super().copy(**kwargs)
-        label_times.transforms = self.transforms.copy()
-        return label_times
+        copy = super().copy(deep=deep)
+        copy.target_entity = self.target_entity
+        copy.name = self.label_name
+        copy.target_types = self.target_types.copy()
+        copy.search_settings = self.search_settings.copy()
+        copy.transforms = self.transforms.copy()
+        return copy
 
     def threshold(self, value, inplace=False):
         """Creates binary labels by testing if labels are above threshold.
