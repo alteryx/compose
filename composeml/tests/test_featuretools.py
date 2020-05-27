@@ -36,11 +36,12 @@ def labels():
 
 
 def test_dfs(labels):
+    target_column = labels.target_columns[0]
     es = ft.demo.load_mock_customer(return_entityset=True, random_seed=0)
     feature_matrix, _ = ft.dfs(entityset=es, target_entity='customers', cutoff_time=labels, cutoff_time_in_index=True)
-    assert labels.label_name in feature_matrix
+    assert target_column in feature_matrix
 
-    columns = ['customer_id', 'time', labels.label_name]
+    columns = ['customer_id', 'time', target_column]
     given_labels = feature_matrix.reset_index()[columns]
     given_labels = given_labels.sort_values(['customer_id', 'time'])
     given_labels = given_labels.reset_index(drop=True)

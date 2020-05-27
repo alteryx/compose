@@ -3,11 +3,12 @@ import pandas as pd
 
 def describe_label_times(label_times):
     """Prints out label info with transform settings that reproduce labels."""
-    is_discrete = label_times.is_discrete[label_times.label_name]
+    target_column = label_times.target_columns[0]
+    is_discrete = label_times.is_discrete[target_column]
 
     if is_discrete:
         print('Label Distribution\n' + '-' * 18, end='\n')
-        distribution = label_times[label_times.label_name].value_counts()
+        distribution = label_times[target_column].value_counts()
         distribution.index = distribution.index.astype('str')
         distribution.sort_index(inplace=True)
         distribution['Total:'] = distribution.sum()
@@ -15,14 +16,14 @@ def describe_label_times(label_times):
 
     metadata = label_times.settings
     transforms = metadata['transforms']
-    label_name = metadata['label_name']
-    label_type = metadata['target_types'].get(metadata['label_name'])
+    target_column = metadata['target_columns'][0]
+    target_type = metadata['target_types'].get(target_column)
     target_entity = metadata['target_entity']
 
     settings = {
-        'label_name': label_name,
-        'label_type': label_type,
+        'target_column': target_column,
         'target_entity': target_entity,
+        'target_type': target_type,
     }
 
     settings.update(metadata['search_settings'])

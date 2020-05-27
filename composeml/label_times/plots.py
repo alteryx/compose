@@ -28,6 +28,7 @@ class LabelPlots:
         """Plots the label distribution across cutoff times."""
         count_by_time = self._label_times.count_by_time
         count_by_time.sort_index(inplace=True)
+        target_column = self._label_times.target_columns[0]
 
         ax = ax or mpl.pyplot.axes()
         vmin = count_by_time.index.min()
@@ -52,7 +53,7 @@ class LabelPlots:
 
             ax.legend(
                 loc='upper left',
-                title=self._label_times.label_name,
+                title=target_column,
                 facecolor='w',
                 framealpha=.9,
             )
@@ -69,7 +70,7 @@ class LabelPlots:
             )
 
             ax.set_title('Label vs. Cutoff Times')
-            ax.set_ylabel(self._label_times.label_name)
+            ax.set_ylabel(target_column)
             ax.set_xlabel('Time')
 
         return ax
@@ -81,11 +82,11 @@ class LabelPlots:
 
     def distribution(self, **kwargs):
         """Plots the label distribution."""
-        dist = self._label_times[self._label_times.label_name]
-        is_discrete = self._label_times.is_discrete
-        target_name = self._label_times.label_name
+        target_column = self._label_times.target_columns[0]
+        dist = self._label_times[target_column]
+        is_discrete = self._label_times.is_discrete[target_column]
 
-        if is_discrete[target_name]:
+        if is_discrete:
             ax = sns.countplot(dist, palette=COLOR, **kwargs)
         else:
             ax = sns.distplot(dist, kde=True, color=COLOR[1], **kwargs)

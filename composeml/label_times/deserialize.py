@@ -20,9 +20,9 @@ def load_label_times(path, df):
 
     lt = LabelTimes(
         data=df.astype(settings['dtypes']),
+        target_columns=settings['target_columns'],
         target_entity=settings['target_entity'],
         target_types=settings['target_types'],
-        name=settings['label_name'],
         search_settings=settings['search_settings'],
         transforms=settings['transforms'],
     )
