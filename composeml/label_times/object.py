@@ -10,7 +10,6 @@ from .plots import LabelPlots
 
 class LabelTimes(DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -86,9 +85,15 @@ class LabelTimes(DataFrame):
         types = dtypes.apply(self._get_target_type)
         return types
 
-    def select(self, target_column):
-        assert not self._is_single_target
-        assert target_column in self.columns
+    def select(self, target):
+        assert not self._is_single_target, 'only one target exists'
+        assert target in self.target_columns, 'target "%s" not found' % target
+
+        lt = self.copy()
+        lt.target_columns = [target]
+        lt.target_types = lt.target_types[[target]]
+        lt = lt[[self.target_entity, 'time', target]]
+        return lt
 
     @property
     def settings(self):
