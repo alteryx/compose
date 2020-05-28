@@ -1,6 +1,7 @@
+from pytest import raises
+
 from composeml.label_times import LabelTimes
 from composeml.tests.utils import to_csv
-from pytest import raises
 
 
 def test_count_by_time_categorical(total_spent):
