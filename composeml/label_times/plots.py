@@ -82,6 +82,7 @@ class LabelPlots:
 
     def distribution(self, **kwargs):
         """Plots the label distribution."""
+        self._label_times._assert_single_target()
         target_column = self._label_times.target_columns[0]
         dist = self._label_times[target_column]
         is_discrete = self._label_times.is_discrete[target_column]
