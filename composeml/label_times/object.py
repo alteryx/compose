@@ -23,7 +23,7 @@ class LabelTimes(DataFrame):
     ):
         super().__init__(data=data, *args, **kwargs)
         self.target_entity = target_entity
-        self.target_columns = target_columns
+        self.target_columns = target_columns or []
         self.target_types = target_types or {}
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
@@ -39,9 +39,6 @@ class LabelTimes(DataFrame):
         """Checks whether the target exists in the data frame."""
         if not self.target_columns:
             self.target_columns = self._infer_target_columns()
-
-        if not isinstance(self.target_columns, list):
-            self.target_columns = [self.target_columns]
 
         missing = pd.Index(self.target_columns).difference(self.columns)
         info = 'target variable(s) not found: %s'
