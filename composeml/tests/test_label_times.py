@@ -1,5 +1,6 @@
 from composeml.label_times import LabelTimes
 from composeml.tests.utils import to_csv
+from pytest import raises
 
 
 def test_count_by_time_categorical(total_spent):
@@ -141,3 +142,15 @@ def test_count(total_spent):
     ]
 
     assert given_answer == answer
+
+
+def test_label_select_errors(total_spent):
+    match = 'only one target exists'
+    with raises(AssertionError, match=match):
+        total_spent.select('a')
+
+    match = 'target "a" not found'
+    lt = total_spent.copy()
+    lt.target_columns.append('b')
+    with raises(AssertionError, match=match):
+        lt.select('a')
