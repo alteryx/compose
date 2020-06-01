@@ -42,7 +42,6 @@ def test_dfs(labels):
 
     columns = ['customer_id', 'time', labels.label_name]
     given_labels = feature_matrix.reset_index()[columns]
-    given_labels = given_labels.rename(columns={'time': 'time'})
     given_labels = given_labels.sort_values(['customer_id', 'time'])
     given_labels = given_labels.reset_index(drop=True)
     given_labels = given_labels.rename_axis('label_id')
