@@ -20,7 +20,7 @@ from composeml import __version__ as version
 # -- Project information -----------------------------------------------------
 
 project = 'Compose'
-copyright = '2019, Feature Labs, Inc.'
+copyright = '2020, Feature Labs, Inc.'
 author = 'Feature Labs, Inc.'
 
 # The full version, including alpha/beta/rc tags
