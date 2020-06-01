@@ -6,7 +6,7 @@ Changelog
     * Enhancements
         * Label Search for Multiple Targets (:pr:`130`)
     * Changes
-        * Renames Cutoff Time Column (:pr:`139`)
+        * Column renamed from :code:`cutoff_time` to :code:`time` (:pr:`139`)
 
 **v0.2.0** April 23, 2020
     * Changes
