@@ -296,7 +296,7 @@ class LabelMaker:
 
                 records.append({
                     self.target_entity: entity_id,
-                    'cutoff_time': ds.context.window[0],
+                    'time': ds.context.window[0],
                     **labels,
                 })
 

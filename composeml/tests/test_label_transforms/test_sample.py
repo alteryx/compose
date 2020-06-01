@@ -14,7 +14,7 @@ def test_sample_n_int(labels):
     given_answer = to_csv(given_answer, index=True)
 
     answer = [
-        'label_id,customer_id,cutoff_time,my_labeling_function',
+        'label_id,customer_id,time,my_labeling_function',
         '2,2,2014-01-01 00:01:00,True',
         '3,2,2014-01-01 00:04:00,False',
     ]
@@ -29,7 +29,7 @@ def test_sample_n_per_label(labels):
     given_answer = to_csv(given_answer, index=True)
 
     answer = [
-        'label_id,customer_id,cutoff_time,my_labeling_function',
+        'label_id,customer_id,time,my_labeling_function',
         '1,1,2014-01-01 00:48:00,False',
         '2,2,2014-01-01 00:01:00,True',
         '3,2,2014-01-01 00:04:00,False',
@@ -44,7 +44,7 @@ def test_sample_frac_int(labels):
     given_answer = to_csv(given_answer, index=True)
 
     answer = [
-        'label_id,customer_id,cutoff_time,my_labeling_function',
+        'label_id,customer_id,time,my_labeling_function',
         '2,2,2014-01-01 00:01:00,True',
     ]
 
@@ -58,7 +58,7 @@ def test_sample_frac_per_label(labels):
     given_answer = to_csv(given_answer, index=True)
 
     answer = [
-        'label_id,customer_id,cutoff_time,my_labeling_function',
+        'label_id,customer_id,time,my_labeling_function',
         '0,1,2014-01-01 00:45:00,True',
         '2,2,2014-01-01 00:01:00,True',
         '3,2,2014-01-01 00:04:00,False',
