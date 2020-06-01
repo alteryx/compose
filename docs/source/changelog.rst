@@ -2,6 +2,12 @@
 Changelog
 =========
 
+**v0.3.0** June 1, 2020
+    * Enhancements
+        * Label Search for Multiple Targets (:pr:`130`)
+    * Changes
+        * Renames Cutoff Time Column (:pr:`139`)
+
 **v0.2.0** April 23, 2020
     * Changes
         * Dropped Support for Python 3.5 (:pr:`128`)
