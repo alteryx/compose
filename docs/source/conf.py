@@ -43,6 +43,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'sphinx.ext.extlinks',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -179,6 +180,12 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
+extlinks = {
+    'issue': ('https://github.com/FeatureLabs/compose/issues/%s', '#'),
+    'pr': ('https://github.com/FeatureLabs/compose/pull/%s', '#'),
+    'user': ('https://github.com/%s', '@')
+}
+
 autosummary_generate = ["api_reference.rst"]
 templates_path = ["_templates"]
 
@@ -186,4 +193,3 @@ def setup(app):
     app.add_stylesheet("style.css")
 
 html_show_sphinx = False
-intersphinx_mapping = {'featuretools': ('https://docs.featuretools.com/', None)}
