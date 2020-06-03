@@ -445,49 +445,46 @@ class LabelTimes(DataFrame):
         with open(file, 'w') as file:
             json.dump(settings, file)
 
-    def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
+    def to_csv(self, path, save_settings=True, **kwargs):
         """Write label times in csv format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.csv`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_csv method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.csv')
         super().to_csv(file, index=False, **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_parquet(self, path, filename='label_times.parquet', save_settings=True, **kwargs):
+    def to_parquet(self, path, save_settings=True, **kwargs):
         """Write label times in parquet format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.parquet`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_parquet method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.parquet')
         super().to_parquet(file, compression=None, engine='auto', **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_pickle(self, path, filename='label_times.pickle', save_settings=True, **kwargs):
+    def to_pickle(self, path, save_settings=True, **kwargs):
         """Write label times in pickle format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.pickle`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_pickle method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.pickle')
         super().to_pickle(file, **kwargs)
 
         if save_settings:
