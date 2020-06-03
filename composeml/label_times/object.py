@@ -283,12 +283,6 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
         """
         sample = super().sample(random_state=random_state, replace=replace, **{key: value})
-        recursive = getattr(self, '_recursive', False)
-
-        if not recursive:
-            sample = sample.copy()
-            sample.transforms.append(settings)
-
         return sample
 
     def _sample_per_label(self, key, value, settings, random_state=None, replace=False):
@@ -304,17 +298,13 @@ class LabelTimes(DataFrame):
         Returns:
             LabelTimes : Random sample per label.
         """
-        self._recursive = True
         sample_per_label = []
         for label, value, in value.items():
             label = self[self[self.label_name] == label]
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
-        del self._recursive
         sample = pd.concat(sample_per_label, axis=0, sort=False)
-        sample = sample.copy()
-        sample.transforms.append(settings)
         return sample
 
     def sample(self, n=None, frac=None, random_state=None, replace=False):
@@ -393,7 +383,10 @@ class LabelTimes(DataFrame):
         per_label = isinstance(value, dict)
         method = self._sample_per_label if per_label else self._sample
         sample = method(key, value, settings, random_state=random_state, replace=replace)
+
+        sample = sample.copy()
         sample.sort_index(inplace=True)
+        sample.transforms.append(settings)
         return sample
 
     def equals(self, other, **kwargs):
