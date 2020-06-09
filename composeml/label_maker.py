@@ -6,7 +6,7 @@ from tqdm import tqdm
 from composeml.data_slice import DataSlice, DataSliceContext
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
-from composeml.offsets import to_offset
+from composeml.offset import to_offset
 from composeml.utils import can_be_type
 
 
