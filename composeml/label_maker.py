@@ -125,7 +125,7 @@ class LabelMaker:
         assert isinstance(value, dict), 'value type for labeling function not supported'
         self._labeling_function = value
 
-    def _slice(self, df, gap=None, min_data=None, drop_empty=True):
+    def _slice_by_time(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices for a group.
 
         Args:
@@ -228,7 +228,7 @@ class LabelMaker:
             num_examples_per_instance = float('inf')
 
         for key, df in groups:
-            slices = self._slice(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
+            slices = self._slice_by_time(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
 
             for ds in slices:
                 ds.context.target_instance = key
@@ -281,7 +281,7 @@ class LabelMaker:
         for entity_count, group in enumerate(entity_groups):
             entity_id, df = group
 
-            slices = self._slice(
+            slices = self._slice_by_time(
                 df=df,
                 gap=gap,
                 min_data=min_data,
