@@ -3,14 +3,12 @@ import os
 
 import pandas as pd
 
-from .data_frame import DataFrame
 from .description import describe_label_times
 from .plots import LabelPlots
 
 
-class LabelTimes(DataFrame):
+class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -482,3 +480,38 @@ class LabelTimes(DataFrame):
 
         if save_settings:
             self._save_settings(path)
+
+    # ----------------------------------------
+    # Subclassing Pandas Data Frame
+    # ----------------------------------------
+
+    _metadata = [
+        '_recursive',
+        'label_name',
+        'label_type',
+        'search_settings',
+        'target_entity',
+        'transforms',
+    ]
+
+    def __finalize__(self, other, method=None, **kwargs):
+        """Propagate metadata from other label times data frames.
+
+        Args:
+            other (LabelTimes) : The label times from which to get the attributes from.
+            method (str) : A passed method name for optionally taking different types of propagation actions based on this value.
+        """
+        if method == 'concat':
+            other = other.objs[0]
+
+            for key in self._metadata:
+                value = getattr(other, key, None)
+                setattr(self, key, value)
+
+            return self
+
+        return super().__finalize__(other=other, method=method, **kwargs)
+
+    @property
+    def _constructor(self):
+        return LabelTimes
