@@ -3,12 +3,16 @@ import os
 
 import pandas as pd
 
+from ..version import __version__
 from .description import describe_label_times
 from .plots import LabelPlots
+
+SCHEMA_VERSION = "0.1.0"
 
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
+
     def __init__(
         self,
         data=None,
@@ -76,6 +80,8 @@ class LabelTimes(pd.DataFrame):
     def settings(self):
         """Returns metadata about the label times."""
         return {
+            'compose_version': __version__,
+            'schema_version': SCHEMA_VERSION,
             'target_entity': self.target_entity,
             'label_name': self.label_name,
             'label_type': self.label_type,
@@ -413,12 +419,19 @@ class LabelTimes(pd.DataFrame):
         with open(file, 'r') as file:
             settings = json.load(file)
 
+        df = self
         if 'dtypes' in settings:
             dtypes = settings.pop('dtypes')
-            self = LabelTimes(self.astype(dtypes))
+            df = df.astype(dtypes)
 
-        for attr, value in settings.items():
-            setattr(self, attr, value)
+        self = LabelTimes(
+            data=df,
+            target_entity=settings['target_entity'],
+            name=settings['label_name'],
+            label_type=settings['label_type'],
+            search_settings=settings['search_settings'],
+            transforms=settings['transforms'],
+        )
 
         return self
 

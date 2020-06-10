@@ -12,6 +12,8 @@ def describe_label_times(label_times):
         print(distribution.to_string(), end='\n\n\n')
 
     settings = label_times.settings.copy()
+    del settings['compose_version']
+    del settings['schema_version']
     settings.update(settings.pop('search_settings'))
     settings = pd.Series(settings)
     transforms = settings.pop('transforms')
