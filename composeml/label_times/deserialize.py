@@ -6,79 +6,42 @@ import pandas as pd
 from .object import LabelTimes
 
 
-def load_label_times(path, df):
-    """Read the settings in json format from disk.
-
-    Args:
-        path (str) : Directory on disk to read from.
-    """
+def read_config(path):
+    """Reads config file from disk."""
     file = os.path.join(path, 'settings.json')
     assert os.path.exists(file), "settings not found: '%s'" % file
 
     with open(file, 'r') as file:
         settings = json.load(file)
-
-    lt = LabelTimes(
-        data=df.astype(settings['dtypes']),
-        target_columns=settings['target_columns'],
-        target_entity=settings['target_entity'],
-        target_types=settings['target_types'],
-        search_settings=settings['search_settings'],
-        transforms=settings['transforms'],
-    )
-
-    return lt
+        return settings
 
 
-def read_csv(path, filename='label_times.csv', load_settings=True):
-    """Read label times in csv format from disk.
+def read_data(path):
+    """Reads data file from disk."""
+    file = ''
+    for file in os.listdir(path):
+        if file.startswith('data'): break
 
-    Args:
-        path (str) : Directory on disk to read from.
-        filename (str) : Filename for label times. Default value is `label_times.csv`.
-        load_settings (bool) : Whether to load the settings used to make the label times.
+    assert file.startswith('data'), "data not found"
+    extension = os.path.splitext(file)[1].lstrip('.')
+    info = 'file extension must be csv, parquet, or pickle'
+    assert extension in ['csv', 'parquet', 'pickle'], info
 
-    Returns:
-        LabelTimes : Deserialized label times.
-    """
-    file = os.path.join(path, filename)
-    assert os.path.exists(file), "data not found: '%s'" % file
-    df = pd.read_csv(file)
-    lt = load_label_times(path, df)
-    return lt
+    read = getattr(pd, 'read_%s' % extension)
+    data = read(os.path.join(path, file))
+    return data
 
 
-def read_parquet(path, filename='label_times.parquet', load_settings=True):
-    """Read label times in parquet format from disk.
+def read_label_times(path):
+    """Reads label times from disk.
 
     Args:
-        path (str) : Directory on disk to read from.
-        filename (str) : Filename for label times. Default value is `label_times.parquet`.
-        load_settings (bool) : Whether to load the settings used to make the label times.
+        path (str): Directory where label times is stored.
 
     Returns:
-        LabelTimes : Deserialized label times.
+        lt (LabelTimes): Deserialized label times.
     """
-    file = os.path.join(path, filename)
-    assert os.path.exists(file), "data not found: '%s'" % file
-    df = pd.read_parquet(file)
-    lt = load_label_times(path, df)
-    return lt
-
-
-def read_pickle(path, filename='label_times.pickle', load_settings=True):
-    """Read label times in parquet format from disk.
-
-    Args:
-        path (str) : Directory on disk to read from.
-        filename (str) : Filename for label times. Default value is `label_times.parquet`.
-        load_settings (bool) : Whether to load the settings used to make the label times.
-
-    Returns:
-        LabelTimes : Deserialized label times.
-    """
-    file = os.path.join(path, filename)
-    assert os.path.exists(file), "data not found: '%s'" % file
-    df = pd.read_pickle(file)
-    lt = load_label_times(path, df)
+    config = read_config(path)
+    data = read_data(path).astype(config['dtypes'])
+    lt = LabelTimes(data=data, **config['label_times'])
     return lt

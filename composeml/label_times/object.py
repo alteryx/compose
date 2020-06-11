@@ -3,14 +3,15 @@ import os
 
 import pandas as pd
 
-from .data_frame import DataFrame
+from ..version import __version__
 from .description import describe_label_times
 from .plots import LabelPlots
 
+SCHEMA_VERSION = "0.1.0"
 
-class LabelTimes(DataFrame):
+
+class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -97,11 +98,15 @@ class LabelTimes(DataFrame):
     def settings(self):
         """Returns metadata about the label times."""
         return {
-            'target_entity': self.target_entity,
-            'target_columns': self.target_columns,
-            'target_types': self.target_types.to_dict(),
-            'search_settings': self.search_settings,
-            'transforms': self.transforms,
+            'compose_version': __version__,
+            'schema_version': SCHEMA_VERSION,
+            'label_times': {
+                'target_entity': self.target_entity,
+                'target_columns': self.target_columns,
+                'target_types': self.target_types.to_dict(),
+                'search_settings': self.search_settings,
+                'transforms': self.transforms,
+            }
         }
 
     @property
@@ -344,12 +349,6 @@ class LabelTimes(DataFrame):
             LabelTimes : Random sample of labels.
         """
         sample = super().sample(random_state=random_state, replace=replace, **{key: value})
-        recursive = getattr(self, '_recursive', False)
-
-        if not recursive:
-            sample = sample.copy()
-            sample.transforms.append(settings)
-
         return sample
 
     def _sample_per_label(self, key, value, settings, random_state=None, replace=False):
@@ -365,7 +364,6 @@ class LabelTimes(DataFrame):
         Returns:
             LabelTimes : Random sample per label.
         """
-        self._recursive = True
         sample_per_label = []
         target_column = self.target_columns[0]
 
@@ -374,10 +372,7 @@ class LabelTimes(DataFrame):
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
-        del self._recursive
         sample = pd.concat(sample_per_label, axis=0, sort=False)
-        sample = sample.copy()
-        sample.transforms.append(settings)
         return sample
 
     def sample(self, n=None, frac=None, random_state=None, replace=False):
@@ -458,7 +453,10 @@ class LabelTimes(DataFrame):
         per_label = isinstance(value, dict)
         method = self._sample_per_label if per_label else self._sample
         sample = method(key, value, settings, random_state=random_state, replace=replace)
+
+        sample = sample.copy()
         sample.sort_index(inplace=True)
+        sample.transforms.append(settings)
         return sample
 
     def equals(self, other, **kwargs):
@@ -489,50 +487,82 @@ class LabelTimes(DataFrame):
         with open(file, 'w') as file:
             json.dump(settings, file)
 
-    def to_csv(self, path, filename='label_times.csv', save_settings=True, **kwargs):
+    def to_csv(self, path, save_settings=True, **kwargs):
         """Write label times in csv format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.csv`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_csv method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.csv')
         super().to_csv(file, index=False, **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_parquet(self, path, filename='label_times.parquet', save_settings=True, **kwargs):
+    def to_parquet(self, path, save_settings=True, **kwargs):
         """Write label times in parquet format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.parquet`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_parquet method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.parquet')
         super().to_parquet(file, compression=None, engine='auto', **kwargs)
 
         if save_settings:
             self._save_settings(path)
 
-    def to_pickle(self, path, filename='label_times.pickle', save_settings=True, **kwargs):
+    def to_pickle(self, path, save_settings=True, **kwargs):
         """Write label times in pickle format to disk.
 
         Args:
             path (str) : Location on disk to write to (will be created as a directory).
-            filename (str) : Filename for label times. Default value is `label_times.pickle`.
             save_settings (bool) : Whether to save the settings used to make the label times.
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_pickle method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, filename)
+        file = os.path.join(path, 'data.pickle')
         super().to_pickle(file, **kwargs)
 
         if save_settings:
             self._save_settings(path)
+
+    # ----------------------------------------
+    # Subclassing Pandas Data Frame
+    # ----------------------------------------
+
+    _metadata = [
+        '_recursive',
+        'label_name',
+        'label_type',
+        'search_settings',
+        'target_entity',
+        'transforms',
+    ]
+
+    def __finalize__(self, other, method=None, **kwargs):
+        """Propagate metadata from other label times data frames.
+
+        Args:
+            other (LabelTimes) : The label times from which to get the attributes from.
+            method (str) : A passed method name for optionally taking different types of propagation actions based on this value.
+        """
+        if method == 'concat':
+            other = other.objs[0]
+
+            for key in self._metadata:
+                value = getattr(other, key, None)
+                setattr(self, key, value)
+
+            return self
+
+        return super().__finalize__(other=other, method=method, **kwargs)
+
+    @property
+    def _constructor(self):
+        return LabelTimes

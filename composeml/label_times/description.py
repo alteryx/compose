@@ -15,10 +15,9 @@ def describe_label_times(label_times):
         print(distribution.to_string(), end='\n\n\n')
 
     metadata = label_times.settings
-    transforms = metadata['transforms']
-    target_column = metadata['target_columns'][0]
-    target_type = metadata['target_types'].get(target_column)
-    target_entity = metadata['target_entity']
+    target_column = metadata['label_times']['target_columns'][0]
+    target_type = metadata['label_times']['target_types'][target_column]
+    target_entity = metadata['label_times']['target_entity']
 
     settings = {
         'target_column': target_column,
@@ -26,7 +25,7 @@ def describe_label_times(label_times):
         'target_type': target_type,
     }
 
-    settings.update(metadata['search_settings'])
+    settings.update(metadata['label_times']['search_settings'])
     settings = pd.Series(settings)
 
     print('Settings\n' + '-' * 8, end='\n')
@@ -34,6 +33,7 @@ def describe_label_times(label_times):
     print(settings.to_string(), end='\n\n\n')
 
     print('Transforms\n' + '-' * 10, end='\n')
+    transforms = metadata['label_times']['transforms']
     for step, transform in enumerate(transforms):
         transform = pd.Series(transform)
         transform.sort_index(inplace=True)
