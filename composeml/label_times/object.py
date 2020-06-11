@@ -12,7 +12,6 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -82,11 +81,13 @@ class LabelTimes(pd.DataFrame):
         return {
             'compose_version': __version__,
             'schema_version': SCHEMA_VERSION,
-            'target_entity': self.target_entity,
-            'label_name': self.label_name,
-            'label_type': self.label_type,
-            'search_settings': self.search_settings,
-            'transforms': self.transforms,
+            'label_times': {
+                'target_entity': self.target_entity,
+                'label_name': self.label_name,
+                'label_type': self.label_type,
+                'search_settings': self.search_settings,
+                'transforms': self.transforms,
+            }
         }
 
     @property
@@ -424,15 +425,9 @@ class LabelTimes(pd.DataFrame):
             dtypes = settings.pop('dtypes')
             df = df.astype(dtypes)
 
-        self = LabelTimes(
-            data=df,
-            target_entity=settings['target_entity'],
-            name=settings['label_name'],
-            label_type=settings['label_type'],
-            search_settings=settings['search_settings'],
-            transforms=settings['transforms'],
-        )
-
+        kwargs = settings['label_times']
+        name = kwargs.pop('label_name')
+        self = LabelTimes(data=df, name=name, **kwargs)
         return self
 
     def _save_settings(self, path):

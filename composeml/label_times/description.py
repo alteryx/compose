@@ -11,23 +11,20 @@ def describe_label_times(label_times):
         distribution['Total:'] = distribution.sum()
         print(distribution.to_string(), end='\n\n\n')
 
-    settings = label_times.settings.copy()
-    del settings['compose_version']
-    del settings['schema_version']
-    settings.update(settings.pop('search_settings'))
-    settings = pd.Series(settings)
-    transforms = settings.pop('transforms')
+    settings = label_times.settings
+    info = settings['label_times'].copy()
+    info.update(info.pop('search_settings'))
+    info = pd.Series(info)
+    transforms = info.pop('transforms')
 
     print('Settings\n' + '-' * 8, end='\n')
-
-    if settings.isnull().all():
+    if info.isnull().all():
         print('No settings', end='\n\n\n')
     else:
-        settings.sort_index(inplace=True)
-        print(settings.to_string(), end='\n\n\n')
+        info.sort_index(inplace=True)
+        print(info.to_string(), end='\n\n\n')
 
     print('Transforms\n' + '-' * 10, end='\n')
-
     for step, transform in enumerate(transforms):
         transform = pd.Series(transform)
         transform.sort_index(inplace=True)
