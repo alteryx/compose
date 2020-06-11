@@ -24,20 +24,20 @@ def total_spent(transactions, total_spent_fn):
 
 def test_csv(path, total_spent):
     total_spent.to_csv(path)
-    total_spent_copy = cp.read_csv(path)
+    total_spent_copy = cp.read_label_times(path)
     pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
 
 
 def test_parquet(path, total_spent):
     total_spent.to_parquet(path)
-    total_spent_copy = cp.read_parquet(path)
+    total_spent_copy = cp.read_label_times(path)
     pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
 
 
 def test_pickle(path, total_spent):
     total_spent.to_pickle(path)
-    total_spent_copy = cp.read_pickle(path)
+    total_spent_copy = cp.read_label_times(path)
     pd.testing.assert_frame_equal(total_spent, total_spent_copy)
     assert total_spent.equals(total_spent_copy)
