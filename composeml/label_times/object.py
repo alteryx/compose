@@ -12,7 +12,6 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -447,14 +446,22 @@ class LabelTimes(pd.DataFrame):
             'frac': frac,
             'random_state': random_state,
             'replace': replace,
+            'per_instance': per_instance,
         }
 
-        key, value = ('n', n) if n else ('frac', frac)
-        assert value, "must set value for 'n' or 'frac'"
+        def transform(lt):
+            key, value = ('n', n) if n else ('frac', frac)
+            assert value, "must set value for 'n' or 'frac'"
 
-        per_label = isinstance(value, dict)
-        method = self._sample_per_label if per_label else self._sample
-        sample = method(key, value, settings, random_state=random_state, replace=replace)
+            per_label = isinstance(value, dict)
+            method = lt._sample_per_label if per_label else lt._sample
+            sample = method(key, value, settings, random_state=random_state, replace=replace)
+            return sample
+
+        if per_instance:
+            sample = self.groupby(self.target_entity, group_keys=False).apply(transform)
+        else:
+            sample = transform(self)
 
         sample = sample.copy()
         sample.sort_index(inplace=True)
