@@ -104,8 +104,8 @@ def test_sample_per_instance():
     data = read_csv([
         'target_entity,labels',
         '0,a',
-        '1,a',
         '0,b',
+        '1,a',
         '1,b',
     ])
 
