@@ -76,6 +76,7 @@ def test_sample_in_transforms(labels):
         'frac': None,
         'random_state': None,
         'replace': False,
+        'per_instance': False,
     }
 
     sample = labels.sample(n=n)
