@@ -449,17 +449,25 @@ class LabelTimes(pd.DataFrame):
             'per_instance': per_instance,
         }
 
-        def transform(lt):
-            key, value = ('n', n) if n else ('frac', frac)
-            assert value, "must set value for 'n' or 'frac'"
+        key, value = ('n', n) if n else ('frac', frac)
+        assert value, "must set value for 'n' or 'frac'"
 
-            per_label = isinstance(value, dict)
-            method = lt._sample_per_label if per_label else lt._sample
-            sample = method(key, value, settings, random_state=random_state, replace=replace)
+        per_label = isinstance(value, dict)
+        method = '_sample_per_label' if per_label else '_sample'
+
+        def transform(lt):
+            sample = getattr(lt, method)(
+                key=key,
+                value=value,
+                settings=settings,
+                random_state=random_state,
+                replace=replace,
+            )
             return sample
 
         if per_instance:
-            sample = self.groupby(self.target_entity, group_keys=False).apply(transform)
+            groupby = self.groupby(self.target_entity, group_keys=False)
+            sample = groupby.apply(transform)
         else:
             sample = transform(self)
 
