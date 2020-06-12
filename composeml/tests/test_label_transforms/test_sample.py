@@ -1,6 +1,6 @@
 import pytest
-
-from composeml.tests.utils import to_csv
+from composeml import LabelTimes
+from composeml.tests.utils import read_csv, to_csv
 
 
 @pytest.fixture
@@ -97,3 +97,25 @@ def test_single_target(total_spent):
     match = 'must first select an individual target'
     with pytest.raises(AssertionError, match=match):
         lt.sample(2)
+
+
+def test_sample_per_instance():
+    data = read_csv([
+        'target_entity,labels',
+        '0,a',
+        '1,a',
+        '0,b',
+        '1,b',
+    ])
+
+    lt = LabelTimes(data=data, target_entity='target_entity')
+    sample = lt.sample({'a': 1}, per_instance=True, random_state=0)
+    actual = to_csv(sample, index=False)
+
+    expected = [
+        'target_entity,labels',
+        '0,a',
+        '1,a',
+    ]
+
+    assert expected == actual
