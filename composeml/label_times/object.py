@@ -539,11 +539,10 @@ class LabelTimes(pd.DataFrame):
     # ----------------------------------------
 
     _metadata = [
-        '_recursive',
-        'label_name',
-        'label_type',
         'search_settings',
+        'target_columns',
         'target_entity',
+        'target_types',
         'transforms',
     ]
 
