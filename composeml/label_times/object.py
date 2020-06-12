@@ -375,7 +375,7 @@ class LabelTimes(pd.DataFrame):
         sample = pd.concat(sample_per_label, axis=0, sort=False)
         return sample
 
-    def sample(self, n=None, frac=None, random_state=None, replace=False):
+    def sample(self, n=None, frac=None, random_state=None, replace=False, per_instance=False):
         """Return a random sample of labels.
 
         Args:
@@ -385,6 +385,7 @@ class LabelTimes(pd.DataFrame):
                 the sample fraction to each label. Cannot be used with n.
             random_state (int) : Seed for the random number generator.
             replace (bool) : Sample with or without replacement. Default value is False.
+            per_instance (bool): Whether to apply sampling to each group. Default is False.
 
         Returns:
             LabelTimes : Random sample of labels.
