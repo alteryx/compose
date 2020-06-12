@@ -12,6 +12,7 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
+
     def __init__(
         self,
         data=None,
@@ -407,28 +408,6 @@ class LabelTimes(pd.DataFrame):
         is_equal = super().equals(other, **kwargs)
         is_equal &= self.settings == other.settings
         return is_equal
-
-    def _load_settings(self, path):
-        """Read the settings in json format from disk.
-
-        Args:
-            path (str) : Directory on disk to read from.
-        """
-        file = os.path.join(path, 'settings.json')
-        assert os.path.exists(file), 'settings not found'
-
-        with open(file, 'r') as file:
-            settings = json.load(file)
-
-        df = self
-        if 'dtypes' in settings:
-            dtypes = settings.pop('dtypes')
-            df = df.astype(dtypes)
-
-        kwargs = settings['label_times']
-        name = kwargs.pop('label_name')
-        self = LabelTimes(data=df, name=name, **kwargs)
-        return self
 
     def _save_settings(self, path):
         """Write the settings in json format to disk.

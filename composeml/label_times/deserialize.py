@@ -1,3 +1,4 @@
+import json
 import os
 
 import pandas as pd
@@ -5,16 +6,18 @@ import pandas as pd
 from .object import LabelTimes
 
 
-def read_label_times(path, load_settings=True):
-    """Read label times in csv format from disk.
+def read_config(path):
+    """Reads config file from disk."""
+    file = os.path.join(path, 'settings.json')
+    assert os.path.exists(file), "settings not found: '%s'" % file
 
-    Args:
-        path (str): Directory where label times is stored.
-        load_settings (bool): Whether to load settings used to make the label times.
+    with open(file, 'r') as file:
+        settings = json.load(file)
+        return settings
 
-    Returns:
-        LabelTimes : Deserialized label times.
-    """
+
+def read_data(path):
+    """Reads data file from disk."""
     file = ''
     for file in os.listdir(path):
         if file.startswith('data'): break
@@ -26,9 +29,26 @@ def read_label_times(path, load_settings=True):
 
     read = getattr(pd, 'read_%s' % extension)
     data = read(os.path.join(path, file))
-    label_times = LabelTimes(data=data)
+    return data
+
+
+def read_label_times(path, load_settings=True):
+    """Reads label times from disk.
+
+    Args:
+        path (str): Directory where label times is stored.
+
+    Returns:
+        lt (LabelTimes): Deserialized label times.
+    """
+    kwargs = {}
+    data = read_data(path)
 
     if load_settings:
-        label_times = label_times._load_settings(path)
+        config = read_config(path)
+        data = data.astype(config['dtypes'])
+        kwargs.update(config['label_times'])
+        kwargs['name'] = kwargs.pop('label_name')
 
-    return label_times
+    lt = LabelTimes(data=data, **kwargs)
+    return lt
