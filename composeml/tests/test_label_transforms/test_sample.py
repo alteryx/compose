@@ -1,4 +1,5 @@
 import pytest
+
 from composeml import LabelTimes
 from composeml.tests.utils import read_csv, to_csv
 
