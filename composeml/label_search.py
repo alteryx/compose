@@ -9,11 +9,10 @@ class ExampleSearch:
     Args:
         expected_count (int): The expected number of examples to find.
     """
-
-    def __init__(self, expected_count, num_groups=1):
+    def __init__(self, expected_count, n_groups=1):
         self.expected_count = self._check_number(expected_count)
         self.reset_count()
-        self.num_groups = num_groups
+        self.n_groups = n_groups
 
     @staticmethod
     def _check_number(n):
@@ -48,6 +47,11 @@ class ExampleSearch:
         """Reset the internal count of actual labels."""
         self.actual_count = 0
 
+    @property
+    def total_count(self):
+        multiplier = self.expected_count if self.is_finite else 1
+        return self.n_groups * multiplier
+
     def update_count(self, labels):
         """Update the internal count of actual labels."""
         self.actual_count += 1
@@ -60,12 +64,12 @@ class LabelSearch(ExampleSearch):
         expected_label_counts (dict): The expected number of examples to be find for each label.
             The dictionary should map a label to the number of examples to find for the label.
     """
-
-    def __init__(self, expected_label_counts):
+    def __init__(self, expected_label_counts, n_groups=1):
         items = expected_label_counts.items()
         self.expected_label_counts = Counter({label: self._check_number(count) for label, count in items})
         self.expected_count = sum(self.expected_label_counts.values())
         self.actual_label_counts = Counter()
+        self.n_groups = n_groups
 
     @property
     def is_complete(self):
