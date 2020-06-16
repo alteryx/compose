@@ -10,9 +10,10 @@ class ExampleSearch:
         expected_count (int): The expected number of examples to find.
     """
 
-    def __init__(self, expected_count):
+    def __init__(self, expected_count, num_groups=1):
         self.expected_count = self._check_number(expected_count)
         self.reset_count()
+        self.num_groups = num_groups
 
     @staticmethod
     def _check_number(n):
