@@ -2,59 +2,58 @@ from composeml.data_slice import DataSlice, DataSliceContext
 from composeml.offset import to_offset
 
 
-def cutoff_data(df, threshold):
-    """Cuts off data before the threshold.
-
-    Args:
-        df (DataFrame): Data frame to cutoff data.
-        threshold (int or str or Timestamp): Threshold to apply on data.
-            If integer, the threshold will be the time at `n + 1` in the index.
-            If string, the threshold can be an offset or timestamp.
-            An offset will be applied relative to the first time in the index.
-
-    Returns:
-        df, cutoff_time (tuple(DataFrame, Timestamp)): Returns the data frame and the applied cutoff time.
-    """
-    if isinstance(threshold, int):
-        assert threshold > 0, 'threshold must be greater than zero'
-        df = df.iloc[threshold:]
-
-        if df.empty:
-            return df, None
-
-        cutoff_time = df.index[0]
-
-    elif isinstance(threshold, str):
-        if can_be_type(type=pd.tseries.frequencies.to_offset, string=threshold):
-            threshold = pd.tseries.frequencies.to_offset(threshold)
-            assert threshold.n > 0, 'threshold must be greater than zero'
-            cutoff_time = df.index[0] + threshold
-
-        elif can_be_type(type=pd.Timestamp, string=threshold):
-            cutoff_time = pd.Timestamp(threshold)
-
-        else:
-            raise ValueError('invalid threshold')
-
-    else:
-        is_timestamp = isinstance(threshold, pd.Timestamp)
-        assert is_timestamp, 'invalid threshold'
-        cutoff_time = threshold
-
-    if cutoff_time != df.index[0]:
-        df = df[df.index >= cutoff_time]
-
-        if df.empty:
-            return df, None
-
-    return df, cutoff_time
-
-
 class DataSliceGenerator:
     def __init__(self, target_entity, window, gap):
         self.target_entity = target_entity
         self.window = window
         self.gap = gap
+
+    def _cutoff_data(self, df, threshold):
+        """Cuts off data before the threshold.
+
+        Args:
+            df (DataFrame): Data frame to cutoff data.
+            threshold (int or str or Timestamp): Threshold to apply on data.
+                If integer, the threshold will be the time at `n + 1` in the index.
+                If string, the threshold can be an offset or timestamp.
+                An offset will be applied relative to the first time in the index.
+
+        Returns:
+            df, cutoff_time (tuple(DataFrame, Timestamp)): Returns the data frame and the applied cutoff time.
+        """
+        if isinstance(threshold, int):
+            assert threshold > 0, 'threshold must be greater than zero'
+            df = df.iloc[threshold:]
+
+            if df.empty:
+                return df, None
+
+            cutoff_time = df.index[0]
+
+        elif isinstance(threshold, str):
+            if can_be_type(type=pd.tseries.frequencies.to_offset, string=threshold):
+                threshold = pd.tseries.frequencies.to_offset(threshold)
+                assert threshold.n > 0, 'threshold must be greater than zero'
+                cutoff_time = df.index[0] + threshold
+
+            elif can_be_type(type=pd.Timestamp, string=threshold):
+                cutoff_time = pd.Timestamp(threshold)
+
+            else:
+                raise ValueError('invalid threshold')
+
+        else:
+            is_timestamp = isinstance(threshold, pd.Timestamp)
+            assert is_timestamp, 'invalid threshold'
+            cutoff_time = threshold
+
+        if cutoff_time != df.index[0]:
+            df = df[df.index >= cutoff_time]
+
+            if df.empty:
+                return df, None
+
+        return df, cutoff_time
 
     def _slice_by_time(self, df, gap=None, min_data=None, drop_empty=True):
         """Generate data slices for a group.
@@ -76,7 +75,7 @@ class DataSliceGenerator:
             return
 
         threshold = min_data or df.index[0]
-        df, cutoff_time = cutoff_data(df=df, threshold=threshold)
+        df, cutoff_time = self._cutoff_data(df=df, threshold=threshold)
 
         if df.empty:
             return
