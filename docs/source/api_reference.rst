@@ -35,7 +35,7 @@ Transform Methods
     LabelTimes.sample
     LabelTimes.threshold
 
-.. currentmodule:: composeml.label_plots
+.. currentmodule:: composeml.label_times.plots
 
 Label Plots
 ===========

@@ -58,16 +58,16 @@ def total_spent():
 
     data = read_csv(data, parse_dates=['time'])
 
-    label_times = {
+    kwargs = {
         'data': data,
-        'settings': {
+        'target_entity': 'customer_id',
+        'name': 'total_spent',
+        'search_settings': {
             'num_examples_per_instance': -1,
         }
     }
 
-    label_times = LabelTimes(**label_times)
-    label_times.label_name = 'total_spent'
-    label_times.target_entity = 'customer_id'
+    label_times = LabelTimes(**kwargs)
     return label_times
 
 
