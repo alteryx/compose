@@ -3,7 +3,7 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
-from composeml.data_slice import DataSlice, DataSliceContext
+from composeml.data_slice import DataSlice, DataSliceContext, DataSliceGenerator
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
 from composeml.offset import to_offset
@@ -60,7 +60,6 @@ def cutoff_data(df, threshold):
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -247,12 +246,23 @@ class LabelMaker:
         value += self.target_entity + ": {n}/{total} "
         return value
 
-    def _run_search(self, df, search, gap=None, min_data=None, drop_empty=True, verbose=True, *args, **kwargs):
+    def _run_search(
+        self,
+        df,
+        data_slice_generator,
+        search,
+        gap=None,
+        min_data=None,
+        drop_empty=True,
+        verbose=True,
+        *args,
+        **kwargs,
+    ):
         """Search implementation to make label records.
 
         Args:
-            df (DataFrame): Data frame to search and extract labels.
-            search (LabelSearch or ExampleSearch): The type of search to be done.
+            data_frame (DataFrame): Data frame to search and extract labels.
+            data_slice_generator (LabelSearch or ExampleSearch): The type of search to be done.
             min_data (str): Minimum data before starting search. Default value is first time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
@@ -264,7 +274,8 @@ class LabelMaker:
         Returns:
             records (list(dict)): Label Records
         """
-        entity_groups = self.set_index(df).groupby(self.target_entity)
+        df = self.set_index(df)
+        entity_groups = df.groupby(self.target_entity)
         multiplier = search.expected_count if search.is_finite else 1
         total = entity_groups.ngroups * multiplier
 
@@ -278,17 +289,8 @@ class LabelMaker:
         def missing_examples(entity_count):
             return entity_count * search.expected_count - progress_bar.n
 
-        for entity_count, group in enumerate(entity_groups):
-            entity_id, df = group
-
-            slices = self._slice_by_time(
-                df=df,
-                gap=gap,
-                min_data=min_data,
-                drop_empty=drop_empty,
-            )
-
-            for ds in slices:
+        for entity_count, (entity_id, df) in enumerate(entity_groups):
+            for ds in data_slice_generator(df):
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)
@@ -352,19 +354,27 @@ class LabelMaker:
         """
         assert self.labeling_function, 'missing labeling function(s)'
         self._check_example_count(num_examples_per_instance, gap)
-        self.window_size = self.window_size or len(df)
-        gap = to_offset(gap or self.window_size)
+        # self.window_size = self.window_size or len(df)
+        # gap = to_offset(gap or self.window_size)
 
         is_label_search = isinstance(num_examples_per_instance, dict)
         search = (LabelSearch if is_label_search else ExampleSearch)(num_examples_per_instance)
 
-        records = self._run_search(
-            df=df,
-            search=search,
-            gap=gap,
+        generator = DataSliceGenerator(
+            window_size=self.window_size or len(df),
             min_data=minimum_data,
             drop_empty=drop_empty,
+            gap=gap,
+        )
+
+        records = self._run_search(
+            df=df,
+            data_slice_generator=generator,
+            search=search,
             verbose=verbose,
+            # gap=gap,
+            # min_data=minimum_data,
+            # drop_empty=drop_empty,
             *args,
             **kwargs,
         )

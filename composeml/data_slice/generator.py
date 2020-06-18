@@ -1,12 +1,38 @@
+import pandas as pd
 from composeml.data_slice import DataSlice, DataSliceContext
 from composeml.offset import to_offset
+from composeml.utils import can_be_type
 
 
 class DataSliceGenerator:
-    def __init__(self, target_entity, window, gap):
-        self.target_entity = target_entity
-        self.window = window
-        self.gap = gap
+    def __init__(self, window_size, gap=None, min_data=None, drop_empty=True):
+        self._set_window_size(window_size)
+        self.gap = to_offset(gap or self.window_size)
+        self.drop_empty = drop_empty
+        self.min_data = min_data
+
+    def __call__(self, df):
+        data_slices = self._slice_by_time(
+            df=df,
+            gap=self.gap,
+            min_data=self.min_data,
+            drop_empty=self.drop_empty,
+        )
+
+        for ds in data_slices:
+            yield ds
+
+    def _set_window_size(self, window_size):
+        """Set and format initial window size parameter.
+
+        Args:
+            window_size (str or int): Duration of each data slice.
+                The default value for window size is all future data.
+        """
+        if window_size is not None:
+            window_size = to_offset(window_size)
+
+        self.window_size = window_size
 
     def _cutoff_data(self, df, threshold):
         """Cuts off data before the threshold.
@@ -84,7 +110,7 @@ class DataSliceGenerator:
             cutoff_time = df.index[0]
 
         df = DataSlice(df)
-        df.context = DataSliceContext(slice_number=0, target_entity=self.target_entity)
+        df.context = DataSliceContext(slice_number=0)
 
         def iloc(index, i):
             if i < index.size:
