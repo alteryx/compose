@@ -1,6 +1,7 @@
 import pandas as pd
+
 from composeml.data_slice import DataSlice, DataSliceContext
-from composeml.offset import to_offset
+from composeml.data_slice.offset import to_offset
 from composeml.utils import can_be_type
 
 

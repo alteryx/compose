@@ -1,6 +1,6 @@
 import pandas as pd
 
-from composeml.offset import parse
+from composeml.data_slice.offset import parse
 
 
 def test_parser():
