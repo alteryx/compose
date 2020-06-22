@@ -70,6 +70,7 @@ def test_describe(capsys, total_spent):
         '1. bin',
         '  - bins:              2',
         '  - labels:       [A, B]',
+        '  - precision:         3',
         '  - quantiles:     False',
         '  - right:          True',
         '',
