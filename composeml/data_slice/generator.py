@@ -1,3 +1,4 @@
+import composeml.data_slice.extension
 import pandas as pd
 
 from composeml.data_slice import DataSlice, DataSliceContext
@@ -13,12 +14,19 @@ class DataSliceGenerator:
         self.min_data = min_data
 
     def __call__(self, df):
-        data_slices = self._slice_by_time(
-            df=df,
-            gap=self.gap,
-            min_data=self.min_data,
+        data_slices = df.slice(
+            size=self.window_size,
+            start=self.min_data,
+            step=self.gap,
             drop_empty=self.drop_empty,
         )
+
+        # data_slices = self._slice_by_time(
+        #     df=df,
+        #     gap=self.gap,
+        #     min_data=self.min_data,
+        #     drop_empty=self.drop_empty,
+        # )
 
         for ds in data_slices:
             yield ds
