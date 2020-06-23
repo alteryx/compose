@@ -1,7 +1,6 @@
 import pytest
 
-from composeml import LabelTimes
-from composeml.tests.utils import read_csv, to_csv
+from composeml.tests.utils import to_csv
 
 
 @pytest.fixture
@@ -77,7 +76,6 @@ def test_sample_in_transforms(labels):
         'frac': None,
         'random_state': None,
         'replace': False,
-        'per_instance': False,
     }
 
     sample = labels.sample(n=n)
@@ -98,50 +96,3 @@ def test_single_target(total_spent):
     match = 'must first select an individual target'
     with pytest.raises(AssertionError, match=match):
         lt.sample(2)
-
-
-def test_sample_n_per_instance():
-    data = read_csv([
-        'target_entity,labels',
-        '0,a',
-        '0,b',
-        '1,a',
-        '1,b',
-    ])
-
-    lt = LabelTimes(data=data, target_entity='target_entity')
-    sample = lt.sample(n={'a': 1}, per_instance=True, random_state=0)
-    actual = to_csv(sample, index=False)
-
-    expected = [
-        'target_entity,labels',
-        '0,a',
-        '1,a',
-    ]
-
-    assert expected == actual
-
-
-def test_sample_frac_per_instance():
-    data = read_csv([
-        'target_entity,labels',
-        '0,a',
-        '0,a',
-        '0,a',
-        '0,a',
-        '1,a',
-        '1,a',
-    ])
-
-    lt = LabelTimes(data=data, target_entity='target_entity')
-    sample = lt.sample(frac={'a': .5}, per_instance=True, random_state=0)
-    actual = to_csv(sample, index=False)
-
-    expected = [
-        'target_entity,labels',
-        '0,a',
-        '0,a',
-        '1,a',
-    ]
-
-    assert expected == actual
