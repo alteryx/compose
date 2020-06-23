@@ -100,7 +100,7 @@ def test_single_target(total_spent):
         lt.sample(2)
 
 
-def test_sample_per_instance():
+def test_sample_n_per_instance():
     data = read_csv([
         'target_entity,labels',
         '0,a',
@@ -110,11 +110,36 @@ def test_sample_per_instance():
     ])
 
     lt = LabelTimes(data=data, target_entity='target_entity')
-    sample = lt.sample({'a': 1}, per_instance=True, random_state=0)
+    sample = lt.sample(n={'a': 1}, per_instance=True, random_state=0)
     actual = to_csv(sample, index=False)
 
     expected = [
         'target_entity,labels',
+        '0,a',
+        '1,a',
+    ]
+
+    assert expected == actual
+
+
+def test_sample_frac_per_instance():
+    data = read_csv([
+        'target_entity,labels',
+        '0,a',
+        '0,a',
+        '0,a',
+        '0,a',
+        '1,a',
+        '1,a',
+    ])
+
+    lt = LabelTimes(data=data, target_entity='target_entity')
+    sample = lt.sample(frac={'a': .5}, per_instance=True, random_state=0)
+    actual = to_csv(sample, index=False)
+
+    expected = [
+        'target_entity,labels',
+        '0,a',
         '0,a',
         '1,a',
     ]
