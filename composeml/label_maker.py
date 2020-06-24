@@ -22,21 +22,9 @@ class LabelMaker:
             window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """
-        self._set_window_size(window_size)
         self.labeling_function = labeling_function
         self.target_entity = target_entity
         self.time_index = time_index
-
-    def _set_window_size(self, window_size):
-        """Set and format initial window size parameter.
-
-        Args:
-            window_size (str or int): Duration of each data slice.
-                The default value for window size is all future data.
-        """
-        if window_size is not None:
-            window_size = to_offset(window_size)
-
         self.window_size = window_size
 
     def _name_labeling_function(self, function):
@@ -75,6 +63,13 @@ class LabelMaker:
         assert isinstance(value, dict), 'value type for labeling function not supported'
         self._labeling_function = value
 
+    def _update_context(self, context, entity_id):
+        context.slice_number = context.count
+        context.window = (context.start, context.stop)
+        context.gap = (context.start, context.step)
+        context.target_entity = self.target_entity
+        context.target_instance = entity_id
+
     def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True, verbose=False):
         """Generates data slices of target entity.
 
@@ -95,17 +90,16 @@ class LabelMaker:
         entity_groups = df.groupby(self.target_entity)
         num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
 
-        data_slices = DataSliceGenerator(
+        data_slice_generator = DataSliceGenerator(
             window_size=self.window_size or len(df),
             min_data=minimum_data,
             drop_empty=drop_empty,
             gap=gap,
         )
 
-        for key, df in entity_groups:
-            for ds in data_slices(df):
-                ds.context.target_entity = self.target_entity
-                ds.context.target_instance = key
+        for entity_id, df in entity_groups:
+            for ds in data_slice_generator(df):
+                self._update_context(ds.context, entity_id)
                 if verbose: print(ds)
                 yield ds
 
@@ -166,6 +160,7 @@ class LabelMaker:
 
         for entity_count, (entity_id, df) in enumerate(entity_groups):
             for ds in data_slice_generator(df):
+                self._update_context(ds.context, entity_id)
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)

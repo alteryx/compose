@@ -1,11 +1,43 @@
 import pandas as pd
-from composeml.data_slice import DataSlice, DataSliceContext
 from composeml.utils import can_be_type
 
 
+class DataSliceContext:
+    """Tracks contextual information about the data slices."""
+    def __init__(self, start=None, stop=None, step=None, count=0):
+        """Creates data slice context.
+
+        Args:
+            start: When data slice starts.
+            stop: When the data slice stops.
+            step: When the next data slice starts.
+            count (int): The latest count of data slices.
+        """
+        self.start = start
+        self.stop = stop
+        self.step = step
+        self.count = 0
+
+
+class DataSliceFrame(pd.DataFrame):
+    """Subclasses pandas data frame for data slice."""
+    _metadata = ['context']
+
+    @property
+    def _constructor(self):
+        return DataSliceFrame
+
+    @property
+    def _info(self):
+        return vars(self.context)
+
+    def __str__(self):
+        info = pd.Series(self._info)
+        return info.to_string()
+
 
 @pd.api.extensions.register_dataframe_accessor("slice")
-class Slice:
+class DataSliceExtension:
     def __init__(self, df):
         self._df = df
 
@@ -38,8 +70,8 @@ class Slice:
         if isinstance(gap, int):
             cutoff_time = df.index[0]
 
-        df = DataSlice(df)
-        df.context = DataSliceContext(slice_number=0)
+        df = DataSliceFrame(df)
+        df.context = DataSliceContext()
 
         def iloc(index, i):
             if i < index.size:
@@ -64,11 +96,12 @@ class Slice:
                     if overlap.any():
                         df_slice = df_slice[~overlap]
 
-            df_slice.context.window = (cutoff_time, window_end)
+            df_slice.context.start = cutoff_time
+            df_slice.context.stop = window_end
 
             if isinstance(gap, int):
                 gap_end = iloc(df.index, gap)
-                df_slice.context.gap = (cutoff_time, gap_end)
+                df_slice.context.step = gap_end
                 df = df.iloc[gap:]
 
                 if not df.empty:
@@ -76,7 +109,7 @@ class Slice:
 
             else:
                 gap_end = cutoff_time + gap
-                df_slice.context.gap = (cutoff_time, gap_end)
+                df_slice.context.step = gap_end
                 cutoff_time += gap
 
                 if cutoff_time <= df.index[-1]:
@@ -85,7 +118,7 @@ class Slice:
             if df_slice.empty and drop_empty:
                 continue
 
-            df.context.slice_number += 1
+            df.context.count += 1
 
             yield df_slice
 
