@@ -91,13 +91,11 @@ class LabelMaker:
             ds (generator): Returns a generator of data slices.
         """
         self._check_example_count(num_examples_per_instance, gap)
-        # self.window_size = self.window_size or len(df)
-        # gap = to_offset(gap or self.window_size)
         df = self.set_index(df)
         entity_groups = df.groupby(self.target_entity)
         num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
-        
-        generator = DataSliceGenerator(
+
+        data_slices = DataSliceGenerator(
             window_size=self.window_size or len(df),
             min_data=minimum_data,
             drop_empty=drop_empty,
@@ -105,9 +103,8 @@ class LabelMaker:
         )
 
         for key, df in entity_groups:
-            slices = self._slice_by_time(df=df, gap=gap, min_data=minimum_data, drop_empty=drop_empty)
-
-            for ds in slices:
+            for ds in data_slices(df):
+                ds.context.target_entity = self.target_entity
                 ds.context.target_instance = key
                 if verbose: print(ds)
                 yield ds
