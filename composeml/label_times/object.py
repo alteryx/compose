@@ -12,7 +12,6 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -35,29 +34,44 @@ class LabelTimes(pd.DataFrame):
         if not self.empty: self._check_label_times()
 
     def _assert_single_target(self):
+        """Asserts that the label times object contains a single target."""
         info = 'must first select an individual target'
         assert self._is_single_target, info
 
-    def _check_label_times(self):
-        """Checks whether the target exists in the data frame."""
+    def _assert_target_in_columns(self, target):
+        """Asserts that a target exists in the data frame."""
+        info = 'target variable not found: %s'
+        assert target in self.columns, info % target
+
+    def _check_target_columns(self):
+        """Validates the target columns."""
         if not self.target_columns:
             self.target_columns = self._infer_target_columns()
+        else:
+            for target in self.target_columns:
+                self._assert_target_in_columns(target)
 
-        missing = pd.Index(self.target_columns).difference(self.columns)
-        info = 'target variable(s) not found: %s'
-        assert missing.empty, info % missing.tolist()
-
-        if not isinstance(self.target_types, pd.Series):
+    def _check_target_types(self):
+        """Validates the target types."""
+        if isinstance(self.target_types, dict):
             self.target_types = pd.Series(self.target_types)
 
         if self.target_types.empty:
             self.target_types = self._infer_target_types()
+        else:
+            for target in self.target_types.index:
+                self._assert_target_in_columns(target)
+
+    def _check_label_times(self):
+        """Validates the lables times object."""
+        self._check_target_columns()
+        self._check_target_types()
 
     def _infer_target_columns(self):
-        """Infers the target name from the data frame.
+        """Infers the names of the targets in the data frame.
 
         Returns:
-            value (str): Inferred target name.
+            value (list): A list of the target names.
         """
         not_targets = [self.target_entity, 'time']
         target_names = self.columns.difference(not_targets)
