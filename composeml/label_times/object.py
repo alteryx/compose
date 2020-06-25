@@ -135,7 +135,7 @@ class LabelTimes(pd.DataFrame):
         self._assert_single_target()
         target_column = self.target_columns[0]
 
-        if self.is_discrete[self.target_columns[0]]:
+        if self.is_discrete[target_column]:
             labels = self.assign(count=1)
             labels = labels.groupby(target_column)
             distribution = labels['count'].count()
