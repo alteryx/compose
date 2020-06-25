@@ -38,18 +38,14 @@ class LabelTimes(pd.DataFrame):
         info = 'must first select an individual target'
         assert self._is_single_target, info
 
-    def _assert_target_in_columns(self, target):
-        """Asserts that a target exists in the data frame."""
-        info = 'target variable not found: %s'
-        assert target in self.columns, info % target
-
     def _check_target_columns(self):
         """Validates the target columns."""
         if not self.target_columns:
             self.target_columns = self._infer_target_columns()
         else:
             for target in self.target_columns:
-                self._assert_target_in_columns(target)
+                info = 'target "%s" not found in data frame'
+                assert target in self.columns, info % target
 
     def _check_target_types(self):
         """Validates the target types."""
@@ -59,8 +55,9 @@ class LabelTimes(pd.DataFrame):
         if self.target_types.empty:
             self.target_types = self._infer_target_types()
         else:
-            for target in self.target_types.index:
-                self._assert_target_in_columns(target)
+            target_names = self.target_types.index.tolist()
+            match = target_names == self.target_columns
+            assert match, 'target names in types must match target columns'
 
     def _check_label_times(self):
         """Validates the lables times object."""
