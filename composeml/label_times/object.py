@@ -71,8 +71,9 @@ class LabelTimes(pd.DataFrame):
             value (list): A list of the target names.
         """
         not_targets = [self.target_entity, 'time']
-        target_names = self.columns.difference(not_targets)
-        value = target_names.tolist()
+        target_columns = self.columns.difference(not_targets)
+        assert not target_columns.empty, 'target columns not found'
+        value = target_columns.tolist()
         return value
 
     @property
