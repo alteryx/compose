@@ -181,15 +181,15 @@ class LabelTimes(pd.DataFrame):
                 With ``deep=False`` neither the indices nor the data are copied. Default is True.
 
         Returns:
-            copy (LabelTimes): Object type matches caller.
+            lt (LabelTimes): A copy of the label times object.
         """
-        copy = super().copy(deep=deep)
-        copy.target_entity = self.target_entity
-        copy.target_columns = self.target_columns
-        copy.target_types = self.target_types.copy()
-        copy.search_settings = self.search_settings.copy()
-        copy.transforms = self.transforms.copy()
-        return copy
+        lt = super().copy(deep=deep)
+        lt.target_entity = self.target_entity
+        lt.target_columns = self.target_columns
+        lt.target_types = self.target_types.copy()
+        lt.search_settings = self.search_settings.copy()
+        lt.transforms = self.transforms.copy()
+        return lt
 
     def threshold(self, value, inplace=False):
         """Creates binary labels by testing if labels are above threshold.
