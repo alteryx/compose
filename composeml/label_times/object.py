@@ -12,13 +12,12 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
         target_entity=None,
-        name=None,
-        label_type=None,
+        target_types=None,
+        target_columns=None,
         search_settings=None,
         transforms=None,
         *args,
@@ -26,55 +25,88 @@ class LabelTimes(pd.DataFrame):
     ):
         super().__init__(data=data, *args, **kwargs)
         self.target_entity = target_entity
-        self.label_name = name
-        self.label_type = label_type
+        self.target_columns = target_columns or []
+        self.target_types = target_types or {}
         self.search_settings = search_settings or {}
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
-        if not self.empty:
-            self._check_label_name()
-            self._check_label_type()
+        if not self.empty: self._check_label_times()
 
-    def _check_label_name(self):
-        """Checks whether the target exists in the data frame."""
-        if self.label_name is None:
-            self.label_name = self._infer_label_name()
+    def _assert_single_target(self):
+        """Asserts that the label times object contains a single target."""
+        info = 'must first select an individual target'
+        assert self._is_single_target, info
 
-        info = 'target variable not found: %s' % self.label_name
-        assert self.label_name in self.columns, info
+    def _check_target_columns(self):
+        """Validates the target columns."""
+        if not self.target_columns:
+            self.target_columns = self._infer_target_columns()
+        else:
+            for target in self.target_columns:
+                info = 'target "%s" not found in data frame'
+                assert target in self.columns, info % target
 
-    def _infer_label_name(self):
-        """Infers the target name from the data frame.
+    def _check_target_types(self):
+        """Validates the target types."""
+        if isinstance(self.target_types, dict):
+            self.target_types = pd.Series(self.target_types)
+
+        if self.target_types.empty:
+            self.target_types = self._infer_target_types()
+        else:
+            target_names = self.target_types.index.tolist()
+            match = target_names == self.target_columns
+            assert match, 'target names in types must match target columns'
+
+    def _check_label_times(self):
+        """Validates the lables times object."""
+        self._check_target_columns()
+        self._check_target_types()
+
+    def _infer_target_columns(self):
+        """Infers the names of the targets in the data frame.
 
         Returns:
-            value (str): Inferred target name.
+            value (list): A list of the target names.
         """
         not_targets = [self.target_entity, 'time']
-        target_names = self.columns.difference(not_targets)
-        value = target_names.tolist()[0]
+        target_columns = self.columns.difference(not_targets)
+        assert not target_columns.empty, 'target columns not found'
+        value = target_columns.tolist()
         return value
 
-    def _check_label_type(self):
-        """Checks whether the target type is continuous or discrete."""
-        if self.label_type is None:
-            self.label_type = self._infer_label_type()
+    @property
+    def _is_single_target(self):
+        return len(self.target_columns) == 1
 
-        error = 'label type must be "continuous" or "discrete"'
-        assert self.label_type in ['continuous', 'discrete'], error
-
-    def _infer_label_type(self):
-        """Infers the target type from the data type.
-
-        Returns:
-            value (str): Inferred label type. Either "continuous" or "discrete".
-        """
-        dtype = self[self.label_name].dtype
+    def _get_target_type(self, dtype):
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete |= pd.api.types.is_categorical_dtype(dtype)
         is_discrete |= pd.api.types.is_object_dtype(dtype)
         value = 'discrete' if is_discrete else 'continuous'
         return value
+
+    def _infer_target_types(self):
+        """Infers the target type from the data type.
+
+        Returns:
+            types (Series): Inferred label type. Either "continuous" or "discrete".
+        """
+        dtypes = self.dtypes[self.target_columns]
+        types = dtypes.apply(self._get_target_type)
+        return types
+
+    def select(self, target):
+        assert not self._is_single_target, 'only one target exists'
+        if not isinstance(target, str): raise TypeError('target name must be string')
+        assert target in self.target_columns, 'target "%s" not found' % target
+
+        lt = self.copy()
+        lt.target_columns = [target]
+        lt.target_types = lt.target_types[[target]]
+        lt = lt[[self.target_entity, 'time', target]]
+        return lt
 
     @property
     def settings(self):
@@ -84,8 +116,8 @@ class LabelTimes(pd.DataFrame):
             'schema_version': SCHEMA_VERSION,
             'label_times': {
                 'target_entity': self.target_entity,
-                'label_name': self.label_name,
-                'label_type': self.label_type,
+                'target_columns': self.target_columns,
+                'target_types': self.target_types.to_dict(),
                 'search_settings': self.search_settings,
                 'transforms': self.transforms,
             }
@@ -94,35 +126,42 @@ class LabelTimes(pd.DataFrame):
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        return self.label_type == 'discrete'
+        return self.target_types.eq('discrete')
 
     @property
     def distribution(self):
         """Returns label distribution if labels are discrete."""
-        if self.is_discrete:
+        self._assert_single_target()
+        target_column = self.target_columns[0]
+
+        if self.is_discrete[target_column]:
             labels = self.assign(count=1)
-            labels = labels.groupby(self.label_name)
+            labels = labels.groupby(target_column)
             distribution = labels['count'].count()
             return distribution
 
     @property
     def count(self):
         """Returns label count per instance."""
+        self._assert_single_target()
         count = self.groupby(self.target_entity)
-        count = count[self.label_name].count()
+        count = count[self.target_columns[0]].count()
         count = count.to_frame('count')
         return count
 
     @property
     def count_by_time(self):
         """Returns label count across cutoff times."""
-        if self.is_discrete:
-            keys = ['time', self.label_name]
+        self._assert_single_target()
+        target_column = self.target_columns[0]
+
+        if self.is_discrete[target_column]:
+            keys = ['time', target_column]
             value = self.groupby(keys).time.count()
-            value = value.unstack(self.label_name).fillna(0)
+            value = value.unstack(target_column).fillna(0)
         else:
             value = self.groupby('time')
-            value = value[self.label_name].count()
+            value = value[target_column].count()
 
         value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
         value = value.astype('int')
@@ -130,20 +169,27 @@ class LabelTimes(pd.DataFrame):
 
     def describe(self):
         """Prints out the settings used to make the label times."""
-        describe_label_times(self)
+        if not self.empty:
+            self._assert_single_target()
+            describe_label_times(self)
 
-    def copy(self, **kwargs):
-        """Makes a copy of this object.
+    def copy(self, deep=True):
+        """Make a copy of this object's indices and data.
 
         Args:
-            **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.copy method
+            deep (bool): Make a deep copy, including a copy of the data and the indices.
+                With ``deep=False`` neither the indices nor the data are copied. Default is True.
 
         Returns:
-            LabelTimes : Copy of label times.
+            lt (LabelTimes): A copy of the label times object.
         """
-        label_times = super().copy(**kwargs)
-        label_times.transforms = self.transforms.copy()
-        return label_times
+        lt = super().copy(deep=deep)
+        lt.target_entity = self.target_entity
+        lt.target_columns = self.target_columns
+        lt.target_types = self.target_types.copy()
+        lt.search_settings = self.search_settings.copy()
+        lt.transforms = self.transforms.copy()
+        return lt
 
     def threshold(self, value, inplace=False):
         """Creates binary labels by testing if labels are above threshold.
@@ -155,11 +201,11 @@ class LabelTimes(pd.DataFrame):
         Returns:
             labels (LabelTimes) : Instance of labels.
         """
+        self._assert_single_target()
+        target_column = self.target_columns[0]
         labels = self if inplace else self.copy()
-        labels[self.label_name] = labels[self.label_name].gt(value)
-
-        labels.label_type = 'discrete'
-        labels.settings['label_type'] = 'discrete'
+        labels[target_column] = labels[target_column].gt(value)
+        labels.target_types[target_column] = 'discrete'
 
         transform = {'transform': 'threshold', 'value': value}
         labels.transforms.append(transform)
@@ -273,8 +319,9 @@ class LabelTimes(pd.DataFrame):
             2   high
             3    low
         """  # noqa
-        lt = self.copy()
-        values = lt[self.label_name].values
+        self._assert_single_target()
+        target_column = self.target_columns[0]
+        values = self[target_column].values
 
         if quantiles:
             values = pd.qcut(values, q=bins, labels=labels, precision=precision)
@@ -296,9 +343,10 @@ class LabelTimes(pd.DataFrame):
             'precision': precision,
         }
 
-        lt[self.label_name] = values
+        lt = self.copy()
+        lt[target_column] = values
         lt.transforms.append(transform)
-        lt.label_type = 'discrete'
+        lt.target_types[target_column] = 'discrete'
         return lt
 
     def _sample(self, key, value, settings, random_state=None, replace=False):
@@ -331,8 +379,10 @@ class LabelTimes(pd.DataFrame):
             LabelTimes : Random sample per label.
         """
         sample_per_label = []
+        target_column = self.target_columns[0]
+
         for label, value, in value.items():
-            label = self[self[self.label_name] == label]
+            label = self[self[target_column] == label]
             sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
             sample_per_label.append(sample)
 
@@ -401,6 +451,8 @@ class LabelTimes(pd.DataFrame):
             5      A
             6      A
         """  # noqa
+        self._assert_single_target()
+
         settings = {
             'transform': 'sample',
             'n': n,
@@ -499,11 +551,10 @@ class LabelTimes(pd.DataFrame):
     # ----------------------------------------
 
     _metadata = [
-        '_recursive',
-        'label_name',
-        'label_type',
         'search_settings',
+        'target_columns',
         'target_entity',
+        'target_types',
         'transforms',
     ]
 

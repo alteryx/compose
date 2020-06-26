@@ -48,7 +48,6 @@ def read_label_times(path, load_settings=True):
         config = read_config(path)
         data = data.astype(config['dtypes'])
         kwargs.update(config['label_times'])
-        kwargs['name'] = kwargs.pop('label_name')
 
     lt = LabelTimes(data=data, **kwargs)
     return lt

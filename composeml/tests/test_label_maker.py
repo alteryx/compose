@@ -81,13 +81,6 @@ def test_search_with_multiple_targets(transactions, total_spent_fn, unique_amoun
         },
     )
 
-    actual = lm.search(
-        transactions,
-        num_examples_per_instance=-1,
-    )
-
-    actual = to_csv(actual, index=False)
-
     expected = [
         'customer_id,time,total_spent,unique_amounts',
         '0,2019-01-01 08:00:00,2,1',
@@ -98,7 +91,25 @@ def test_search_with_multiple_targets(transactions, total_spent_fn, unique_amoun
         '3,2019-01-01 12:30:00,1,1',
     ]
 
-    assert actual == expected
+    lt = lm.search(transactions, num_examples_per_instance=-1)
+    actual = lt.pipe(to_csv, index=False)
+    info = 'unexpected calculated values'
+    assert actual == expected, info
+
+    expected = [
+        'customer_id,time,unique_amounts',
+        '0,2019-01-01 08:00:00,1',
+        '1,2019-01-01 09:00:00,1',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:30:00,1',
+        '2,2019-01-01 11:30:00,1',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    actual = lt.select('unique_amounts')
+    actual = actual.pipe(to_csv, index=False)
+    info = 'selected values differ from calculated values'
+    assert actual == expected, info
 
 
 def test_search_offset_mix_0(transactions, total_spent_fn):
@@ -511,5 +522,6 @@ def test_slice_overlap(transactions, total_spent_fn):
 
 def test_label_type(transactions, total_spent_fn):
     lm = LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
-    lt = lm.search(transactions, num_examples_per_instance=1, label_type='discrete')
-    assert lt.label_type == 'discrete'
+    lt = lm.search(transactions, num_examples_per_instance=1)
+    assert lt.target_types['total_spent'] == 'continuous'
+    assert lt.bin(2).target_types['total_spent'] == 'discrete'

@@ -88,3 +88,11 @@ def test_sample_with_replacement(labels):
     n = {True: 10, False: 10}
     sample = labels.sample(n=n, replace=True)
     assert sample.shape[0] == 20
+
+
+def test_single_target(total_spent):
+    lt = total_spent.copy()
+    lt.target_columns.append('target_2')
+    match = 'must first select an individual target'
+    with pytest.raises(AssertionError, match=match):
+        lt.sample(2)

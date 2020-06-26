@@ -3,28 +3,37 @@ import pandas as pd
 
 def describe_label_times(label_times):
     """Prints out label info with transform settings that reproduce labels."""
-    if label_times.label_name is not None and label_times.is_discrete:
+    target_column = label_times.target_columns[0]
+    is_discrete = label_times.is_discrete[target_column]
+
+    if is_discrete:
         print('Label Distribution\n' + '-' * 18, end='\n')
-        distribution = label_times[label_times.label_name].value_counts()
+        distribution = label_times[target_column].value_counts()
         distribution.index = distribution.index.astype('str')
         distribution.sort_index(inplace=True)
         distribution['Total:'] = distribution.sum()
         print(distribution.to_string(), end='\n\n\n')
 
-    settings = label_times.settings
-    info = settings['label_times'].copy()
-    info.update(info.pop('search_settings'))
-    info = pd.Series(info)
-    transforms = info.pop('transforms')
+    metadata = label_times.settings
+    target_column = metadata['label_times']['target_columns'][0]
+    target_type = metadata['label_times']['target_types'][target_column]
+    target_entity = metadata['label_times']['target_entity']
+
+    settings = {
+        'target_column': target_column,
+        'target_entity': target_entity,
+        'target_type': target_type,
+    }
+
+    settings.update(metadata['label_times']['search_settings'])
+    settings = pd.Series(settings)
 
     print('Settings\n' + '-' * 8, end='\n')
-    if info.isnull().all():
-        print('No settings', end='\n\n\n')
-    else:
-        info.sort_index(inplace=True)
-        print(info.to_string(), end='\n\n\n')
+    settings.sort_index(inplace=True)
+    print(settings.to_string(), end='\n\n\n')
 
     print('Transforms\n' + '-' * 10, end='\n')
+    transforms = metadata['label_times']['transforms']
     for step, transform in enumerate(transforms):
         transform = pd.Series(transform)
         transform.sort_index(inplace=True)

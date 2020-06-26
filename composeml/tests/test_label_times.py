@@ -1,3 +1,5 @@
+from pytest import raises
+
 from composeml.label_times import LabelTimes
 from composeml.tests.utils import to_csv
 
@@ -59,10 +61,10 @@ def test_describe(capsys, total_spent):
         '',
         'Settings',
         '--------',
-        'label_name                   total_spent',
-        'label_type                      discrete',
         'num_examples_per_instance             -1',
+        'target_column                total_spent',
         'target_entity                customer_id',
+        'target_type                     discrete',
         '',
         '',
         'Transforms',
@@ -80,14 +82,16 @@ def test_describe(capsys, total_spent):
     assert captured.out == out
 
 
-def test_describe_empty(capsys):
-    LabelTimes().describe()
+def test_describe_no_transforms(capsys):
+    data = {'target': range(3)}
+    LabelTimes(data).describe()
     captured = capsys.readouterr()
-
     out = '\n'.join([
         'Settings',
         '--------',
-        'No settings',
+        'target_column        target',
+        'target_entity          None',
+        'target_type      continuous',
         '',
         '',
         'Transforms',
@@ -118,11 +122,12 @@ def test_distribution_continous(total_spent):
     assert total_spent.distribution is None
 
 
-def test_infer_type(total_spent):
-    assert total_spent._infer_label_type() == 'continuous'
+def test_target_type(total_spent):
+    types = total_spent.target_types
+    assert types['total_spent'] == 'continuous'
     total_spent = total_spent.threshold(5)
-    total_spent.label_type = None
-    assert total_spent._infer_label_type() == 'discrete'
+    types = total_spent.target_types
+    assert types['total_spent'] == 'discrete'
 
 
 def test_count(total_spent):
@@ -138,3 +143,20 @@ def test_count(total_spent):
     ]
 
     assert given_answer == answer
+
+
+def test_label_select_errors(total_spent):
+    match = 'only one target exists'
+    with raises(AssertionError, match=match):
+        total_spent.select('a')
+
+    lt = total_spent.copy()
+    lt.target_columns.append('b')
+
+    match = 'target name must be string'
+    with raises(TypeError, match=match):
+        total_spent.select(123)
+
+    match = 'target "a" not found'
+    with raises(AssertionError, match=match):
+        lt.select('a')

@@ -1,4 +1,5 @@
 import pandas as pd
+from pytest import raises
 
 
 def test_bins(labels):
@@ -43,3 +44,11 @@ def test_quantile_bins(labels):
     answer = pd.Categorical(answer, ordered=True)
     labels = labels.assign(my_labeling_function=answer)
     pd.testing.assert_frame_equal(given_labels, labels)
+
+
+def test_single_target(total_spent):
+    lt = total_spent.copy()
+    lt.target_columns.append('target_2')
+    match = 'must first select an individual target'
+    with raises(AssertionError, match=match):
+        lt.bin(2)
