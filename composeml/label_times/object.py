@@ -99,7 +99,7 @@ class LabelTimes(pd.DataFrame):
 
     def select(self, target):
         assert not self._is_single_target, 'only one target exists'
-        if not isinstance(target, str): raise TypeError('target must be string')
+        if not isinstance(target, str): raise TypeError('target name must be string')
         assert target in self.target_columns, 'target "%s" not found' % target
 
         lt = self.copy()
