@@ -389,7 +389,7 @@ class LabelTimes(pd.DataFrame):
         sample = pd.concat(sample_per_label, axis=0, sort=False)
         return sample
 
-    def sample(self, n=None, frac=None, random_state=None, replace=False):
+    def sample(self, n=None, frac=None, random_state=None, replace=False, per_instance=False):
         """Return a random sample of labels.
 
         Args:
@@ -399,6 +399,7 @@ class LabelTimes(pd.DataFrame):
                 the sample fraction to each label. Cannot be used with n.
             random_state (int) : Seed for the random number generator.
             replace (bool) : Sample with or without replacement. Default value is False.
+            per_instance (bool): Whether to apply sampling to each group. Default is False.
 
         Returns:
             LabelTimes : Random sample of labels.
@@ -459,14 +460,30 @@ class LabelTimes(pd.DataFrame):
             'frac': frac,
             'random_state': random_state,
             'replace': replace,
+            'per_instance': per_instance,
         }
 
         key, value = ('n', n) if n else ('frac', frac)
         assert value, "must set value for 'n' or 'frac'"
 
         per_label = isinstance(value, dict)
-        method = self._sample_per_label if per_label else self._sample
-        sample = method(key, value, settings, random_state=random_state, replace=replace)
+        method = '_sample_per_label' if per_label else '_sample'
+
+        def transform(lt):
+            sample = getattr(lt, method)(
+                key=key,
+                value=value,
+                settings=settings,
+                random_state=random_state,
+                replace=replace,
+            )
+            return sample
+
+        if per_instance:
+            groupby = self.groupby(self.target_entity, group_keys=False)
+            sample = groupby.apply(transform)
+        else:
+            sample = transform(self)
 
         sample = sample.copy()
         sample.sort_index(inplace=True)
