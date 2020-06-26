@@ -12,7 +12,6 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
-
     def __init__(
         self,
         data=None,
@@ -35,33 +34,46 @@ class LabelTimes(pd.DataFrame):
         if not self.empty: self._check_label_times()
 
     def _assert_single_target(self):
+        """Asserts that the label times object contains a single target."""
         info = 'must first select an individual target'
         assert self._is_single_target, info
 
-    def _check_label_times(self):
-        """Checks whether the target exists in the data frame."""
+    def _check_target_columns(self):
+        """Validates the target columns."""
         if not self.target_columns:
             self.target_columns = self._infer_target_columns()
+        else:
+            for target in self.target_columns:
+                info = 'target "%s" not found in data frame'
+                assert target in self.columns, info % target
 
-        missing = pd.Index(self.target_columns).difference(self.columns)
-        info = 'target variable(s) not found: %s'
-        assert missing.empty, info % missing.tolist()
-
-        if not isinstance(self.target_types, pd.Series):
+    def _check_target_types(self):
+        """Validates the target types."""
+        if isinstance(self.target_types, dict):
             self.target_types = pd.Series(self.target_types)
 
         if self.target_types.empty:
             self.target_types = self._infer_target_types()
+        else:
+            target_names = self.target_types.index.tolist()
+            match = target_names == self.target_columns
+            assert match, 'target names in types must match target columns'
+
+    def _check_label_times(self):
+        """Validates the lables times object."""
+        self._check_target_columns()
+        self._check_target_types()
 
     def _infer_target_columns(self):
-        """Infers the target name from the data frame.
+        """Infers the names of the targets in the data frame.
 
         Returns:
-            value (str): Inferred target name.
+            value (list): A list of the target names.
         """
         not_targets = [self.target_entity, 'time']
-        target_names = self.columns.difference(not_targets)
-        value = target_names.tolist()
+        target_columns = self.columns.difference(not_targets)
+        assert not target_columns.empty, 'target columns not found'
+        value = target_columns.tolist()
         return value
 
     @property
@@ -87,6 +99,7 @@ class LabelTimes(pd.DataFrame):
 
     def select(self, target):
         assert not self._is_single_target, 'only one target exists'
+        if not isinstance(target, str): raise TypeError('target name must be string')
         assert target in self.target_columns, 'target "%s" not found' % target
 
         lt = self.copy()
@@ -121,7 +134,7 @@ class LabelTimes(pd.DataFrame):
         self._assert_single_target()
         target_column = self.target_columns[0]
 
-        if self.is_discrete[self.target_columns[0]]:
+        if self.is_discrete[target_column]:
             labels = self.assign(count=1)
             labels = labels.groupby(target_column)
             distribution = labels['count'].count()
@@ -168,15 +181,15 @@ class LabelTimes(pd.DataFrame):
                 With ``deep=False`` neither the indices nor the data are copied. Default is True.
 
         Returns:
-            copy (LabelTimes): Object type matches caller.
+            lt (LabelTimes): A copy of the label times object.
         """
-        copy = super().copy(deep=deep)
-        copy.target_entity = self.target_entity
-        copy.target_columns = self.target_columns
-        copy.target_types = self.target_types.copy()
-        copy.search_settings = self.search_settings.copy()
-        copy.transforms = self.transforms.copy()
-        return copy
+        lt = super().copy(deep=deep)
+        lt.target_entity = self.target_entity
+        lt.target_columns = self.target_columns
+        lt.target_types = self.target_types.copy()
+        lt.search_settings = self.search_settings.copy()
+        lt.transforms = self.transforms.copy()
+        return lt
 
     def threshold(self, value, inplace=False):
         """Creates binary labels by testing if labels are above threshold.
