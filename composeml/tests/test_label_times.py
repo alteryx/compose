@@ -150,8 +150,13 @@ def test_label_select_errors(total_spent):
     with raises(AssertionError, match=match):
         total_spent.select('a')
 
-    match = 'target "a" not found'
     lt = total_spent.copy()
     lt.target_columns.append('b')
+
+    match = 'target name must be string'
+    with raises(TypeError, match=match):
+        total_spent.select(123)
+
+    match = 'target "a" not found'
     with raises(AssertionError, match=match):
         lt.select('a')

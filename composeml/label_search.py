@@ -30,6 +30,21 @@ class ExampleSearch:
         """Checks if a number if finite."""
         return n > 0 and abs(n) != float('inf')
 
+    @staticmethod
+    def _check_number(n):
+        """Checks and formats the expected number of examples."""
+        if n == -1 or n == 'inf':
+            return float('inf')
+        else:
+            info = 'expected count must be numeric'
+            assert isinstance(n, (int, float)), info
+            return n
+
+    @staticmethod
+    def _is_finite_number(n):
+        """Checks if a number if finite."""
+        return n > 0 and abs(n) != float('inf')
+
     @property
     def is_complete(self):
         """Whether the search has found the expected number of examples."""

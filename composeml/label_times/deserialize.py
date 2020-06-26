@@ -32,7 +32,7 @@ def read_data(path):
     return data
 
 
-def read_label_times(path):
+def read_label_times(path, load_settings=True):
     """Reads label times from disk.
 
     Args:
@@ -41,7 +41,13 @@ def read_label_times(path):
     Returns:
         lt (LabelTimes): Deserialized label times.
     """
-    config = read_config(path)
-    data = read_data(path).astype(config['dtypes'])
-    lt = LabelTimes(data=data, **config['label_times'])
+    kwargs = {}
+    data = read_data(path)
+
+    if load_settings:
+        config = read_config(path)
+        data = data.astype(config['dtypes'])
+        kwargs.update(config['label_times'])
+
+    lt = LabelTimes(data=data, **kwargs)
     return lt
