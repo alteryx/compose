@@ -10,27 +10,35 @@ class DataSliceOffset:
 
     def _check(self):
         if isinstance(self.value, str):
-            self.value = self._get_offset_frequency(self.value)
+            self.value = self._parse_value()
 
-        invalid = not self._is_valid_value()
-        if invalid: raise ValueError('invalid offset')
+        info = 'invalid offset'
+        assert self._is_valid_offset, info
 
-    def _get_offset_frequency(self, value):
-        return self._alias_phrase_to_offset(value) or self._alias_to_offset(value)
+    def _parse_value(self):
+        value = self._alias_phrase_to_offset(self.value)
+        value = value or self._alias_to_offset(self.value)
+        return value
 
+    @property
     def _is_offset_frequency(self):
-        offset_type = type(self.value)
-        is_frequency = issubclass(offset_type, pd.tseries.offsets.BaseOffset)
-        is_frequency |= issubclass(offset_type, pd.Timedelta)
-        return is_frequency
+        return self._is_offset_timedelta or self._is_offset_base
 
-    def _is_offset_row(self):
+    @property
+    def _is_offset_base(self):
+        return issubclass(type(self.value), pd.tseries.offsets.BaseOffset)
+
+    @property
+    def _is_offset_position(self):
         return isinstance(self.value, int)
 
-    def _is_valid_type(self):
-        value = self._is_offset_row
-        value |= self._is_offset_frequency
-        return value
+    @property
+    def _is_offset_timedelta(self):
+        return issubclass(type(self.value), pd.Timedelta)
+
+    @property
+    def _is_valid_offset(self):
+        return self._is_offset_position or self._is_offset_frequency
 
     @staticmethod
     def _alias_to_offset(alias):
@@ -38,7 +46,7 @@ class DataSliceOffset:
             return pd.tseries.frequencies.to_offset(alias)
         except:
             info = 'invalid offset alias\n\n'
-            info += '\tFor more informatino about offset aliases, see the link below.\n'
+            info += '\tFor more information about offset aliases, see the link below.\n'
             info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
             raise ValueError(info)
 
