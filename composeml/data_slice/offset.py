@@ -12,13 +12,7 @@ class DataSliceOffset:
         if isinstance(self.value, str):
             self.value = self._parse_value()
 
-        info = 'invalid offset'
-        assert self._is_valid_offset, info
-
-    def _parse_value(self):
-        value = self._alias_phrase_to_offset(self.value)
-        value = value or self._alias_to_offset(self.value)
-        return value
+        assert self._is_valid_offset, self._invalid_offset_error
 
     @property
     def _is_offset_frequency(self):
@@ -40,18 +34,22 @@ class DataSliceOffset:
     def _is_valid_offset(self):
         return self._is_offset_position or self._is_offset_frequency
 
-    @staticmethod
-    def _alias_to_offset(alias):
-        try:
-            return pd.tseries.frequencies.to_offset(alias)
-        except:
-            info = 'invalid offset alias\n\n'
-            info += '\tFor more information about offset aliases, see the link below.\n'
-            info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
-            raise ValueError(info)
+    @property
+    def _invalid_offset_error(self):
+        info = 'invalid offset\n\n'
+        info += '\tFor information about offset aliases, visit the link below.\n'
+        info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
+        return info
 
-    @staticmethod
-    def _alias_phrase_to_offset(value):
+    def _parse_offset_alias(self, alias):
+        try:
+            value = self._parse_offset_alias_phrase(alias)
+            value = value or pd.tseries.frequencies.to_offset(alias)
+            return value
+        except:
+            return
+
+    def _parse_offset_alias_phrase(self, value):
         """Maps the phrase for an offset alias to an offset object.
 
         Args:
@@ -72,6 +70,21 @@ class DataSliceOffset:
 
             if unit == 'year':
                 return pd.offsets.YearBegin()
+
+    def _parse_timedelta(self, value):
+        try:
+            return pd.Timedelta(value)
+        except:
+            return
+
+    def _parse_value(self):
+        for parser in self._parsers:
+            value = parser(self.value)
+            if value: return value
+
+    @property
+    def _parsers(self):
+        return [self._parse_offset_alias, self._parse_timedelta]
 
 
 def is_offset(value):
