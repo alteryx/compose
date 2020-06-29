@@ -13,6 +13,9 @@ class DataSliceGenerator:
         self.min_data = min_data
 
     def __call__(self, df):
+        info = "data frame must be sorted chronologically"
+        assert df.index.is_monotonic_increasing, info
+
         data_slices = df.slice(
             size=self.window_size,
             start=self.min_data,

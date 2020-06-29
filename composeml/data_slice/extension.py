@@ -53,19 +53,17 @@ class DataSliceExtension:
         Returns:
             df_slice (generator): Returns a generator of data slices.
         """
-        df, window_size, gap, min_data = self._df, size, step, start
+        window_size, gap, min_data = size, step, start
 
-        df = df.loc[df.index.notnull()]
-        assert df.index.is_monotonic_increasing, "Please sort your dataframe chronologically before calling search"
+        df = self._df.loc[df.index.notnull()]
+        if df.empty: return
 
-        if df.empty:
-            return
+        if not df.index.is_monotonic_increasing:
+            df = df.sort_index()
 
         threshold = min_data or df.index[0]
         df, cutoff_time = self._cutoff_data(df=df, threshold=threshold)
-
-        if df.empty:
-            return
+        if df.empty: return
 
         if isinstance(gap, int):
             cutoff_time = df.index[0]
@@ -115,11 +113,8 @@ class DataSliceExtension:
                 if cutoff_time <= df.index[-1]:
                     df = df[cutoff_time:]
 
-            if df_slice.empty and drop_empty:
-                continue
-
+            if df_slice.empty and drop_empty: continue
             df.context.count += 1
-
             yield df_slice
 
     def _cutoff_data(self, df, threshold):
