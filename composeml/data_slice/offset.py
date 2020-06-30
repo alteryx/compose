@@ -9,9 +9,7 @@ class DataSliceOffset:
         self._check()
 
     def _check(self):
-        if isinstance(self.value, str):
-            self.value = self._parse_value()
-
+        if isinstance(self.value, str): self._parse_value()
         assert self._is_valid_offset, self._invalid_offset_error
 
     @property
@@ -111,7 +109,9 @@ class DataSliceOffset:
     def _parse_value(self):
         for parser in self._parsers:
             value = parser(self.value)
-            if value: return value
+            if value: break
+
+        self.value = value
 
     @property
     def _parsers(self):
