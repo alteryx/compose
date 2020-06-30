@@ -28,11 +28,19 @@ class DataSliceOffset:
 
     @property
     def _is_offset_timedelta(self):
-        return issubclass(type(self.value), pd.Timedelta)
+        return isinstance(self.value, pd.Timedelta)
+
+    @property
+    def _is_offset_timestamp(self):
+        return isinstance(self.value, pd.Timestamp)
 
     @property
     def _is_valid_offset(self):
-        return self._is_offset_position or self._is_offset_frequency
+        value = self._is_offset_position
+        value |= self._is_offset_base
+        value |= self._is_offset_timedelta
+        value |= self._is_offset_timestamp
+        return value
 
     @property
     def _invalid_offset_error(self):
@@ -77,10 +85,29 @@ class DataSliceOffset:
         except:
             return
 
+    def _parse_timestamp(self, value):
+        try:
+            return pd.Timestamp(value)
+        except:
+            return
+
     def _parse_value(self):
         for parser in self._parsers:
             value = parser(self.value)
             if value: return value
+
+    @property
+    def _parsers(self):
+        return [self._parse_timestamp, self._parse_offset_alias, self._parse_timedelta]
+
+
+class DataSliceStep(DataSliceOffset):
+    @property
+    def _is_valid_offset(self):
+        value = self._is_offset_position
+        value |= self._is_offset_base
+        value |= self._is_offset_timedelta
+        return value
 
     @property
     def _parsers(self):
