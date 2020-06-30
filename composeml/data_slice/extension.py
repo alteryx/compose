@@ -58,27 +58,24 @@ class DataSliceExtension:
         df = self._prepare_data_frame(self._df)
         start = start or DataSliceOffset(df.index[0])
         size, start, step = self._check_parameters(size, start, step)
-        window_size, gap, min_data = size.value, step.value, start
 
-        df = self._apply_start(df, min_data)
+        df = self._apply_start(df, start)
         if df.empty: return
 
         if step._is_offset_position:
-            min_data.value = df.index[0]
-
-        cutoff_time = min_data.value
+            start.value = df.index[0]
 
         df = DataSliceFrame(df)
         df.context = DataSliceContext()
 
-        while not df.empty and cutoff_time <= df.index[-1]:
-            if isinstance(window_size, int):
-                df_slice = df.iloc[:window_size]
-                window_end = self._iloc(df.index, window_size)
+        while not df.empty and start.value <= df.index[-1]:
+            if size._is_offset_position:
+                df_slice = df.iloc[:size.value]
+                stop = self._iloc(df.index, size.value)
 
             else:
-                window_end = cutoff_time + window_size
-                df_slice = df[:window_end]
+                stop = start.value + size.value
+                df_slice = df[:stop]
 
                 # Pandas includes both endpoints when slicing by time.
                 # This results in the right endpoint overlapping in consecutive data slices.
@@ -86,28 +83,28 @@ class DataSliceExtension:
                 # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
 
                 if not df_slice.empty:
-                    overlap = df_slice.index == window_end
+                    overlap = df_slice.index == stop
                     if overlap.any():
                         df_slice = df_slice[~overlap]
 
-            df_slice.context.start = cutoff_time
-            df_slice.context.stop = window_end
+            df_slice.context.start = start.value
+            df_slice.context.stop = stop
 
-            if isinstance(gap, int):
-                gap_end = self._iloc(df.index, gap)
-                df_slice.context.step = gap_end
-                df = df.iloc[gap:]
+            if step._is_offset_position:
+                next_start = self._iloc(df.index, step.value)
+                df_slice.context.step = next_start
+                df = df.iloc[step.value:]
 
                 if not df.empty:
-                    cutoff_time = df.index[0]
+                    start.value = df.index[0]
 
             else:
-                gap_end = cutoff_time + gap
-                df_slice.context.step = gap_end
-                cutoff_time += gap
+                next_start = start.value + step.value
+                df_slice.context.step = next_start
+                start.value += step.value
 
-                if cutoff_time <= df.index[-1]:
-                    df = df[cutoff_time:]
+                if start.value <= df.index[-1]:
+                    df = df[start.value:]
 
             if df_slice.empty and drop_empty: continue
             df.context.count += 1
@@ -127,9 +124,8 @@ class DataSliceExtension:
         size = self._check_parameter(size, DataSliceStep)
         time_index_required = size._is_offset_period
 
-        if start is not None:
-            start = self._check_parameter(start, DataSliceOffset)
-            time_index_required |= start._is_offset_period
+        start = self._check_parameter(start, DataSliceOffset)
+        time_index_required |= start._is_offset_period
 
         if step is not None:
             step = self._check_parameter(step, DataSliceStep)
