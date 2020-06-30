@@ -56,8 +56,8 @@ class DataSliceExtension:
             df_slice (generator): Returns a generator of data slices.
         """
         size, start, step = self._check_parameters(size, start, step)
-        df = self._prepare_data_frame(self._df)
 
+        df = self._prepare_data_frame(self._df)
         start = start or DataSliceOffset(df.index[0])
         df = self._apply_start(df, start)
         if df.empty: return
@@ -153,7 +153,7 @@ class DataSliceExtension:
         return df
 
     def _apply_start(self, df, start):
-        if start._is_offset_position:
+        if start._is_offset_position and start._is_positive:
             df = df.iloc[start.value:]
 
             if not df.empty:

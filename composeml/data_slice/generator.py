@@ -7,11 +7,11 @@ from composeml.data_slice.offset import to_offset
 class DataSliceGenerator:
     def __init__(self, window_size, gap=None, min_data=None, drop_empty=True):
         self.window_size = window_size
-        self.gap = gap or self.window_size
-        self.drop_empty = drop_empty
+        self.gap = gap
         self.min_data = min_data
+        self.drop_empty = drop_empty
 
-    def __call__(self, df):
+    def _slice_by_time(self, df):
         info = "data frame must be sorted chronologically"
         assert df.index.is_monotonic_increasing, info
 
