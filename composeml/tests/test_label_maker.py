@@ -367,8 +367,7 @@ def test_search_offset_negative_0(transactions, total_spent_fn):
         window_size=2,
     )
 
-    match = 'must be greater than zero'
-
+    match = 'offset must be positive'
     with pytest.raises(AssertionError, match=match):
         lm.search(
             transactions,
@@ -386,8 +385,7 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
         window_size=2,
     )
 
-    match = 'must be greater than zero'
-
+    match = 'offset must be positive'
     with pytest.raises(AssertionError, match=match):
         lm.search(
             transactions,
@@ -398,9 +396,7 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
 
 
 def test_invalid_offset(transactions, total_spent_fn):
-    match = 'invalid offset'
-
-    with pytest.raises(AssertionError, match=match):
+    with pytest.raises(AssertionError, match='invalid offset'):
         LabelMaker(
             target_entity='customer_id',
             time_index='time',
@@ -411,7 +407,6 @@ def test_invalid_offset(transactions, total_spent_fn):
 
 def test_invalid_offset_alias(transactions, total_spent_fn):
     match = 'offset must be a valid string'
-
     with pytest.raises(AssertionError, match=match):
         LabelMaker(
             target_entity='customer_id',

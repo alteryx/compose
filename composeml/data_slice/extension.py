@@ -55,9 +55,10 @@ class DataSliceExtension:
         Returns:
             df_slice (generator): Returns a generator of data slices.
         """
-        df = self._prepare_data_frame()
-        size, start, step = self._check_parameters(size, start or df.index[0], step)
-        window_size, gap, min_data = size.value, start.value, step
+        df = self._prepare_data_frame(self._df)
+        start = start or DataSliceOffset(df.index[0])
+        size, start, step = self._check_parameters(size, start, step)
+        window_size, gap, min_data = size.value, step.value, start
 
         df = self._apply_start(df, min_data)
         if df.empty: return
@@ -119,6 +120,7 @@ class DataSliceExtension:
         if not isinstance(value, input_type):
             raise TypeError('offset type not supported')
 
+        assert value._is_positive, 'offset must be positive'
         return value
 
     def _check_parameters(self, size, start, step):
@@ -145,9 +147,9 @@ class DataSliceExtension:
         if i < index.size:
             return index[i]
 
-    def _prepare_data_frame(self):
+    def _prepare_data_frame(self, df):
         info = 'index contains null values'
-        assert self._df.index.notnull().all(), info
+        assert df.index.notnull().all(), info
         if not df.index.is_monotonic_increasing:
             df = df.sort_index()
 

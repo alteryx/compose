@@ -3,7 +3,7 @@ from sys import stdout
 import pandas as pd
 from tqdm import tqdm
 
-from composeml.data_slice import (DataSlice, DataSliceContext, DataSliceGenerator)
+from composeml.data_slice import DataSliceGenerator
 from composeml.data_slice.offset import to_offset
 from composeml.label_search import ExampleSearch, LabelSearch
 from composeml.label_times import LabelTimes
