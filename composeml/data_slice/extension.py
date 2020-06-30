@@ -55,10 +55,10 @@ class DataSliceExtension:
         Returns:
             df_slice (generator): Returns a generator of data slices.
         """
-        df = self._prepare_data_frame(self._df)
-        start = start or DataSliceOffset(df.index[0])
         size, start, step = self._check_parameters(size, start, step)
+        df = self._prepare_data_frame(self._df)
 
+        start = start or DataSliceOffset(df.index[0])
         df = self._apply_start(df, start)
         if df.empty: return
 
@@ -124,8 +124,9 @@ class DataSliceExtension:
         size = self._check_parameter(size, DataSliceStep)
         time_index_required = size._is_offset_period
 
-        start = self._check_parameter(start, DataSliceOffset)
-        time_index_required |= start._is_offset_period
+        if start is not None:
+            start = self._check_parameter(start, DataSliceOffset)
+            time_index_required |= start._is_offset_period
 
         if step is not None:
             step = self._check_parameter(step, DataSliceStep)
