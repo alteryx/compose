@@ -136,7 +136,7 @@ class DataSliceExtension:
             step = size
 
         if time_index_required:
-            info = 'time-based offsets require a time index'
+            info = 'offsets based on time require a time index'
             assert self._is_time_index, info
 
         return size, start, step
