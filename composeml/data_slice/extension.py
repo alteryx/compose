@@ -152,7 +152,7 @@ class DataSliceExtension:
         return df
 
     def _apply_start(self, df, start):
-        if start._is_offset_position and int(start) > 0:
+        if start._is_offset_position:
             df = df.iloc[start.value:]
 
             if not df.empty:
@@ -165,53 +165,6 @@ class DataSliceExtension:
             df = df[df.index >= start.value]
 
         return df
-
-    def __cutoff_data(self, df, threshold):
-        """Cuts off data before the threshold.
-
-        Args:
-            df (DataFrame): Data frame to cutoff data.
-            threshold (int or str or Timestamp): Threshold to apply on data.
-                If integer, the threshold will be the time at `n + 1` in the index.
-                If string, the threshold can be an offset or timestamp.
-                An offset will be applied relative to the first time in the index.
-
-        Returns:
-            df, cutoff_time (tuple(DataFrame, Timestamp)): Returns the data frame and the applied cutoff time.
-        """
-        if isinstance(threshold, int):
-            assert threshold > 0, 'threshold must be greater than zero'
-            df = df.iloc[threshold:]
-
-            if df.empty:
-                return df, None
-
-            cutoff_time = df.index[0]
-
-        elif isinstance(threshold, str):
-            if can_be_type(type=pd.tseries.frequencies.to_offset, string=threshold):
-                threshold = pd.tseries.frequencies.to_offset(threshold)
-                assert threshold.n > 0, 'threshold must be greater than zero'
-                cutoff_time = df.index[0] + threshold
-
-            elif can_be_type(type=pd.Timestamp, string=threshold):
-                cutoff_time = pd.Timestamp(threshold)
-
-            else:
-                raise ValueError('invalid threshold')
-
-        else:
-            is_timestamp = isinstance(threshold, pd.Timestamp)
-            assert is_timestamp, 'invalid threshold'
-            cutoff_time = threshold
-
-        if cutoff_time != df.index[0]:
-            df = df[df.index >= cutoff_time]
-
-            if df.empty:
-                return df, None
-
-        return df, cutoff_time
 
     @property
     def _is_time_index(self):

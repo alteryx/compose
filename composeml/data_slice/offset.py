@@ -48,7 +48,7 @@ class DataSliceOffset:
     def _is_positive(self):
         timestamp = self._is_offset_timestamp
         numeric = float if timestamp else int
-        return numeric(self) >= 0
+        return numeric(self) > 0
 
     @property
     def _is_valid_offset(self):
