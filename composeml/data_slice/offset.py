@@ -15,10 +15,6 @@ class DataSliceOffset:
         assert self._is_valid_offset, self._invalid_offset_error
 
     @property
-    def _is_offset_frequency(self):
-        return self._is_offset_timedelta or self._is_offset_base
-
-    @property
     def _is_offset_base(self):
         return issubclass(type(self.value), pd.tseries.offsets.BaseOffset)
 
@@ -35,10 +31,31 @@ class DataSliceOffset:
         return isinstance(self.value, pd.Timestamp)
 
     @property
+    def _is_offset_period(self):
+        value = self._is_offset_base
+        value |= self._is_offset_timedelta
+        return value
+
+    def __int__(self):
+        if self._is_offset_position: return self.value
+        elif self._is_offset_base: return self.value.n
+        elif self._is_offset_timedelta: return self.value.value
+        else: raise TypeError('offset must be position or period based')
+
+    def __float__(self):
+        if self._is_offset_timestamp: return self.value.timestamp()
+        else: raise TypeError('offset must be timestamp')
+
+    @property
+    def _is_positive(self):
+        timestamp = self._is_offset_timestamp
+        numeric = float if timestamp else int
+        return numeric(self) >= 0
+
+    @property
     def _is_valid_offset(self):
         value = self._is_offset_position
-        value |= self._is_offset_base
-        value |= self._is_offset_timedelta
+        value |= self._is_offset_period
         value |= self._is_offset_timestamp
         return value
 
@@ -105,8 +122,7 @@ class DataSliceStep(DataSliceOffset):
     @property
     def _is_valid_offset(self):
         value = self._is_offset_position
-        value |= self._is_offset_base
-        value |= self._is_offset_timedelta
+        value |= self._is_offset_period
         return value
 
     @property

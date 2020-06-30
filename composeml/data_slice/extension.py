@@ -1,9 +1,10 @@
 import pandas as pd
+from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 from composeml.utils import can_be_type
 
 
 class DataSliceContext:
-    """Tracks contextual information about the data slices."""
+    """Tracks contextual attributes about a data slice."""
     def __init__(self, start=None, stop=None, step=None, count=0):
         """Creates data slice context.
 
@@ -20,7 +21,7 @@ class DataSliceContext:
 
 
 class DataSliceFrame(pd.DataFrame):
-    """Subclasses pandas data frame for data slice."""
+    """Subclasses pandas data frames for data slices."""
     _metadata = ['context']
 
     @property
@@ -45,40 +46,34 @@ class DataSliceExtension:
         """Generates data slices from the data frame.
 
         Args:
-            size (str or int): The size of the data slices.
-            start (int or str or Timestamp): Where to start the first data slice.
-            step (str or int): The step size between data slices. Default value is the data slice size.
+            size (int or str): The data size of each data slice. An integer denotes the number of rows.
+                A string denotes a period after the starting point of a data slice.
+            start (int or str): Where to start the first data slice.
+            step (int or str): The step size between data slices. Default value is the data slice size.
             drop_empty (bool): Whether to drop empty data slices. Default value is True.
 
         Returns:
             df_slice (generator): Returns a generator of data slices.
         """
-        window_size, gap, min_data = size, step, start
+        df = self._prepare_data_frame()
+        size, start, step = self._check_parameters(size, start or df.index[0], step)
+        window_size, gap, min_data = size.value, start.value, step
 
-        df = self._df.loc[df.index.notnull()]
+        df = self._apply_start(df, min_data)
         if df.empty: return
 
-        if not df.index.is_monotonic_increasing:
-            df = df.sort_index()
+        if step._is_offset_position:
+            min_data.value = df.index[0]
 
-        threshold = min_data or df.index[0]
-        df, cutoff_time = self._cutoff_data(df=df, threshold=threshold)
-        if df.empty: return
-
-        if isinstance(gap, int):
-            cutoff_time = df.index[0]
+        cutoff_time = min_data.value
 
         df = DataSliceFrame(df)
         df.context = DataSliceContext()
 
-        def iloc(index, i):
-            if i < index.size:
-                return index[i]
-
         while not df.empty and cutoff_time <= df.index[-1]:
             if isinstance(window_size, int):
                 df_slice = df.iloc[:window_size]
-                window_end = iloc(df.index, window_size)
+                window_end = self._iloc(df.index, window_size)
 
             else:
                 window_end = cutoff_time + window_size
@@ -98,7 +93,7 @@ class DataSliceExtension:
             df_slice.context.stop = window_end
 
             if isinstance(gap, int):
-                gap_end = iloc(df.index, gap)
+                gap_end = self._iloc(df.index, gap)
                 df_slice.context.step = gap_end
                 df = df.iloc[gap:]
 
@@ -117,7 +112,63 @@ class DataSliceExtension:
             df.context.count += 1
             yield df_slice
 
-    def _cutoff_data(self, df, threshold):
+    def _check_parameter(self, value, input_type):
+        if isinstance(value, (str, int)):
+            value = input_type(value)
+
+        if not isinstance(value, input_type):
+            raise TypeError('offset type not supported')
+
+        return value
+
+    def _check_parameters(self, size, start, step):
+        size = self._check_parameter(size, DataSliceStep)
+        time_index_required = size._is_offset_period
+
+        if start is not None:
+            start = self._check_parameter(start, DataSliceOffset)
+            time_index_required |= start._is_offset_period
+
+        if step is not None:
+            step = self._check_parameter(step, DataSliceStep)
+            time_index_required |= step._is_offset_period
+        else:
+            step = size
+
+        if time_index_required:
+            info = 'time-based offsets require a time index'
+            assert self._is_time_index, info
+
+        return size, start, step
+
+    def _iloc(self, index, i):
+        if i < index.size:
+            return index[i]
+
+    def _prepare_data_frame(self):
+        info = 'index contains null values'
+        assert self._df.index.notnull().all(), info
+        if not df.index.is_monotonic_increasing:
+            df = df.sort_index()
+
+        return df
+
+    def _apply_start(self, df, start):
+        if start._is_offset_position and int(start) > 0:
+            df = df.iloc[start.value:]
+
+            if not df.empty:
+                start.value = df.index[0]
+
+        if start._is_offset_period:
+            start.value += df.index[0]
+
+        if start._is_offset_timestamp and start.value != df.index[0]:
+            df = df[df.index >= start.value]
+
+        return df
+
+    def __cutoff_data(self, df, threshold):
         """Cuts off data before the threshold.
 
         Args:
@@ -163,3 +214,7 @@ class DataSliceExtension:
                 return df, None
 
         return df, cutoff_time
+
+    @property
+    def _is_time_index(self):
+        return pd.api.types.is_datetime64_any_dtype(self._df.index)
