@@ -5,7 +5,6 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
-
     def __init__(self, start=None, stop=None, step=None, count=0):
         """Creates data slice context.
 
@@ -111,6 +110,21 @@ class DataSliceExtension:
             df.context.count += 1
             yield df_slice
 
+    def _apply_start(self, df, start):
+        if start._is_offset_position and start._is_positive:
+            df = df.iloc[start.value:]
+
+            if not df.empty:
+                start.value = df.index[0]
+
+        if start._is_offset_period:
+            start.value += df.index[0]
+
+        if start._is_offset_timestamp and start.value != df.index[0]:
+            df = df[df.index >= start.value]
+
+        return df
+
     def _check_parameter(self, value, input_type):
         if isinstance(value, (str, int)):
             value = input_type(value)
@@ -136,7 +150,7 @@ class DataSliceExtension:
             step = size
 
         if time_index_required:
-            info = 'offsets based on time require a time index'
+            info = 'offsets by time require a time index'
             assert self._is_time_index, info
 
         return size, start, step
@@ -150,21 +164,6 @@ class DataSliceExtension:
         assert df.index.notnull().all(), info
         if not df.index.is_monotonic_increasing:
             df = df.sort_index()
-
-        return df
-
-    def _apply_start(self, df, start):
-        if start._is_offset_position and start._is_positive:
-            df = df.iloc[start.value:]
-
-            if not df.empty:
-                start.value = df.index[0]
-
-        if start._is_offset_period:
-            start.value += df.index[0]
-
-        if start._is_offset_timestamp and start.value != df.index[0]:
-            df = df[df.index >= start.value]
 
         return df
 

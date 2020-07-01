@@ -65,12 +65,9 @@ class DataSliceOffset:
         return info
 
     def _parse_offset_alias(self, alias):
-        try:
-            value = self._parse_offset_alias_phrase(alias)
-            value = value or pd.tseries.frequencies.to_offset(alias)
-            return value
-        except Exception:
-            return
+        value = self._parse_offset_alias_phrase(alias)
+        value = value or pd.tseries.frequencies.to_offset(alias)
+        return value
 
     def _parse_offset_alias_phrase(self, value):
         """Maps the phrase for an offset alias to an offset object.
@@ -94,28 +91,19 @@ class DataSliceOffset:
             if unit == 'year':
                 return pd.offsets.YearBegin()
 
-    def _parse_timedelta(self, value):
-        try:
-            return pd.Timedelta(value)
-        except Exception:
-            return
-
-    def _parse_timestamp(self, value):
-        try:
-            return pd.Timestamp(value)
-        except Exception:
-            return
-
     def _parse_value(self):
         for parser in self._parsers:
-            value = parser(self.value)
-            if value: break
-
-        self.value = value
+            try:
+                value = parser(self.value)
+                if value is not None:
+                    self.value = value
+                    break
+            except Exception:
+                continue
 
     @property
     def _parsers(self):
-        return [self._parse_timestamp, self._parse_offset_alias, self._parse_timedelta]
+        return [pd.Timestamp, self._parse_offset_alias, pd.Timedelta]
 
 
 class DataSliceStep(DataSliceOffset):
@@ -127,4 +115,4 @@ class DataSliceStep(DataSliceOffset):
 
     @property
     def _parsers(self):
-        return [self._parse_offset_alias, self._parse_timedelta]
+        return [self._parse_offset_alias, pd.Timedelta]
