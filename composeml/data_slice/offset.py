@@ -42,7 +42,7 @@ class DataSliceOffset:
 
     def __float__(self):
         if self._is_offset_timestamp: return self.value.timestamp()
-        else: raise TypeError('offset must be timestamp')
+        else: raise TypeError('offset must be a timestamp')
 
     @property
     def _is_positive(self):
