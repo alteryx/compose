@@ -1,7 +1,6 @@
 import composeml.data_slice.extension
 import pandas as pd
 
-from composeml.data_slice.offset import to_offset
 
 
 class DataSliceGenerator:
@@ -10,6 +9,9 @@ class DataSliceGenerator:
         self.gap = gap
         self.min_data = min_data
         self.drop_empty = drop_empty
+
+    def __call__(self, df):
+        return self._slice_by_time(df)
 
     def _slice_by_time(self, df):
         info = "data frame must be sorted chronologically"
