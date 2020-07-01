@@ -5,7 +5,7 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
-    def __init__(self, start=None, stop=None, step=None, count=0):
+    def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
         """Creates data slice context.
 
         Args:
@@ -14,10 +14,30 @@ class DataSliceContext:
             step: When the next data slice starts.
             count (int): The latest count of data slices.
         """
-        self.start = start
-        self.stop = stop
-        self.step = step
-        self.count = 0
+        self.slice_number = 0
+        self.slice_start = slice_start
+        self.slice_stop = slice_stop
+        self.next_start = next_start
+
+    def __str__(self):
+        series = pd.Series(self._vars)
+        string = series.to_string()
+        return string
+
+    def _vars(self):
+        pass
+
+    @property
+    def count(self):
+        return self.slice_number
+
+    @property
+    def start(self):
+        return self.slice_start
+
+    @property
+    def stop(self):
+        return self.slice_stop
 
 
 class DataSliceFrame(pd.DataFrame):
@@ -29,12 +49,11 @@ class DataSliceFrame(pd.DataFrame):
         return DataSliceFrame
 
     @property
-    def _info(self):
-        return vars(self.context)
+    def ctx(self):
+        return self.context
 
     def __str__(self):
-        info = pd.Series(self._info)
-        return info.to_string()
+        return str(self.ctx)
 
 
 @pd.api.extensions.register_dataframe_accessor("slice")
@@ -64,13 +83,13 @@ class DataSliceExtension:
         if step._is_offset_position:
             start.value = df.index[0]
 
-        df, count = DataSliceFrame(df), 1
+        df, slice_number = DataSliceFrame(df), 1
         while not df.empty and start.value <= df.index[-1]:
             ds = self._apply_size(df, start, size)
             df, ds = self._apply_step(df, ds, start, step)
             if ds.empty and drop_empty: continue
-            ds.context.count = count
-            count += 1
+            ds.context.slice_number = slice_number
+            slice_number += 1
             yield ds
 
     def _apply_size(self, df, start, size):
@@ -92,7 +111,7 @@ class DataSliceExtension:
                 if overlap.any():
                     ds = ds[~overlap]
 
-        ds.context = DataSliceContext(start=start.value, stop=stop)
+        ds.context = DataSliceContext(slice_start=start.value, slice_stop=stop)
         return ds
 
     def _apply_start(self, df, start):
