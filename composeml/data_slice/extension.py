@@ -46,8 +46,8 @@ class DataSliceExtension:
         """Generates data slices from the data frame.
 
         Args:
-            size (int or str): The data size of each data slice. An integer denotes the number of rows.
-                A string denotes a period after the starting point of a data slice.
+            size (int or str): The data size of each data slice. An integer represents the number of rows.
+                A string represents a period after the starting point of a data slice.
             start (int or str): Where to start the first data slice.
             step (int or str): The step size between data slices. Default value is the data slice size.
             drop_empty (bool): Whether to drop empty data slices. Default value is True.
@@ -56,7 +56,6 @@ class DataSliceExtension:
             df_slice (generator): Returns a generator of data slices.
         """
         size, start, step = self._check_parameters(size, start, step)
-
         df = self._prepare_data_frame(self._df)
         start = start or DataSliceOffset(df.index[0])
         df = self._apply_start(df, start)
@@ -65,50 +64,36 @@ class DataSliceExtension:
         if step._is_offset_position:
             start.value = df.index[0]
 
-        df = DataSliceFrame(df)
-        df.context = DataSliceContext()
-
+        df, count = DataSliceFrame(df), 1
         while not df.empty and start.value <= df.index[-1]:
-            if size._is_offset_position:
-                df_slice = df.iloc[:size.value]
-                stop = self._iloc(df.index, size.value)
+            ds = self._apply_size(df, start, size)
+            df, ds = self._apply_step(df, ds, start, step)
+            if ds.empty and drop_empty: continue
+            ds.context.count = count
+            count += 1
+            yield ds
 
-            else:
-                stop = start.value + size.value
-                df_slice = df[:stop]
+    def _apply_size(self, df, start, size):
+        if size._is_offset_position:
+            ds = df.iloc[:size.value]
+            stop = self._iloc(df.index, size.value)
 
-                # Pandas includes both endpoints when slicing by time.
-                # This results in the right endpoint overlapping in consecutive data slices.
-                # Resolved by making the right endpoint exclusive.
-                # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
+        else:
+            stop = start.value + size.value
+            ds = df[:stop]
 
-                if not df_slice.empty:
-                    overlap = df_slice.index == stop
-                    if overlap.any():
-                        df_slice = df_slice[~overlap]
+            # Pandas includes both endpoints when slicing by time.
+            # This results in the right endpoint overlapping in consecutive data slices.
+            # Resolved by making the right endpoint exclusive.
+            # https://pandas.pydata.org/pandas-docs/version/0.19/gotchas.html#endpoints-are-inclusive
 
-            df_slice.context.start = start.value
-            df_slice.context.stop = stop
+            if not ds.empty:
+                overlap = ds.index == stop
+                if overlap.any():
+                    ds = ds[~overlap]
 
-            if step._is_offset_position:
-                next_start = self._iloc(df.index, step.value)
-                df_slice.context.step = next_start
-                df = df.iloc[step.value:]
-
-                if not df.empty:
-                    start.value = df.index[0]
-
-            else:
-                next_start = start.value + step.value
-                df_slice.context.step = next_start
-                start.value += step.value
-
-                if start.value <= df.index[-1]:
-                    df = df[start.value:]
-
-            if df_slice.empty and drop_empty: continue
-            df.context.count += 1
-            yield df_slice
+        ds.context = DataSliceContext(start=start.value, stop=stop)
+        return ds
 
     def _apply_start(self, df, start):
         if start._is_offset_position and start._is_positive:
@@ -124,6 +109,24 @@ class DataSliceExtension:
             df = df[df.index >= start.value]
 
         return df
+
+    def _apply_step(self, df, ds, start, step):
+        if step._is_offset_position:
+            next_start = self._iloc(df.index, step.value)
+            ds.context.step = next_start
+            df = df.iloc[step.value:]
+
+            if not df.empty:
+                start.value = df.index[0]
+        else:
+            next_start = start.value + step.value
+            ds.context.step = next_start
+            start.value += step.value
+
+            if start.value <= df.index[-1]:
+                df = df[start.value:]
+
+        return df, ds
 
     def _check_parameter(self, value, input_type):
         if isinstance(value, (str, int)):
@@ -150,7 +153,7 @@ class DataSliceExtension:
             step = size
 
         if time_index_required:
-            info = 'offsets by time require a time index'
+            info = 'offset by time requires a time index'
             assert self._is_time_index, info
 
         return size, start, step
