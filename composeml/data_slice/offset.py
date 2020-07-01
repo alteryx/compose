@@ -103,7 +103,7 @@ class DataSliceOffset:
 
     @property
     def _parsers(self):
-        return [pd.Timestamp, self._parse_offset_alias, pd.Timedelta]
+        return pd.Timestamp, self._parse_offset_alias, pd.Timedelta
 
 
 class DataSliceStep(DataSliceOffset):
@@ -115,4 +115,4 @@ class DataSliceStep(DataSliceOffset):
 
     @property
     def _parsers(self):
-        return [self._parse_offset_alias, pd.Timedelta]
+        return self._parse_offset_alias, pd.Timedelta
