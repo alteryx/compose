@@ -69,7 +69,7 @@ class DataSliceOffset:
             value = self._parse_offset_alias_phrase(alias)
             value = value or pd.tseries.frequencies.to_offset(alias)
             return value
-        except:
+        except Exception:
             return
 
     def _parse_offset_alias_phrase(self, value):
@@ -97,13 +97,13 @@ class DataSliceOffset:
     def _parse_timedelta(self, value):
         try:
             return pd.Timedelta(value)
-        except:
+        except Exception:
             return
 
     def _parse_timestamp(self, value):
         try:
             return pd.Timestamp(value)
-        except:
+        except Exception:
             return
 
     def _parse_value(self):

@@ -1,10 +1,11 @@
 import pandas as pd
+
 from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
-from composeml.utils import can_be_type
 
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
+
     def __init__(self, start=None, stop=None, step=None, count=0):
         """Creates data slice context.
 

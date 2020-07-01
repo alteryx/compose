@@ -12,6 +12,7 @@ SCHEMA_VERSION = "0.1.0"
 
 class LabelTimes(pd.DataFrame):
     """The data frame that contains labels and cutoff times for the target entity."""
+
     def __init__(
         self,
         data=None,

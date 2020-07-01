@@ -1,6 +1,4 @@
-import composeml.data_slice.extension
-import pandas as pd
-
+import composeml.data_slice.extension  # noqa
 
 
 class DataSliceGenerator:

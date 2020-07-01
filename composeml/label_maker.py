@@ -1,6 +1,5 @@
 from sys import stdout
 
-import pandas as pd
 from tqdm import tqdm
 
 from composeml.data_slice import DataSliceGenerator
@@ -10,6 +9,7 @@ from composeml.label_times import LabelTimes
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
