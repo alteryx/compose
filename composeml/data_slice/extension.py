@@ -20,15 +20,14 @@ class DataSliceContext:
         self.slice_number = 0
 
     def __str__(self):
-        series = pd.Series(self._attrs)
-        string = series.to_string()
-        return string
+        return self._series.to_string()
 
     @property
-    def _attrs(self):
+    def _series(self):
         keys = reversed(list(vars(self)))
-        attrs = {key: getattr(self, key) for key in keys}
-        return attrs
+        context = {key: getattr(self, key) for key in keys}
+        context = pd.Series(context, name='context')
+        return context
 
     @property
     def count(self):

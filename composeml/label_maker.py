@@ -9,7 +9,6 @@ from composeml.label_times import LabelTimes
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
-
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
@@ -61,13 +60,6 @@ class LabelMaker:
 
         assert isinstance(value, dict), 'value type for labeling function not supported'
         self._labeling_function = value
-
-    def _update_context(self, context, entity_id):
-        context.slice_number = context.count
-        context.window = (context.start, context.stop)
-        context.gap = (context.start, context.step)
-        context.target_entity = self.target_entity
-        context.target_instance = entity_id
 
     def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True):
         """Generates data slices of target entity.
@@ -164,7 +156,7 @@ class LabelMaker:
 
                 records.append({
                     self.target_entity: entity_id,
-                    'time': ds.context.window[0],
+                    'time': ds.context.slice_start,
                     **labels,
                 })
 
