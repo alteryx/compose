@@ -121,7 +121,7 @@ class LabelTimes(pd.DataFrame):
             2       1  2020-01-03   True   True
             3       1  2020-01-04  False  False
 
-            Each target can be selected individually.
+            Select a single target from the label times.
 
             >>> lt.select('B')
                entity        time      B
