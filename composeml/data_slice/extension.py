@@ -5,6 +5,7 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
+
     def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
         """Creates data slice context.
 
@@ -25,8 +26,8 @@ class DataSliceContext:
     @property
     def _series(self):
         keys = reversed(list(vars(self)))
-        context = {key: getattr(self, key) for key in keys}
-        context = pd.Series(context, name='context')
+        attrs = {key: getattr(self, key) for key in keys}
+        context = pd.Series(attrs, name='context')
         return context
 
     @property
@@ -76,10 +77,9 @@ class DataSliceExtension:
         Returns:
             df_slice (generator): Returns a generator of data slices.
         """
+        self._check_data_frame()
         size, start, step = self._check_parameters(size, start, step)
-        df = self._prepare_data_frame(self._df)
-        start = start or DataSliceOffset(df.index[0])
-        df = self._apply_start(df, start)
+        df = self._apply_start(self._df, start)
         if df.empty: return
 
         if step._is_offset_position:
@@ -149,11 +149,8 @@ class DataSliceExtension:
         return df, ds
 
     def _check_parameter(self, value, input_type):
-        if isinstance(value, (str, int)):
-            value = input_type(value)
-
         if not isinstance(value, input_type):
-            raise TypeError('offset type not supported')
+            value = input_type(value)
 
         assert value._is_positive, 'offset must be positive'
         return value
@@ -162,19 +159,17 @@ class DataSliceExtension:
         size = self._check_parameter(size, DataSliceStep)
         time_index_required = size._is_offset_period
 
-        if start is not None:
-            start = self._check_parameter(start, DataSliceOffset)
-            time_index_required |= start._is_offset_period
+        start = start or self._df.index[0]
+        start = self._check_parameter(start, DataSliceOffset)
+        time_index_required |= start._is_offset_period
 
-        if step is not None:
-            step = self._check_parameter(step, DataSliceStep)
-            time_index_required |= step._is_offset_period
-        else:
-            step = size
+        step = step or size
+        step = self._check_parameter(step, DataSliceStep)
+        time_index_required |= step._is_offset_period
 
         if time_index_required:
-            info = 'offset by time requires a time index'
-            assert self._is_time_index, info
+            assert self._is_time_index, 'offset by time requires a time index'
+            assert self._is_index_sorted, 'time index must be sorted chronologically'
 
         return size, start, step
 
@@ -182,13 +177,13 @@ class DataSliceExtension:
         if i < index.size:
             return index[i]
 
-    def _prepare_data_frame(self, df):
+    def _check_data_frame(self):
         info = 'index contains null values'
-        assert df.index.notnull().all(), info
-        if not df.index.is_monotonic_increasing:
-            df = df.sort_index()
+        assert self._df.index.notnull().all(), info
 
-        return df
+    @property
+    def _is_index_sorted(self):
+        return self._df.index.is_monotonic_increasing
 
     @property
     def _is_time_index(self):

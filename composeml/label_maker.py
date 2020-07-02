@@ -9,6 +9,7 @@ from composeml.label_times import LabelTimes
 
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
+
     def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
         """Creates an instance of label maker.
 
