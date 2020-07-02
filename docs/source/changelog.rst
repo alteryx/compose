@@ -2,6 +2,17 @@
 Changelog
 =========
 
+**v0.4.0** July 2, 2020
+    * Enhancements
+        * Target values can be sampled from each group (:pr:`138`).
+        * One of multiple targets can be selected. (:pr:`147`).
+        * Labels can be binned using infinite edges represented as string (:pr:`133`).
+    * Changes
+        * The label times object was refactored to improve design and structure (:pr:`135`).
+
+**Breaking Changes**
+    * Loading label times from previous versions will result in an error.
+
 **v0.3.0** June 1, 2020
     * Enhancements
         * Label Search for Multiple Targets (:pr:`130`)
