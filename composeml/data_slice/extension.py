@@ -117,7 +117,7 @@ class DataSliceExtension:
 
     def _apply_start(self, df, start):
         if start._is_offset_position and start._is_positive:
-            df = df.iloc[start.value:]
+            df = df.iloc[start.value:] 
 
             if not df.empty:
                 start.value = df.index[0]
@@ -169,7 +169,7 @@ class DataSliceExtension:
 
         if time_index_required:
             assert self._is_time_index, 'offset by time requires a time index'
-            assert self._is_index_sorted, 'time index must be sorted chronologically'
+            assert self._is_sorted, 'time index must be sorted chronologically'
 
         return size, start, step
 
@@ -182,7 +182,7 @@ class DataSliceExtension:
         assert self._df.index.notnull().all(), info
 
     @property
-    def _is_index_sorted(self):
+    def _is_sorted(self):
         return self._df.index.is_monotonic_increasing
 
     @property
