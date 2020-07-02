@@ -107,7 +107,7 @@ class LabelTimes(pd.DataFrame):
             lt (LabelTimes): A label times object that contains a single target.
 
         Examples:
-            This label times object has multiple target variables.
+            Create a label times object that contains multiple target variables.
 
             >>> entity = [0, 0, 1, 1]
             >>> labels = [True, False, True, False]
