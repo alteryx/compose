@@ -69,7 +69,7 @@ class LabelMaker:
         context.target_entity = self.target_entity
         context.target_instance = entity_id
 
-    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True, verbose=False):
+    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True):
         """Generates data slices of target entity.
 
         Args:
@@ -79,7 +79,6 @@ class LabelMaker:
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
-            verbose (bool): Whether to print metadata about slice. Default value is False.
 
         Returns:
             ds (generator): Returns a generator of data slices.
@@ -98,8 +97,7 @@ class LabelMaker:
 
         for entity_id, df in entity_groups:
             for ds in data_slice_generator(df):
-                self._update_context(ds.context, entity_id)
-                if verbose: print(ds)
+                setattr(ds.context, self.target_entity, entity_id)
                 yield ds
 
                 if ds.context.slice_number >= num_examples_per_instance:
@@ -159,7 +157,6 @@ class LabelMaker:
 
         for entity_count, (entity_id, df) in enumerate(entity_groups):
             for ds in data_slice_generator(df):
-                self._update_context(ds.context, entity_id)
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)

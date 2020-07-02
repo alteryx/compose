@@ -14,18 +14,21 @@ class DataSliceContext:
             step: When the next data slice starts.
             count (int): The latest count of data slices.
         """
-        self.slice_number = 0
-        self.slice_start = slice_start
-        self.slice_stop = slice_stop
         self.next_start = next_start
+        self.slice_stop = slice_stop
+        self.slice_start = slice_start
+        self.slice_number = 0
 
     def __str__(self):
-        series = pd.Series(self._vars)
+        series = pd.Series(self._attrs)
         string = series.to_string()
         return string
 
-    def _vars(self):
-        pass
+    @property
+    def _attrs(self):
+        keys = reversed(list(vars(self)))
+        attrs = {key: getattr(self, key) for key in keys}
+        return attrs
 
     @property
     def count(self):
@@ -96,7 +99,6 @@ class DataSliceExtension:
         if size._is_offset_position:
             ds = df.iloc[:size.value]
             stop = self._iloc(df.index, size.value)
-
         else:
             stop = start.value + size.value
             ds = df[:stop]
@@ -132,14 +134,14 @@ class DataSliceExtension:
     def _apply_step(self, df, ds, start, step):
         if step._is_offset_position:
             next_start = self._iloc(df.index, step.value)
-            ds.context.step = next_start
+            ds.context.next_start = next_start
             df = df.iloc[step.value:]
 
             if not df.empty:
                 start.value = df.index[0]
         else:
             next_start = start.value + step.value
-            ds.context.step = next_start
+            ds.context.next_start = next_start
             start.value += step.value
 
             if start.value <= df.index[-1]:
