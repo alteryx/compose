@@ -460,13 +460,11 @@ class LabelTimes(pd.DataFrame):
 
             Sample a fraction of the examples.
 
-            >>> frac = {True: .5, False: .5}
-            >>> lt.sample(frac=frac, random_state=0)
+            >>> lt.sample(frac=.25, random_state=0)
                entity  labels
             2       1    True
-            3       1   False
 
-            Sample examples for specific labels.
+            Sample a number of the examples for specific labels.
 
             >>> n = {True: 1, False: 1}
             >>> lt.sample(n=n, random_state=0)
@@ -474,7 +472,15 @@ class LabelTimes(pd.DataFrame):
             2       1    True
             3       1   False
 
-            Sample examples from each entity group.
+            Sample a fraction of the examples for specific labels.
+
+            >>> frac = {True: .5, False: .5}
+            >>> lt.sample(frac=frac, random_state=0)
+               entity  labels
+            2       1    True
+            3       1   False
+
+            Sample a number of the examples from each entity group.
 
             >>> lt.sample(n={True: 1}, per_instance=True, random_state=0)
                entity  labels
