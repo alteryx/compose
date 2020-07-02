@@ -98,6 +98,38 @@ class LabelTimes(pd.DataFrame):
         return types
 
     def select(self, target):
+        """Selects one of the target variables.
+
+        Args:
+            target (str): The name of the target column.
+
+        Returns:
+            lt (LabelTimes): A label times object that contains a single target.
+
+        Examples:
+            This label times object has multiple target variables.
+
+            >>> entity = [0, 0, 1, 1]
+            >>> labels = [True, False, True, False]
+            >>> time = ['2020-01-01', '2020-01-02', '2020-01-03', '2020-01-04']
+            >>> data = {'entity': entity, 'time': time, 'A': labels, 'B': labels}
+            >>> lt = LabelTimes(data=data, target_entity='entity', target_columns=['A', 'B'])
+            >>> lt
+               entity        time      A      B
+            0       0  2020-01-01   True   True
+            1       0  2020-01-02  False  False
+            2       1  2020-01-03   True   True
+            3       1  2020-01-04  False  False
+
+            Each target can be selected individually.
+
+            >>> lt.select('B')
+               entity        time      B
+            0       0  2020-01-01   True
+            1       0  2020-01-02  False
+            2       1  2020-01-03   True
+            3       1  2020-01-04  False
+        """
         assert not self._is_single_target, 'only one target exists'
         if not isinstance(target, str): raise TypeError('target name must be string')
         assert target in self.target_columns, 'target "%s" not found' % target
@@ -405,52 +437,56 @@ class LabelTimes(pd.DataFrame):
             LabelTimes : Random sample of labels.
 
         Examples:
-            These are the label values for the examples.
+            Create a label times object.
 
-            >>> lt = LabelTimes({'labels': list('AABBBAA')})
+            >>> entity = [0, 0, 1, 1]
+            >>> labels = [True, False, True, False]
+            >>> data = {'entity': entity, 'labels': labels}
+            >>> lt = LabelTimes(data=data, target_entity='entity', target_columns=['labels'])
             >>> lt
-              labels
-            0      A
-            1      A
-            2      B
-            3      B
-            4      B
-            5      A
-            6      A
+               entity  labels
+            0       0    True
+            1       0   False
+            2       1    True
+            3       1   False
 
-            Sample a number of examples.
+            Sample a number of the examples.
 
             >>> lt.sample(n=3, random_state=0)
-              labels
-            1      A
-            2      B
-            6      A
-
-            Sample a number of examples for specific labels.
-
-            >>> n_per_label = {'A': 1, 'B': 2}
-            >>> lt.sample(n=n_per_label, random_state=0)
-              labels
-            3      B
-            4      B
-            5      A
+               entity  labels
+            1       0   False
+            2       1    True
+            3       1   False
 
             Sample a fraction of the examples.
 
-            >>> lt.sample(frac=.4, random_state=2)
-              labels
-            1      A
-            3      B
-            4      B
+            >>> frac = {True: .5, False: .5}
+            >>> lt.sample(frac=frac, random_state=0)
+               entity  labels
+            2       1    True
+            3       1   False
 
-            Sample a fraction of the examples for specific labels.
+            Sample examples for specific labels.
 
-            >>> frac_per_label = {'A': .5, 'B': .34}
-            >>> lt.sample(frac=frac_per_label, random_state=2)
-              labels
-            4      B
-            5      A
-            6      A
+            >>> n = {True: 1, False: 1}
+            >>> lt.sample(n=n, random_state=0)
+               entity  labels
+            2       1    True
+            3       1   False
+
+            Sample examples from each entity group.
+
+            >>> lt.sample(n={True: 1}, per_instance=True, random_state=0)
+               entity  labels
+            0       0    True
+            2       1    True
+
+            Sample a fraction of the examples from each entity group.
+
+            >>> lt.sample(frac=.5, per_instance=True, random_state=0)
+               entity  labels
+            1       0   False
+            3       1   False
         """  # noqa
         self._assert_single_target()
 
