@@ -1,14 +1,33 @@
 import pandas as pd
 
 from composeml import LabelMaker
+from pytest import fixture
 
 
-def test_context(transactions):
+@fixture
+def data_slice(transactions):
     lm = LabelMaker(target_entity='customer_id', time_index='time', window_size='1h')
     ds = next(lm.slice(transactions, num_examples_per_instance=1))
+    return ds
 
-    assert isinstance(ds.context.customer_id, int)
-    assert isinstance(ds.context.slice_number, int)
-    assert isinstance(ds.context.slice_start, pd.Timestamp)
-    assert isinstance(ds.context.slice_stop, pd.Timestamp)
-    assert isinstance(ds.context.next_start, pd.Timestamp)
+
+def test_context(data_slice, capsys):
+    print(data_slice)
+    out = capsys.readouterr().out
+    actual = out.splitlines()
+
+    expected = [
+        'customer_id                       0',
+        'slice_number                      1',
+        'slice_start     2019-01-01 08:00:00',
+        'slice_stop      2019-01-01 09:00:00',
+        'next_start      2019-01-01 09:00:00',
+    ]
+
+    assert actual == expected
+
+
+def test_context_aliases(data_slice):
+    assert data_slice.context == data_slice.ctx
+    assert data_slice.context.slice_start == data_slice.ctx.start
+    assert data_slice.context.slice_stop == data_slice.ctx.stop
