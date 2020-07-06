@@ -404,7 +404,6 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
 #             window_size={},
 #         )
 
-
 # def test_invalid_offset_alias(transactions, total_spent_fn):
 #     match = 'offset must be a valid string'
 #     with pytest.raises(AssertionError, match=match):
@@ -414,7 +413,6 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
 #             labeling_function=lambda: None,
 #             window_size='not an offset alias',
 #         )
-
 
 # def test_invalid_threshold(transactions, total_spent_fn):
 #     lm = LabelMaker(
@@ -485,7 +483,7 @@ def test_search_on_empty_labels(transactions):
     assert given_labels.empty
 
 
-def test_slice_context(transactions, total_spent_fn):
+def test_data_slice_context(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -493,14 +491,15 @@ def test_slice_context(transactions, total_spent_fn):
         window_size='1h',
     )
 
-    for ds in lm.slice(transactions, num_examples_per_instance=-1, verbose=True):
-        assert ds.context.target_entity == 'customer_id'
-        assert isinstance(ds.context.target_instance, int)
+    for ds in lm.slice(transactions, num_examples_per_instance=-1):
+        assert isinstance(ds.context.customer_id, int)
         assert isinstance(ds.context.slice_number, int)
-        assert ds.context.window == ds.context.gap
+        assert isinstance(ds.context.slice_start, pd.Timestamp)
+        assert isinstance(ds.context.slice_stop, pd.Timestamp)
+        assert isinstance(ds.context.next_start, pd.Timestamp)
 
 
-def test_slice_overlap(transactions, total_spent_fn):
+def test_data_slice_overlap(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -508,10 +507,9 @@ def test_slice_overlap(transactions, total_spent_fn):
         window_size='1h',
     )
 
-    for df in lm.slice(transactions, num_examples_per_instance=2):
-        start, end = df.context.window
-        is_overlap = df.index == end
-        assert not is_overlap.any()
+    for ds in lm.slice(transactions, num_examples_per_instance=2):
+        overlap = ds.index == ds.context.slice_stop
+        assert not overlap.any()
 
 
 def test_label_type(transactions, total_spent_fn):
