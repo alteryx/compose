@@ -448,7 +448,7 @@ def test_search_invalid_n_examples(transactions, total_spent_fn):
         lm.search(transactions, num_examples_per_instance=2)
 
 
-def test_search_on_empty_data_slices(transactions, total_spent_fn):
+def test_search_with_invalid_index(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
         time_index='time',
@@ -456,16 +456,15 @@ def test_search_on_empty_data_slices(transactions, total_spent_fn):
         window_size=2,
     )
 
-    transactions = transactions.assign(time=pd.NaT)
+    df = transactions.sample(n=10, random_state=0)
+    match = "data frame must be sorted chronologically"
+    with pytest.raises(AssertionError, match=match):
+        lm.search(df, num_examples_per_instance=2)
 
-    given_labels = lm.search(
-        transactions,
-        minimum_data=1,
-        num_examples_per_instance=2,
-        gap=3,
-    )
-
-    assert given_labels.empty
+    df = transactions.assign(time=pd.NaT)
+    match = "index contains null values"
+    with pytest.raises(AssertionError, match=match):
+        lm.search(df, num_examples_per_instance=2)
 
 
 def test_search_on_empty_labels(transactions):
