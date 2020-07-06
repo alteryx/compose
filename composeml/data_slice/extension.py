@@ -5,6 +5,7 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
+
     def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
         """Creates data slice context.
 
