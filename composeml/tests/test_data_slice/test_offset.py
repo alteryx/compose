@@ -26,5 +26,10 @@ def test_invalid_value():
 def test_alias_phrase():
     phrase = 'until start of next month'
     actual = DataSliceOffset(phrase).value
-    expected = DataSliceOffset('1MS').value
+    expected = DataSliceOffset('MS').value
+    assert actual == expected
+
+    phrase = 'until start of next year'
+    actual = DataSliceOffset(phrase).value
+    expected = DataSliceOffset('YS').value
     assert actual == expected
