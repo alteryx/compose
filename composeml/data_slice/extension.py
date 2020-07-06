@@ -79,13 +79,14 @@ class DataSliceExtension:
         self._check_data_frame()
         size, start, step = self._check_parameters(size, start, step)
         df = self._apply_start(self._df, start)
-        if df.empty: return
 
+        if df.empty: return
         if step._is_offset_position:
             start.value = df.index[0]
 
-        df, slice_number = DataSliceFrame(df), 1
-        while not df.empty and start.value <= df.index[-1]:
+        df = DataSliceFrame(df)
+        slice_number, stop_value = 1, df.index[-1]
+        while not df.empty and start.value <= stop_value:
             ds = self._apply_size(df, start, size)
             df, ds = self._apply_step(df, ds, start, step)
             if ds.empty and drop_empty: continue
