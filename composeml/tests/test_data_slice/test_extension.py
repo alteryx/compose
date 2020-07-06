@@ -29,5 +29,6 @@ def test_context(data_slice, capsys):
 
 def test_context_aliases(data_slice):
     assert data_slice.context == data_slice.ctx
+    assert data_slice.context.slice_number == data_slice.ctx.count
     assert data_slice.context.slice_start == data_slice.ctx.start
     assert data_slice.context.slice_stop == data_slice.ctx.stop
