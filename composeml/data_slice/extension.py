@@ -163,11 +163,7 @@ class DataSliceExtension:
         assert size._is_positive, info
         assert step._is_positive, info
 
-        time_index_required = size._is_offset_period
-        time_index_required |= start._is_offset_period
-        time_index_required |= step._is_offset_period
-
-        if time_index_required:
+        if any(offset._is_offset_period for offset in (size, start, step)):
             info = 'offset by time requires a time index'
             assert self._is_time_index, info
 
