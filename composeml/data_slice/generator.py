@@ -12,9 +12,6 @@ class DataSliceGenerator:
         return self._slice_by_time(df)
 
     def _slice_by_time(self, df):
-        info = "data frame must be sorted chronologically"
-        assert df.index.is_monotonic_increasing, info
-
         data_slices = df.slice(
             size=self.window_size,
             start=self.min_data,

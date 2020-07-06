@@ -5,7 +5,6 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
-
     def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
         """Creates data slice context.
 
@@ -117,7 +116,7 @@ class DataSliceExtension:
 
     def _apply_start(self, df, start):
         if start._is_offset_position and start._is_positive:
-            df = df.iloc[start.value:] 
+            df = df.iloc[start.value:]
 
             if not df.empty:
                 start.value = df.index[0]
@@ -148,28 +147,29 @@ class DataSliceExtension:
 
         return df, ds
 
-    def _check_parameter(self, value, input_type):
-        if not isinstance(value, input_type):
-            value = input_type(value)
-
-        assert value._is_positive, 'offset must be positive'
-        return value
-
     def _check_parameters(self, size, start, step):
-        size = self._check_parameter(size, DataSliceStep)
-        time_index_required = size._is_offset_period
+        if not isinstance(size, DataSliceStep):
+            size = DataSliceStep(size)
 
         start = start or self._df.index[0]
-        start = self._check_parameter(start, DataSliceOffset)
-        time_index_required |= start._is_offset_period
+        if not isinstance(start, DataSliceOffset):
+            start = DataSliceOffset(start)
 
         step = step or size
-        step = self._check_parameter(step, DataSliceStep)
+        if not isinstance(step, DataSliceStep):
+            step = DataSliceStep(step)
+
+        info = 'offset must be positive'
+        assert size._is_positive, info
+        assert step._is_positive, info
+
+        time_index_required = size._is_offset_period
+        time_index_required |= start._is_offset_period
         time_index_required |= step._is_offset_period
 
         if time_index_required:
-            assert self._is_time_index, 'offset by time requires a time index'
-            assert self._is_sorted, 'time index must be sorted chronologically'
+            info = 'offset by time requires a time index'
+            assert self._is_time_index, info
 
         return size, start, step
 
@@ -180,6 +180,8 @@ class DataSliceExtension:
     def _check_data_frame(self):
         info = 'index contains null values'
         assert self._df.index.notnull().all(), info
+        info = "data frame must be sorted chronologically"
+        assert self._is_sorted, info
 
     @property
     def _is_sorted(self):
