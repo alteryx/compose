@@ -1,5 +1,6 @@
-from composeml.data_slice.offset import DataSliceOffset
 from pytest import raises
+
+from composeml.data_slice.offset import DataSliceOffset
 
 
 def test_numeric_typecast():
