@@ -395,43 +395,6 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
         )
 
 
-# def test_invalid_offset(transactions, total_spent_fn):
-#     with pytest.raises(AssertionError, match='invalid offset'):
-#         LabelMaker(
-#             target_entity='customer_id',
-#             time_index='time',
-#             labeling_function=lambda: None,
-#             window_size={},
-#         )
-
-# def test_invalid_offset_alias(transactions, total_spent_fn):
-#     match = 'offset must be a valid string'
-#     with pytest.raises(AssertionError, match=match):
-#         LabelMaker(
-#             target_entity='customer_id',
-#             time_index='time',
-#             labeling_function=lambda: None,
-#             window_size='not an offset alias',
-#         )
-
-# def test_invalid_threshold(transactions, total_spent_fn):
-#     lm = LabelMaker(
-#         target_entity='customer_id',
-#         time_index='time',
-#         labeling_function=lambda: None,
-#         window_size=2,
-#     )
-
-#     match = 'invalid threshold'
-
-#     with pytest.raises(ValueError, match=match):
-#         lm.search(
-#             transactions,
-#             num_examples_per_instance=2,
-#             minimum_data=' ',
-#         )
-
-
 def test_search_invalid_n_examples(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
@@ -481,22 +444,6 @@ def test_search_on_empty_labels(transactions):
     )
 
     assert given_labels.empty
-
-
-def test_data_slice_context(transactions, total_spent_fn):
-    lm = LabelMaker(
-        target_entity='customer_id',
-        time_index='time',
-        labeling_function=total_spent_fn,
-        window_size='1h',
-    )
-
-    for ds in lm.slice(transactions, num_examples_per_instance=-1):
-        assert isinstance(ds.context.customer_id, int)
-        assert isinstance(ds.context.slice_number, int)
-        assert isinstance(ds.context.slice_start, pd.Timestamp)
-        assert isinstance(ds.context.slice_stop, pd.Timestamp)
-        assert isinstance(ds.context.next_start, pd.Timestamp)
 
 
 def test_data_slice_overlap(transactions, total_spent_fn):

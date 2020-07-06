@@ -21,7 +21,7 @@ class LabelMaker:
             window_size (str or int): Duration of each data slice.
                 The default value for window size is all future data.
         """
-        self.labeling_function = labeling_function
+        self.labeling_function = labeling_function or {}
         self.target_entity = target_entity
         self.time_index = time_index
         self.window_size = window_size
