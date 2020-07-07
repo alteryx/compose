@@ -1,4 +1,3 @@
-import pandas as pd
 from pytest import fixture
 
 from composeml import LabelMaker
