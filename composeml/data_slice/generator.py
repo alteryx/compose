@@ -1,4 +1,4 @@
-import composeml.data_slice.extension  # noqa
+from composeml.data_slice.extension import DataSliceContext, DataSliceFrame
 
 
 class DataSliceGenerator:
@@ -9,7 +9,26 @@ class DataSliceGenerator:
         self.drop_empty = drop_empty
 
     def __call__(self, df):
-        return self._slice_by_time(df)
+        is_column = self.window_size in df
+        method = 'column' if is_column else 'time'
+        attr = '_slice_by_%s' % method
+        return getattr(self, attr)(df)
+
+    def _slice_by_column(self, df):
+        slices = df.groupby(self.window_size, sort=False)
+        slice_number = 1
+
+        for group, ds in slices:
+            ds = DataSliceFrame(ds)
+            ds.context = DataSliceContext(
+                slice_number=slice_number,
+                slice_start=ds.index[0],
+                slice_stop=ds.index[-1],
+            )
+            slice_number += 1
+            del ds.context.next_start
+            setattr(ds.context, self.window_size, group)
+            yield ds
 
     def _slice_by_time(self, df):
         data_slices = df.slice(
