@@ -13,10 +13,11 @@ class DataSliceGenerator:
         """Applies the data slice generator to the data frame."""
         is_column = self.window_size in df
         method = 'column' if is_column else 'time'
-        attr = f'_slice_by_{method}'
+        attr = '_slice_by_%s' % method
         return getattr(self, attr)(df)
 
     def _slice_by_column(self, df):
+        """Slices the data frame by an existin column."""
         slices = df.groupby(self.window_size, sort=False)
         slice_number = 1
 
@@ -33,7 +34,7 @@ class DataSliceGenerator:
             yield ds
 
     def _slice_by_time(self, df):
-        """Slices data along the time index."""
+        """Slices the data frame along the time index."""
         data_slices = df.slice(
             size=self.window_size,
             start=self.min_data,
