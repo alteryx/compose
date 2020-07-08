@@ -20,7 +20,7 @@ class DataSliceContext:
         self.slice_number = 0
 
     def __repr__(self):
-        """Represents the data slice context as a strings."""
+        """Represents the data slice context as a string."""
         return self._series.to_string()
 
     @property
