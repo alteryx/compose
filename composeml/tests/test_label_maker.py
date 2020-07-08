@@ -409,6 +409,33 @@ def test_search_invalid_n_examples(transactions, total_spent_fn):
         lm.search(transactions, num_examples_per_instance=2)
 
 
+def test_column_based_windows(transactions, total_spent_fn):
+    session_id = [1, 2, 3, 3, 4, 5, 5, 5, 6, 7]
+    df = transactions.assign(session_id=session_id)
+
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        window_size='session_id',
+        labeling_function=total_spent_fn,
+    )
+
+    actual = lm.search(df, -1).pipe(to_csv, index=False)
+
+    expected = [
+        'customer_id,time,total_spent',
+        '0,2019-01-01 08:00:00,1',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:00:00,2',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:30:00,3',
+        '2,2019-01-01 12:00:00,1',
+        '3,2019-01-01 12:30:00,1',
+    ]
+
+    assert actual == expected
+
+
 def test_search_with_invalid_index(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',
