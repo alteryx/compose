@@ -95,7 +95,8 @@ class DataSliceExtension:
         slice_number, stop_value = 1, df.index[-1]
         while not df.empty and start.value <= stop_value:
             ds = self._apply_size(df, start, size)
-            df, ds = self._apply_step(df, ds, start, step)
+            df = self._apply_step(df, start, step)
+            ds.context.next_start = start.value
             if ds.empty and drop_empty: continue
             ds.context.slice_number = slice_number
             slice_number += 1
@@ -139,24 +140,18 @@ class DataSliceExtension:
 
         return df
 
-    def _apply_step(self, df, ds, start, step):
+    def _apply_step(self, df, start, step):
         """Strides the index starting point by the offset."""
         if step._is_offset_position:
-            next_start = self._iloc(df.index, step.value)
-            ds.context.next_start = next_start
             df = df.iloc[step.value:]
-
             if not df.empty:
                 start.value = df.index[0]
         else:
-            next_start = start.value + step.value
-            ds.context.next_start = next_start
             start.value += step.value
-
             if start.value <= df.index[-1]:
                 df = df[start.value:]
 
-        return df, ds
+        return df
 
     def _check_parameters(self, size, start, step):
         """Checks if parameters are data slice offsets."""
