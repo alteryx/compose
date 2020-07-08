@@ -70,7 +70,7 @@ class DataSliceOffset:
 
     @property
     def _invalid_offset_error(self):
-        """Returns message for invlaid offset."""
+        """Returns message for invalid offset."""
         info = 'invalid offset\n\n'
         info += '\tFor information about offset aliases, visit the link below.\n'
         info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
