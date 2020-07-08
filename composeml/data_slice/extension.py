@@ -6,11 +6,11 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
     def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
-        """Creates data slice context.
+        """Creates the data slice context.
 
         Args:
             slice_number (int): The latest count of data slices.
-            slice_start (int or Timestamp): When data slice starts.
+            slice_start (int or Timestamp): When the data slice starts.
             slice_stop (int or Timestamp): When the data slice stops.
             next_start (int or Timestamp): When the next data slice starts.
         """
@@ -19,7 +19,7 @@ class DataSliceContext:
         self.slice_start = slice_start
         self.slice_number = 0
 
-    def __str__(self):
+    def __repr__(self):
         """Represents the data slice context as a strings."""
         return self._series.to_string()
 
@@ -38,12 +38,12 @@ class DataSliceContext:
 
     @property
     def start(self):
-        """Alias for the data slice start."""
+        """Alias for the start point of a data slice."""
         return self.slice_start
 
     @property
     def stop(self):
-        """Alias for the data slice stop."""
+        """Alias for the stopping point of a data slice."""
         return self.slice_stop
 
 
@@ -57,10 +57,12 @@ class DataSliceFrame(pd.DataFrame):
 
     @property
     def ctx(self):
+        """Alias for the data slice context."""
         return self.context
 
     def __str__(self):
-        return str(self.ctx)
+        """Returns the data slice context as the printed representation."""
+        return repr(self.ctx)
 
 
 @pd.api.extensions.register_dataframe_accessor("slice")
@@ -79,9 +81,9 @@ class DataSliceExtension:
             drop_empty (bool): Whether to drop empty data slices. Default value is True.
 
         Returns:
-            df_slice (generator): Returns a generator of data slices.
+            ds (generator): Returns a generator of data slices.
         """
-        self._check_data_frame()
+        self._check_index()
         size, start, step = self._check_parameters(size, start, step)
         df = self._apply_start(self._df, start)
 
@@ -100,6 +102,7 @@ class DataSliceExtension:
             yield ds
 
     def _apply_size(self, df, start, size):
+        """Returns a data slice calculated by the offsets."""
         if size._is_offset_position:
             ds = df.iloc[:size.value]
             stop = self._iloc(df.index, size.value)
@@ -121,6 +124,7 @@ class DataSliceExtension:
         return ds
 
     def _apply_start(self, df, start):
+        """Returns a data frame starting at the offset."""
         if start._is_offset_position and start._is_positive:
             df = df.iloc[start.value:]
 
@@ -136,6 +140,7 @@ class DataSliceExtension:
         return df
 
     def _apply_step(self, df, ds, start, step):
+        """Strides the index starting point by the offset."""
         if step._is_offset_position:
             next_start = self._iloc(df.index, step.value)
             ds.context.next_start = next_start
@@ -154,6 +159,7 @@ class DataSliceExtension:
         return df, ds
 
     def _check_parameters(self, size, start, step):
+        """Checks if parameters are data slice offsets."""
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)
 
@@ -176,10 +182,12 @@ class DataSliceExtension:
         return size, start, step
 
     def _iloc(self, index, i):
+        """Helper function for getting index values."""
         if i < index.size:
             return index[i]
 
-    def _check_data_frame(self):
+    def _check_index(self):
+        """Checks if index values are null or unsorted."""
         info = 'index contains null values'
         assert self._df.index.notnull().all(), info
         info = "data frame must be sorted chronologically"
@@ -187,8 +195,10 @@ class DataSliceExtension:
 
     @property
     def _is_sorted(self):
+        """Whether index values are sorted."""
         return self._df.index.is_monotonic_increasing
 
     @property
     def _is_time_index(self):
+        """Whether the data frame has a time index type."""
         return pd.api.types.is_datetime64_any_dtype(self._df.index)
