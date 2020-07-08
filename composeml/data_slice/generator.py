@@ -13,7 +13,7 @@ class DataSliceGenerator:
         """Applies the data slice generator to the data frame."""
         is_column = self.window_size in df
         method = 'column' if is_column else 'time'
-        attr = '_slice_by_%s' % method
+        attr = f'_slice_by_{method}'
         return getattr(self, attr)(df)
 
     def _slice_by_column(self, df):
@@ -27,9 +27,9 @@ class DataSliceGenerator:
                 slice_start=ds.index[0],
                 slice_stop=ds.index[-1],
             )
-            slice_number += 1
-            del ds.context.next_start
             setattr(ds.context, self.window_size, group)
+            del ds.context.next_start
+            slice_number += 1
             yield ds
 
     def _slice_by_time(self, df):
