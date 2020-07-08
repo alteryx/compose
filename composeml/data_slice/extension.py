@@ -5,15 +5,14 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
-
     def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
         """Creates data slice context.
 
         Args:
-            start: When data slice starts.
-            stop: When the data slice stops.
-            step: When the next data slice starts.
-            count (int): The latest count of data slices.
+            slice_number (int): The latest count of data slices.
+            slice_start (int or Timestamp): When data slice starts.
+            slice_stop (int or Timestamp): When the data slice stops.
+            next_start (int or Timestamp): When the next data slice starts.
         """
         self.next_start = next_start
         self.slice_stop = slice_stop
@@ -21,10 +20,12 @@ class DataSliceContext:
         self.slice_number = 0
 
     def __str__(self):
+        """Represents the data slice context as a strings."""
         return self._series.to_string()
 
     @property
     def _series(self):
+        """Represents the data slice context as a pandas series."""
         keys = reversed(list(vars(self)))
         attrs = {key: getattr(self, key) for key in keys}
         context = pd.Series(attrs, name='context')
@@ -32,14 +33,17 @@ class DataSliceContext:
 
     @property
     def count(self):
+        """Alias for the data slice number."""
         return self.slice_number
 
     @property
     def start(self):
+        """Alias for the data slice start."""
         return self.slice_start
 
     @property
     def stop(self):
+        """Alias for the data slice stop."""
         return self.slice_stop
 
 
