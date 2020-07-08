@@ -48,7 +48,7 @@ class DataSliceContext:
 
 
 class DataSliceFrame(pd.DataFrame):
-    """Subclasses pandas data frames for data slices."""
+    """Subclasses pandas data frame for data slice."""
     _metadata = ['context']
 
     @property

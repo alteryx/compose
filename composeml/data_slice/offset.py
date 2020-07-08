@@ -70,14 +70,14 @@ class DataSliceOffset:
 
     @property
     def _invalid_offset_error(self):
-        """Returns message for invlaid offest."""
+        """Returns message for invlaid offset."""
         info = 'invalid offset\n\n'
         info += '\tFor information about offset aliases, visit the link below.\n'
         info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
         return info
 
     def _parse_offset_alias(self, alias):
-        """Parses an alias to an offest."""
+        """Parses an alias to an offset."""
         value = self._parse_offset_alias_phrase(alias)
         value = value or pd.tseries.frequencies.to_offset(alias)
         return value
