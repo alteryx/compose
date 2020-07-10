@@ -96,8 +96,8 @@ class DataSliceExtension:
         while not df.empty and start.value <= stop_value:
             ds = self._apply_size(df, start, size)
             df = self._apply_step(df, start, step)
-            ds.context.next_start = start.value
             if ds.empty and drop_empty: continue
+            ds.context.next_start = start.value
             ds.context.slice_number = slice_number
             slice_number += 1
             yield ds
