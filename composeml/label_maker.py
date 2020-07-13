@@ -82,7 +82,7 @@ class LabelMaker:
         num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
 
         data_slice_generator = DataSliceGenerator(
-            window_size=self.window_size or len(df),
+            window_size=self.window_size,
             min_data=minimum_data,
             drop_empty=drop_empty,
             gap=gap,

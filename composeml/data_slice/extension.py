@@ -70,7 +70,7 @@ class DataSliceExtension:
     def __init__(self, df):
         self._df = df
 
-    def __call__(self, size, start=None, stop=None, step=None, drop_empty=True):
+    def __call__(self, size=None, start=None, stop=None, step=None, drop_empty=True):
         """Generates data slices from the data frame.
 
         Args:
@@ -102,6 +102,11 @@ class DataSliceExtension:
             slice_number += 1
             yield ds
 
+    def __getitem__(self, offset):
+        """Generates data slices from a slice object."""
+        if not isinstance(offset, slice): raise TypeError('must be a slice object')
+        return self(size=offset.step, start=offset.start, stop=offset.stop)
+
     def _apply_size(self, df, start, size):
         """Returns a data slice calculated by the offsets."""
         if size._is_offset_position:
@@ -125,40 +130,44 @@ class DataSliceExtension:
         return ds
 
     def _apply_start(self, df, start):
-        """Returns a data frame starting at the offset."""
-        if start._is_offset_position and start._is_positive:
+        """Removes data before the index value calculated by the offset."""
+        if start._is_offset_period:
+            start.value += df.index[0]
+
+        inplace = start.value == df.index[0]
+
+        if start._is_offset_position and not inplace:
             df = df.iloc[start.value:]
 
             if not df.empty:
                 start.value = df.index[0]
 
-        if start._is_offset_period:
-            start.value += df.index[0]
-
-        if start._is_offset_timestamp and start.value != df.index[0]:
+        if start._is_offset_timestamp and not inplace:
             df = df[df.index >= start.value]
 
         return df
 
     def _apply_start_stop(self, df, start, stop):
-        """Returns the data frame after applying intial offsets."""
+        """Applies the intial offsets to the data frame."""
         df = self._apply_start(df, start)
         if df.empty: return df
         df = self._apply_stop(df, stop)
         return df
 
     def _apply_stop(self, df, stop):
-        """Returns a data frame stopping at the offset."""
-        if stop._is_offset_position:
+        """Removes data after the index value calculated by the offset."""
+        if stop._is_offset_period:
+            stop.value -= df.index[-1]
+
+        inplace = stop.value == df.index[-1]
+
+        if stop._is_offset_position and not inplace:
             df = df.iloc[:stop.value]
 
             if not df.empty:
                 stop.value = df.index[-1]
 
-        if stop._is_offset_period:
-            stop.value -= df.index[-1]
-
-        if stop._is_offset_timestamp and stop.value != df.index[-1]:
+        if stop._is_offset_timestamp and not inplace:
             df = df[df.index < stop.value]
 
         return df
@@ -178,6 +187,7 @@ class DataSliceExtension:
 
     def _check_parameters(self, size, start, stop, step):
         """Checks if parameters are data slice offsets."""
+        size = size or len(self._df)
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)
 
