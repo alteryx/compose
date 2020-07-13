@@ -157,7 +157,7 @@ class DataSliceExtension:
     def _apply_stop(self, df, stop):
         """Removes data after the index value calculated by the offset."""
         if stop._is_offset_period:
-            stop.value -= df.index[-1]
+            stop.value += df.index[-1]
 
         inplace = stop.value == df.index[-1]
 
