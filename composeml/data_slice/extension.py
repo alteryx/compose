@@ -86,9 +86,10 @@ class DataSliceExtension:
         """
         self._check_index()
         size, start, stop, step = self._check_parameters(size, start, stop, step)
-        df = self._apply_start_stop(self._df, start, stop)
+        df = self._apply_start(self._df, start)
+        if not df.empty: self._apply_stop(df, stop)
+        else: return df
 
-        if df.empty: return df
         if step._is_offset_position:
             start.value = df.index[0]
 
@@ -135,23 +136,14 @@ class DataSliceExtension:
             start.value += df.index[0]
 
         inplace = start.value == df.index[0]
-
         if start._is_offset_position and not inplace:
             df = df.iloc[start.value:]
-
-            if not df.empty:
-                start.value = df.index[0]
+            if not df.empty: 
+                start.value = df.index[0] 
 
         if start._is_offset_timestamp and not inplace:
             df = df[df.index >= start.value]
 
-        return df
-
-    def _apply_start_stop(self, df, start, stop):
-        """Applies the intial offsets to the data frame."""
-        df = self._apply_start(df, start)
-        if df.empty: return df
-        df = self._apply_stop(df, stop)
         return df
 
     def _apply_stop(self, df, stop):
@@ -160,17 +152,8 @@ class DataSliceExtension:
             stop.value += df.index[-1]
 
         inplace = stop.value == df.index[-1]
-
         if stop._is_offset_position and not inplace:
-            df = df.iloc[:stop.value]
-
-            if not df.empty:
-                stop.value = df.index[-1]
-
-        if stop._is_offset_timestamp and not inplace:
-            df = df[df.index < stop.value]
-
-        return df
+            stop.value = self._iloc(df.index, stop.value - 1) or df.index[-1]
 
     def _apply_step(self, df, start, step):
         """Strides the index starting point by the offset."""
