@@ -120,7 +120,7 @@ class LabelMaker:
         """Search implementation to make label records.
 
         Args:
-            data_frame (DataFrame): Data frame to search and extract labels.
+            df (DataFrame): Data frame to search and extract labels.
             generator (DataSliceGenerator): The generator for data slices.
             search (LabelSearch or ExampleSearch): The type of search to be done.
             min_data (str): Minimum data before starting search. Default value is first time of index.

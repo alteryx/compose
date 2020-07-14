@@ -1,4 +1,4 @@
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 
 from composeml import LabelMaker
 
@@ -51,3 +51,8 @@ def test_subscriptable_slices(transactions, offsets, time_based):
     slices = transactions.slice[start:stop:size]
     actual = tuple(map(len, slices))
     assert actual == (4, 4)
+
+
+def test_subscriptable_error(transactions):
+    with raises(TypeError, match='must be a slice object'):
+        transactions.slice[0]
