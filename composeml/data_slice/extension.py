@@ -60,10 +60,6 @@ class DataSliceFrame(pd.DataFrame):
         """Alias for the data slice context."""
         return self.context
 
-    def __str__(self):
-        """Returns the data slice context as the printed representation."""
-        return repr(self.ctx)
-
 
 @pd.api.extensions.register_dataframe_accessor("slice")
 class DataSliceExtension:
@@ -85,7 +81,7 @@ class DataSliceExtension:
             ds (generator): Returns a generator of data slices.
         """
         self._check_index()
-        offsets = self._check_parameters(size, start, stop, step)
+        offsets = self._check_offsets(size, start, stop, step)
         generator = self._apply(*offsets, drop_empty=drop_empty)
         return generator
 
@@ -185,8 +181,8 @@ class DataSliceExtension:
         info = "data frame must be sorted chronologically"
         assert self._is_sorted, info
 
-    def _check_parameters(self, size, start, stop, step):
-        """Checks if parameters are data slice offsets."""
+    def _check_offsets(self, size, start, stop, step):
+        """Checks for valid data slice offsets."""
         size = size or len(self._df)
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)

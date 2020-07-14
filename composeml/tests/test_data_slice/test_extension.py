@@ -11,7 +11,7 @@ def data_slice(transactions):
 
 
 def test_context(data_slice, capsys):
-    print(data_slice)
+    print(data_slice.context)
     out = capsys.readouterr().out
     actual = out.splitlines()
 
