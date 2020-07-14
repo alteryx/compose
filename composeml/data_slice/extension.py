@@ -71,7 +71,7 @@ class DataSliceExtension:
         self._df = df
 
     def __call__(self, size=None, start=None, stop=None, step=None, drop_empty=True):
-        """Generates data slices from the data frame.
+        """Returns a data slice generator based on the data frame.
 
         Args:
             size (int or str): The data size of each data slice. An integer represents the number of rows.
@@ -85,13 +85,22 @@ class DataSliceExtension:
             ds (generator): Returns a generator of data slices.
         """
         self._check_index()
-        size, start, stop, step = self._check_parameters(size, start, stop, step)
+        offsets = self._check_parameters(size, start, stop, step)
+        return self._apply(*offsets, drop_empty=drop_empty)
+
+    def __getitem__(self, offset):
+        """Generates data slices from a slice object."""
+        if not isinstance(offset, slice): raise TypeError('must be a slice object')
+        return self(size=offset.step, start=offset.start, stop=offset.stop)
+
+    def _apply(self, size, start, stop, step, drop_empty=True):
+        """Generates data slices from the data frame."""
         df = self._apply_start(self._df, start)
         if not df.empty: self._apply_stop(df, stop)
         else: return df
 
         if step._is_offset_position:
-            start.value = df.index[0]
+            start.value = df.first_valid_index()
 
         df, slice_number = DataSliceFrame(df), 1
         while not df.empty and start.value <= stop.value:
@@ -103,16 +112,11 @@ class DataSliceExtension:
             slice_number += 1
             yield ds
 
-    def __getitem__(self, offset):
-        """Generates data slices from a slice object."""
-        if not isinstance(offset, slice): raise TypeError('must be a slice object')
-        return self(size=offset.step, start=offset.start, stop=offset.stop)
-
     def _apply_size(self, df, start, size):
         """Returns a data slice calculated by the offsets."""
         if size._is_offset_position:
+            stop = self._get_index(df, size.value) or df.last_valid_index()
             ds = df.iloc[:size.value]
-            stop = self._iloc(df.index, size.value) or df.index[-1]
         else:
             stop = start.value + size.value
             ds = df[:stop]
@@ -132,14 +136,15 @@ class DataSliceExtension:
 
     def _apply_start(self, df, start):
         """Removes data before the index value calculated by the offset."""
+        first_index = df.first_valid_index()
         if start._is_offset_period:
-            start.value += df.index[0]
+            start.value += first_index
 
-        inplace = start.value == df.index[0]
+        inplace = start.value == first_index
         if start._is_offset_position and not inplace:
             df = df.iloc[start.value:]
-            if not df.empty: 
-                start.value = df.index[0] 
+            if not df.empty:
+                start.value = df.first_valid_index()
 
         if start._is_offset_timestamp and not inplace:
             df = df[df.index >= start.value]
@@ -148,22 +153,23 @@ class DataSliceExtension:
 
     def _apply_stop(self, df, stop):
         """Removes data after the index value calculated by the offset."""
+        last_index = df.last_valid_index()
         if stop._is_offset_period:
-            stop.value += df.index[-1]
+            stop.value += last_index
 
-        inplace = stop.value == df.index[-1]
+        inplace = stop.value == last_index
         if stop._is_offset_position and not inplace:
-            stop.value = self._iloc(df.index, stop.value - 1) or df.index[-1]
+            stop.value = self._get_index(df, stop.value) or last_index
 
     def _apply_step(self, df, start, step):
         """Strides the index starting point by the offset."""
         if step._is_offset_position:
             df = df.iloc[step.value:]
-            start.value = self._iloc(df.index, 0)
+            start.value = df.first_valid_index()
 
         else:
             start.value += step.value
-            if start.value <= df.index[-1]:
+            if start.value <= df.last_valid_index():
                 df = df[start.value:]
 
         return df
@@ -174,11 +180,11 @@ class DataSliceExtension:
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)
 
-        start = start or self._df.index[0]
+        start = start or self._df.first_valid_index()
         if not isinstance(start, DataSliceOffset):
             start = DataSliceOffset(start)
 
-        stop = stop or self._df.index[-1]
+        stop = stop or self._df.last_valid_index()
         if not isinstance(stop, DataSliceOffset):
             stop = DataSliceOffset(stop)
 
@@ -197,17 +203,17 @@ class DataSliceExtension:
 
         return size, start, stop, step
 
-    def _iloc(self, index, i):
-        """Helper function for getting index values."""
-        if i < index.size:
-            return index[i]
-
     def _check_index(self):
         """Checks if index values are null or unsorted."""
         info = 'index contains null values'
         assert self._df.index.notnull().all(), info
         info = "data frame must be sorted chronologically"
         assert self._is_sorted, info
+
+    def _get_index(self, df, i):
+        """Helper function for getting index values."""
+        if i < df.index.size and df.index.size > 0:
+            return df.index[i]
 
     @property
     def _is_sorted(self):
