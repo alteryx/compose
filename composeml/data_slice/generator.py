@@ -25,8 +25,8 @@ class DataSliceGenerator:
             ds = DataSliceFrame(ds)
             ds.context = DataSliceContext(
                 slice_number=slice_number,
-                slice_start=ds.index[0],
-                slice_stop=ds.index[-1],
+                slice_start=ds.first_valid_index(),
+                slice_stop=ds.last_valid_index(),
             )
             setattr(ds.context, self.window_size, group)
             del ds.context.next_start
