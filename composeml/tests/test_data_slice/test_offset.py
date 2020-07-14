@@ -9,7 +9,7 @@ def test_numeric_typecast():
 
 
 def test_numeric_typecast_errors():
-    match = 'offset must be position or period based'
+    match = 'offset must be position or frequency based'
     with raises(TypeError, match=match):
         int(DataSliceOffset('1970-01-01'))
 

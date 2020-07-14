@@ -71,7 +71,7 @@ class DataSliceExtension:
 
         Args:
             size (int or str): The size of each data slice. An integer represents the number of rows.
-                A string represents a period after the starting point of the data slice.
+                A string represents a frequency after the starting point of data slices.
                 The default value is the length of the data frame.
             start (int or str): Where to start the first data slice.
             stop (int or str): Where to stop generating data slices.
@@ -136,7 +136,7 @@ class DataSliceExtension:
     def _apply_start(self, df, start):
         """Removes data before the index calculated by the offset."""
         first_index = df.first_valid_index()
-        if start._is_offset_period:
+        if start._is_offset_frequency:
             start.value += first_index
 
         inplace = start.value == first_index
@@ -154,7 +154,7 @@ class DataSliceExtension:
     def _apply_stop(self, df, stop):
         """Removes data after the index calculated by the offset."""
         last_index = df.last_valid_index()
-        if stop._is_offset_period:
+        if stop._is_offset_frequency:
             stop.value += last_index
 
         inplace = stop.value == last_index
@@ -204,8 +204,8 @@ class DataSliceExtension:
         assert step._is_positive, info
 
         offsets = size, start, stop, step
-        if any(offset._is_offset_period for offset in offsets):
-            info = 'offset by time requires a time index'
+        if any(offset._is_offset_frequency for offset in offsets):
+            info = 'offset by frequency requires a time index'
             assert self._is_time_index, info
 
         return size, start, stop, step
