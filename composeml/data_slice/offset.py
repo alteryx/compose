@@ -22,7 +22,7 @@ class DataSliceOffset:
     @property
     def _is_offset_position(self):
         """Whether offset is integer-location based."""
-        return isinstance(self.value, int)
+        return pd.api.types.is_integer(self.value)
 
     @property
     def _is_offset_timedelta(self):

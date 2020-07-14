@@ -86,7 +86,8 @@ class DataSliceExtension:
         """
         self._check_index()
         offsets = self._check_parameters(size, start, stop, step)
-        return self._apply(*offsets, drop_empty=drop_empty)
+        generator = self._apply(*offsets, drop_empty=drop_empty)
+        return generator
 
     def __getitem__(self, offset):
         """Generates data slices from a slice object."""
@@ -115,7 +116,8 @@ class DataSliceExtension:
     def _apply_size(self, df, start, size):
         """Returns a data slice calculated by the offsets."""
         if size._is_offset_position:
-            stop = self._get_index(df, size.value) or df.last_valid_index()
+            index = self._get_index(df, size.value)
+            stop = index or df.last_valid_index()
             ds = df.iloc[:size.value]
         else:
             stop = start.value + size.value
@@ -143,6 +145,7 @@ class DataSliceExtension:
         inplace = start.value == first_index
         if start._is_offset_position and not inplace:
             df = df.iloc[start.value:]
+
             if not df.empty:
                 start.value = df.first_valid_index()
 
@@ -159,7 +162,8 @@ class DataSliceExtension:
 
         inplace = stop.value == last_index
         if stop._is_offset_position and not inplace:
-            stop.value = self._get_index(df, stop.value) or last_index
+            index = self._get_index(df, stop.value)
+            stop.value = index or last_index
 
     def _apply_step(self, df, start, step):
         """Strides the index starting point by the offset."""
@@ -173,6 +177,13 @@ class DataSliceExtension:
                 df = df[start.value:]
 
         return df
+
+    def _check_index(self):
+        """Checks if index values are null or unsorted."""
+        info = 'index contains null values'
+        assert not self._df.index.isnull().any(), info
+        info = "data frame must be sorted chronologically"
+        assert self._is_sorted, info
 
     def _check_parameters(self, size, start, stop, step):
         """Checks if parameters are data slice offsets."""
@@ -202,13 +213,6 @@ class DataSliceExtension:
             assert self._is_time_index, info
 
         return size, start, stop, step
-
-    def _check_index(self):
-        """Checks if index values are null or unsorted."""
-        info = 'index contains null values'
-        assert self._df.index.notnull().all(), info
-        info = "data frame must be sorted chronologically"
-        assert self._is_sorted, info
 
     def _get_index(self, df, i):
         """Helper function for getting index values."""
