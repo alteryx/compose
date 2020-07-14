@@ -56,3 +56,9 @@ def test_subscriptable_slices(transactions, offsets, time_based):
 def test_subscriptable_error(transactions):
     with raises(TypeError, match='must be a slice object'):
         transactions.slice[0]
+
+
+def test_time_index_error(transactions):
+    match = 'offset by frequency requires a time index'
+    with raises(AssertionError, match=match):
+        transactions.slice[::'1h']
