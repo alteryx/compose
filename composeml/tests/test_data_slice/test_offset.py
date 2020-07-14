@@ -19,7 +19,8 @@ def test_numeric_typecast_errors():
 
 
 def test_invalid_value():
-    with raises(AssertionError, match='invalid offset'):
+    match = 'offset must be position or time based'
+    with raises(AssertionError, match=match):
         DataSliceOffset(None)
 
 

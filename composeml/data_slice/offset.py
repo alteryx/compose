@@ -71,7 +71,7 @@ class DataSliceOffset:
     @property
     def _invalid_offset_error(self):
         """Returns message for invalid offset."""
-        info = 'offset must be based on time or position\n\n'
+        info = 'offset must be position or time based\n\n'
         info += '\tFor information about offset aliases, visit the link below.\n'
         info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
         return info

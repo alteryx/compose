@@ -71,8 +71,7 @@ class DataSliceExtension:
 
         Args:
             size (int or str): The size of each data slice. An integer represents the number of rows.
-                A string represents a frequency after the starting point of data slices.
-                The default value is the length of the data frame.
+                A string represents a timedelta or frequency. The default value is the length of the data frame.
             start (int or str): Where to start the first data slice.
             stop (int or str): Where to stop generating data slices.
             step (int or str): The step size between data slices. The default value is the data slice size.
