@@ -4,7 +4,7 @@ import pandas as pd
 
 
 class DataSliceOffset:
-    """Offsets for calculating data slices."""
+    """Offsets for calculating data slice indices."""
     def __init__(self, value):
         self.value = value
         self._check()

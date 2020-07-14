@@ -70,12 +70,13 @@ class DataSliceExtension:
         """Returns a data slice generator based on the data frame.
 
         Args:
-            size (int or str): The data size of each data slice. An integer represents the number of rows.
-                A string represents a period after the starting point of a data slice.
+            size (int or str): The size of each data slice. An integer represents the number of rows.
+                A string represents a period after the starting point of the data slice.
+                The default value is the length of the data frame.
             start (int or str): Where to start the first data slice.
             stop (int or str): Where to stop generating data slices.
-            step (int or str): The step size between data slices. Default value is the data slice size.
-            drop_empty (bool): Whether to drop empty data slices. Default value is True.
+            step (int or str): The step size between data slices. The default value is the data slice size.
+            drop_empty (bool): Whether to drop empty data slices. The default value is True.
 
         Returns:
             ds (generator): Returns a generator of data slices.
@@ -91,7 +92,7 @@ class DataSliceExtension:
         return self(size=offset.step, start=offset.start, stop=offset.stop)
 
     def _apply(self, size, start, stop, step, drop_empty=True):
-        """Generates data slices from the data frame."""
+        """Generates data slices based on the data frame."""
         df = self._apply_start(self._df, start)
         if not df.empty: self._apply_stop(df, stop)
         else: return df
@@ -133,7 +134,7 @@ class DataSliceExtension:
         return ds
 
     def _apply_start(self, df, start):
-        """Removes data before the index value calculated by the offset."""
+        """Removes data before the index calculated by the offset."""
         first_index = df.first_valid_index()
         if start._is_offset_period:
             start.value += first_index
@@ -151,7 +152,7 @@ class DataSliceExtension:
         return df
 
     def _apply_stop(self, df, stop):
-        """Removes data after the index value calculated by the offset."""
+        """Removes data after the index calculated by the offset."""
         last_index = df.last_valid_index()
         if stop._is_offset_period:
             stop.value += last_index
@@ -162,11 +163,10 @@ class DataSliceExtension:
             stop.value = index or last_index
 
     def _apply_step(self, df, start, step):
-        """Strides the index starting point by the offset."""
+        """Strides the first index by the offset."""
         if step._is_offset_position:
             df = df.iloc[step.value:]
             start.value = df.first_valid_index()
-
         else:
             start.value += step.value
             if start.value <= df.last_valid_index():
