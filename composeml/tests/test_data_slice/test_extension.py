@@ -1,4 +1,4 @@
-from pytest import fixture
+from pytest import fixture, mark
 
 from composeml import LabelMaker
 
@@ -31,3 +31,23 @@ def test_context_aliases(data_slice):
     assert data_slice.context.slice_number == data_slice.ctx.count
     assert data_slice.context.slice_start == data_slice.ctx.start
     assert data_slice.context.slice_stop == data_slice.ctx.stop
+
+
+@mark.parametrize(
+    'offsets,time_based',
+    argvalues=[
+        [(2, -4, 4), False],
+        [('1h', '-1h30min', '2h'), True],
+        [('2019-01-01 09:00:00', '2019-01-01 11:00:00', '2h'), True],
+    ],
+)
+def test_subscriptable_slices(transactions, offsets, time_based):
+    if time_based:
+        dtypes = {'time': 'datetime64[ns]'}
+        transactions = transactions.astype(dtypes)
+        transactions.set_index('time', inplace=True)
+
+    start, stop, size = offsets
+    slices = transactions.slice[start:stop:size]
+    actual = tuple(map(len, slices))
+    assert actual == (4, 4)
