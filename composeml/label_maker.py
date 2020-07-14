@@ -81,7 +81,7 @@ class LabelMaker:
         entity_groups = df.groupby(self.target_entity)
         num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
 
-        data_slice_generator = DataSliceGenerator(
+        generator = DataSliceGenerator(
             window_size=self.window_size,
             min_data=minimum_data,
             drop_empty=drop_empty,
@@ -89,7 +89,7 @@ class LabelMaker:
         )
 
         for entity_id, df in entity_groups:
-            for ds in data_slice_generator(df):
+            for ds in generator(df):
                 setattr(ds.context, self.target_entity, entity_id)
                 yield ds
 
@@ -108,7 +108,7 @@ class LabelMaker:
     def _run_search(
         self,
         df,
-        data_slice_generator,
+        generator,
         search,
         gap=None,
         min_data=None,
@@ -121,7 +121,8 @@ class LabelMaker:
 
         Args:
             data_frame (DataFrame): Data frame to search and extract labels.
-            data_slice_generator (LabelSearch or ExampleSearch): The type of search to be done.
+            generator (DataSliceGenerator): The generator for data slices.
+            search (LabelSearch or ExampleSearch): The type of search to be done.
             min_data (str): Minimum data before starting search. Default value is first time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
@@ -149,7 +150,7 @@ class LabelMaker:
             return entity_count * search.expected_count - progress_bar.n
 
         for entity_count, (entity_id, df) in enumerate(entity_groups):
-            for ds in data_slice_generator(df):
+            for ds in generator(df):
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)
@@ -225,7 +226,7 @@ class LabelMaker:
 
         records = self._run_search(
             df=df,
-            data_slice_generator=generator,
+            generator=generator,
             search=search,
             verbose=verbose,
             *args,
