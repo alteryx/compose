@@ -1,5 +1,5 @@
 <p align="center">
-    <img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/compose.png" alt="Compose" />
+    <img width=50% src="docs/source/images/compose.svg" alt="Compose" />
 </p>
 <br>
 <br>
@@ -16,7 +16,7 @@ Its result is then provided to the automatic feature engineering tools Featureto
 
 <br>
 <p align="center">
-    <img width=60% src="docs/source/images/workflow.svg" alt="Compose" />
+    <img width=65% src="docs/source/images/workflow.svg" alt="Compose" />
 </p>
 <br>
 
