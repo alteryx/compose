@@ -1,5 +1,5 @@
 <p align="center">
-    <img width=50% src="docs/source/images/compose.svg" alt="Compose" />
+    <img width=70% src="docs/source/images/compose.svg" alt="Compose" />
 </p>
 <br>
 <br>
