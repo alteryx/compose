@@ -16,7 +16,7 @@ Its result is then provided to the automatic feature engineering tools Featureto
 
 <br>
 <p align="center">
-    <img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/workflow.png" alt="Compose" />
+    <img width=60% src="docs/source/images/workflow.svg" alt="Compose" />
 </p>
 <br>
 
