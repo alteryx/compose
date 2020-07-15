@@ -17,7 +17,7 @@ class DataSliceGenerator:
         return getattr(self, attr)(df)
 
     def _slice_by_column(self, df):
-        """Slices the data frame by an existin column."""
+        """Slices the data frame by an existing column."""
         slices = df.groupby(self.window_size, sort=False)
         slice_number = 1
 
