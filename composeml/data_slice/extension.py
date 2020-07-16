@@ -93,7 +93,7 @@ class DataSliceExtension:
     def _apply(self, size, start, stop, step, drop_empty=True):
         """Generates data slices based on the data frame."""
         df = self._apply_start(self._df, start)
-        if not df.empty: self._apply_stop(df, stop)
+        if not df.empty: self._apply_stop(self._df, stop)
         else: return df
 
         if step._is_offset_position:
@@ -135,15 +135,14 @@ class DataSliceExtension:
     def _apply_start(self, df, start):
         """Removes data before the index calculated by the offset."""
         first_index = df.first_valid_index()
-        if start._is_offset_frequency:
-            start.value += first_index
-
         inplace = start.value == first_index
+
         if start._is_offset_position and not inplace:
             df = df.iloc[start.value:]
 
             if not df.empty:
-                start.value = df.first_valid_index()
+                first_index = df.first_valid_index()
+                start.value = first_index
 
         if start._is_offset_timestamp and not inplace:
             df = df[df.index >= start.value]
@@ -152,10 +151,7 @@ class DataSliceExtension:
 
     def _apply_stop(self, df, stop):
         """Removes data after the index calculated by the offset."""
-        last_index = df.last_valid_index()
-        if stop._is_offset_frequency:
-            stop.value += last_index
-
+        last_index = self._df.last_valid_index()
         inplace = stop.value == last_index
         if stop._is_offset_position and not inplace:
             index = self._get_index(df, stop.value)
@@ -182,32 +178,41 @@ class DataSliceExtension:
 
     def _check_offsets(self, size, start, stop, step):
         """Checks for valid data slice offsets."""
-        size = size or len(self._df)
-        if not isinstance(size, DataSliceStep):
-            size = DataSliceStep(size)
+        first_index = self._df.first_valid_index()
+        last_index = self._df.last_valid_index()
+        start = start or first_index
+        stop = stop or last_index
 
-        start = start or self._df.first_valid_index()
         if not isinstance(start, DataSliceOffset):
             start = DataSliceOffset(start)
 
-        stop = stop or self._df.last_valid_index()
+        if start._is_offset_frequency:
+            start.value += first_index
+
         if not isinstance(stop, DataSliceOffset):
             stop = DataSliceOffset(stop)
+
+        if stop._is_offset_frequency:
+            if stop._is_positive: stop.value += first_index
+            else: stop.value += last_index
+
+        size = size or len(self._df)
+        if not isinstance(size, DataSliceStep):
+            size = DataSliceStep(size)
 
         step = step or size
         if not isinstance(step, DataSliceStep):
             step = DataSliceStep(step)
 
-        info = 'offset must be positive'
-        assert size._is_positive, info
-        assert step._is_positive, info
+        assert size._is_positive, 'offset must be positive'
+        assert step._is_positive, 'offset must be positive'
 
         offsets = size, start, stop, step
         if any(offset._is_offset_frequency for offset in offsets):
             info = 'offset by frequency requires a time index'
             assert self._is_time_index, info
 
-        return size, start, stop, step
+        return offsets
 
     def _get_index(self, df, i):
         """Helper function for getting index values."""

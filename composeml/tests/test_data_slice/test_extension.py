@@ -36,9 +36,11 @@ def test_context_aliases(data_slice):
 @mark.parametrize(
     'offsets,time_based',
     argvalues=[
-        [(2, -4, 4), False],
-        [('1h', '-1h30min', '2h'), True],
-        [('2019-01-01 09:00:00', '2019-01-01 11:00:00', '2h'), True],
+        [(2, 4, 2), False],
+        [(2, -6, 2), False],
+        [('1h', '2h', '1h'), True],
+        [('1h', '-2h30min', '1h'), True],
+        [('2019-01-01 09:00:00', '2019-01-01 10:00:00', '1h'), True],
     ],
 )
 def test_subscriptable_slices(transactions, offsets, time_based):
@@ -50,7 +52,7 @@ def test_subscriptable_slices(transactions, offsets, time_based):
     start, stop, size = offsets
     slices = transactions.slice[start:stop:size]
     actual = tuple(map(len, slices))
-    assert actual == (4, 4)
+    assert actual == (2, 2)
 
 
 def test_subscriptable_error(transactions):
