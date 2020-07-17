@@ -167,9 +167,9 @@ class DataSliceExtension:
 
     def _check_offsets(self, size, start, stop, step):
         """Checks for valid data slice offsets."""
+        size = self._check_size(size)
         start = self._check_start(start)
         stop = self._check_stop(stop)
-        size = self._check_size(size)
         step = self._check_step(step or size)
         offsets = size, start, stop, step
 
@@ -178,6 +178,15 @@ class DataSliceExtension:
             assert self._is_time_index, info
 
         return offsets
+
+    def _check_size(self, size):
+        """Checks for valid offset size."""
+        size = size or len(self._df)
+        if not isinstance(size, DataSliceStep):
+            size = DataSliceStep(size)
+
+        assert size._is_positive, 'offset must be positive'
+        return size
 
     def _check_start(self, start):
         """Checks for valid offset start."""
@@ -189,6 +198,14 @@ class DataSliceExtension:
             start.value += self._first_index
 
         return start
+
+    def _check_step(self, step):
+        """Checks for valid offset step."""
+        if not isinstance(step, DataSliceStep):
+            step = DataSliceStep(step)
+
+        assert step._is_positive, 'offset must be positive'
+        return step
 
     def _check_stop(self, stop):
         """Checks for valid offset stop."""
@@ -207,23 +224,6 @@ class DataSliceExtension:
             stop.value = index or self._last_index
 
         return stop
-
-    def _check_size(self, size):
-        """Checks for valid offset size."""
-        size = size or len(self._df)
-        if not isinstance(size, DataSliceStep):
-            size = DataSliceStep(size)
-
-        assert size._is_positive, 'offset must be positive'
-        return size
-
-    def _check_step(self, step):
-        """Checks for valid offset step."""
-        if not isinstance(step, DataSliceStep):
-            step = DataSliceStep(step)
-
-        assert step._is_positive, 'offset must be positive'
-        return step
 
     def _get_index(self, df, i):
         """Helper function for getting index values."""
