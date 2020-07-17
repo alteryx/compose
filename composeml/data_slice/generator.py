@@ -2,7 +2,7 @@ import composeml.data_slice.extension  # noqa
 
 
 class DataSliceGenerator:
-    """Generates data slices for the lable maker."""
+    """Generates data slices for the label maker."""
     def __init__(self, window_size, gap=None, min_data=None, drop_empty=True):
         self.window_size = window_size
         self.gap = gap
