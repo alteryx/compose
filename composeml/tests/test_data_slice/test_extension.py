@@ -10,10 +10,10 @@ def data_slice(transactions):
     return ds
 
 
-def test_context(data_slice, capsys):
+def test_context(data_slice):
     print(data_slice.context)
-    out = capsys.readouterr().out
-    actual = out.splitlines()
+    context = str(data_slice.context)
+    actual = context.splitlines()
 
     expected = [
         'customer_id                       0',
