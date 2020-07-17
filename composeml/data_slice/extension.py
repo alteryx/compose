@@ -109,7 +109,7 @@ class DataSliceExtension:
         """Returns a data slice calculated by the offsets."""
         if size._is_offset_position:
             index = self._get_index(df, size.value)
-            stop = index or df.last_valid_index()
+            stop = index or self._last_index
             ds = df.iloc[:size.value]
         else:
             stop = start.value + size.value
