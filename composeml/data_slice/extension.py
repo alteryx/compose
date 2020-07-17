@@ -17,7 +17,7 @@ class DataSliceContext:
         self.next_start = next_start
         self.slice_stop = slice_stop
         self.slice_start = slice_start
-        self.slice_number = 0
+        self.slice_number = slice_number
 
     def __repr__(self):
         """Represents the data slice context as a string."""
