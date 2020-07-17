@@ -34,16 +34,16 @@ def test_context_aliases(data_slice):
 
 
 @mark.parametrize(
-    'offsets,time_based',
+    'time_based,offsets',
     argvalues=[
-        [(2, 4, 2), False],
-        [(2, -6, 2), False],
-        [('1h', '2h', '1h'), True],
-        [('1h', '-2h30min', '1h'), True],
-        [('2019-01-01 09:00:00', '2019-01-01 10:00:00', '1h'), True],
+        [False, (2, 4, 2)],
+        [False, (2, -6, 2)],
+        [True, ('1h', '2h', '1h')],
+        [True, ('1h', '-2h30min', '1h')],
+        [True, ('2019-01-01 09:00:00', '2019-01-01 10:00:00', '1h')],
     ],
 )
-def test_subscriptable_slices(transactions, offsets, time_based):
+def test_subscriptable_slices(transactions, time_based, offsets):
     if time_based:
         dtypes = {'time': 'datetime64[ns]'}
         transactions = transactions.astype(dtypes)
