@@ -1,5 +1,5 @@
 <p align="center">
-    <img width=55% src="docs/source/images/compose.svg" alt="Compose" />
+    <img width=55% src="docs/source/images/compose.png" alt="Compose" />
 </p>
 <br>
 <br>
@@ -16,7 +16,7 @@ Its result is then provided to the automatic feature engineering tools Featureto
 
 <br>
 <p align="center">
-    <img width=90% src="docs/source/images/workflow.svg" alt="Compose" />
+    <img width=90% src="docs/source/images/workflow.png" alt="Compose" />
 </p>
 <br>
 
