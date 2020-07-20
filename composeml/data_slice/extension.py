@@ -167,9 +167,9 @@ class DataSliceExtension:
 
     def _check_offsets(self, size, start, stop, step):
         """Checks for valid data slice offsets."""
-        size = self._check_size(size)
-        start = self._check_start(start)
-        stop = self._check_stop(stop)
+        size = self._check_size(size or len(self._df))
+        start = self._check_start(start or self._first_index)
+        stop = self._check_stop(stop or self._last_index)
         step = self._check_step(step or size)
         offsets = size, start, stop, step
 
@@ -181,7 +181,6 @@ class DataSliceExtension:
 
     def _check_size(self, size):
         """Checks for valid offset size."""
-        size = size or len(self._df)
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)
 
@@ -190,7 +189,6 @@ class DataSliceExtension:
 
     def _check_start(self, start):
         """Checks for valid offset start."""
-        start = start or self._first_index
         if not isinstance(start, DataSliceOffset):
             start = DataSliceOffset(start)
 
@@ -209,7 +207,6 @@ class DataSliceExtension:
 
     def _check_stop(self, stop):
         """Checks for valid offset stop."""
-        stop = stop or self._last_index
         if not isinstance(stop, DataSliceOffset):
             stop = DataSliceOffset(stop)
 
