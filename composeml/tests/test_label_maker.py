@@ -435,6 +435,7 @@ def test_column_based_windows(transactions, total_spent_fn):
 
     assert actual == expected
 
+
 def test_search_with_invalid_index(transactions, total_spent_fn):
     lm = LabelMaker(
         target_entity='customer_id',

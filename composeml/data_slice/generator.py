@@ -3,6 +3,7 @@ from composeml.data_slice.extension import DataSliceContext, DataSliceFrame
 
 class DataSliceGenerator:
     """Generates data slices for the lable maker."""
+
     def __init__(self, window_size, gap=None, min_data=None, drop_empty=True):
         self.window_size = window_size
         self.gap = gap
