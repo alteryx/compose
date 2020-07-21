@@ -10,10 +10,10 @@ def data_slice(transactions):
     return ds
 
 
-def test_context(data_slice, capsys):
+def test_context(data_slice):
     print(data_slice.context)
-    out = capsys.readouterr().out
-    actual = out.splitlines()
+    context = str(data_slice.context)
+    actual = context.splitlines()
 
     expected = [
         'customer_id                       0',
@@ -34,14 +34,16 @@ def test_context_aliases(data_slice):
 
 
 @mark.parametrize(
-    'offsets,time_based',
+    'time_based,offsets',
     argvalues=[
-        [(2, -4, 4), False],
-        [('1h', '-1h30min', '2h'), True],
-        [('2019-01-01 09:00:00', '2019-01-01 11:00:00', '2h'), True],
+        [False, (2, 4, 2)],
+        [False, (2, -6, 2)],
+        [True, ('1h', '2h', '1h')],
+        [True, ('1h', '-2h30min', '1h')],
+        [True, ('2019-01-01 09:00:00', '2019-01-01 10:00:00', '1h')],
     ],
 )
-def test_subscriptable_slices(transactions, offsets, time_based):
+def test_subscriptable_slices(transactions, time_based, offsets):
     if time_based:
         dtypes = {'time': 'datetime64[ns]'}
         transactions = transactions.astype(dtypes)
@@ -50,7 +52,7 @@ def test_subscriptable_slices(transactions, offsets, time_based):
     start, stop, size = offsets
     slices = transactions.slice[start:stop:size]
     actual = tuple(map(len, slices))
-    assert actual == (4, 4)
+    assert actual == (2, 2)
 
 
 def test_subscriptable_error(transactions):

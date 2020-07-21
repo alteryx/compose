@@ -55,7 +55,7 @@ class DataSliceOffset:
 
     @property
     def _is_positive(self):
-        """Typecasts offset value to an integer."""
+        """Whether the offset value is positive."""
         timestamp = self._is_offset_timestamp
         numeric = float if timestamp else int
         return numeric(self) > 0

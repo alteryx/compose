@@ -1,5 +1,5 @@
 <p align="center">
-    <img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/compose.png" alt="Compose" />
+    <img width=55% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/compose.png" alt="Compose" />
 </p>
 <br>
 <br>

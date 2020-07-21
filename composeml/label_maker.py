@@ -10,7 +10,7 @@ from composeml.label_times import LabelTimes
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
-    def __init__(self, target_entity, time_index, labeling_function=None, window_size=None, label_type=None):
+    def __init__(self, target_entity, time_index, labeling_function=None, window_size=None):
         """Creates an instance of label maker.
 
         Args:
@@ -110,9 +110,6 @@ class LabelMaker:
         df,
         generator,
         search,
-        gap=None,
-        min_data=None,
-        drop_empty=True,
         verbose=True,
         *args,
         **kwargs,
@@ -123,10 +120,6 @@ class LabelMaker:
             df (DataFrame): Data frame to search and extract labels.
             generator (DataSliceGenerator): The generator for data slices.
             search (LabelSearch or ExampleSearch): The type of search to be done.
-            min_data (str): Minimum data before starting search. Default value is first time of index.
-            gap (str or int): Time between examples. Default value is window size.
-                If an integer, search will start on the first event after the minimum data.
-            drop_empty (bool): Whether to drop empty slices. Default value is True.
             verbose (bool): Whether to render progress bar. Default value is True.
             *args: Positional arguments for labeling function.
             **kwargs: Keyword arguments for labeling function.
@@ -190,7 +183,6 @@ class LabelMaker:
                minimum_data=None,
                gap=None,
                drop_empty=True,
-               label_type=None,
                verbose=True,
                *args,
                **kwargs):
@@ -204,7 +196,6 @@ class LabelMaker:
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
-            label_type (str): The label type can be "continuous" or "categorical". Default value is the inferred label type.
             verbose (bool): Whether to render progress bar. Default value is True.
             *args: Positional arguments for labeling function.
             **kwargs: Keyword arguments for labeling function.
@@ -218,7 +209,7 @@ class LabelMaker:
         search = (LabelSearch if is_label_search else ExampleSearch)(num_examples_per_instance)
 
         generator = DataSliceGenerator(
-            window_size=self.window_size or len(df),
+            window_size=self.window_size,
             min_data=minimum_data,
             drop_empty=drop_empty,
             gap=gap,
