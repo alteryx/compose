@@ -2,7 +2,7 @@
 
 # IDE
 .vscode
-docs/source/examples/demo/*/data/download
+docs/source/examples/demo/*/download
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
