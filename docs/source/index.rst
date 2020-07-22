@@ -35,7 +35,7 @@ What is Compose?
     :hidden:
     :includehidden:
 
-    examples/**/*
+    examples/*
 
 .. toctree::
     :caption: Resources
