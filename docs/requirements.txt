@@ -3,5 +3,5 @@ nbconvert>=5.5.0
 nbsphinx>=0.4.2
 Sphinx>=3.0.3
 sphinx_rtd_theme>=0.4.3
-featuretools>=0.9.0
 evalml>=0.11.2
+featuretools>=0.9.0
