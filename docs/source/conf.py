@@ -190,6 +190,6 @@ autosummary_generate = ["api_reference.rst"]
 templates_path = ["_templates"]
 
 def setup(app):
-    app.add_stylesheet("style.css")
+    app.add_css_file("style.css")
 
 html_show_sphinx = False
