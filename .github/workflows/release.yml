@@ -14,4 +14,5 @@ jobs:
       env:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_REPOSITORY_URL: https://upload.pypi.org/legacy/
+        TEST_PYPI_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
+        TEST_PYPI_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
