@@ -1,14 +1,15 @@
 <p align="center">
-    <img width=55% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/compose.png" alt="Compose" />
+    <img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/compose.png" alt="Compose" />
 </p>
 <br>
 <br>
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/master.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/master)
-[![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/master/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
-[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=latest)](https://compose.featurelabs.com/en/latest/?badge=latest)
+[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
+[![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
+[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=stable)](https://compose.featurelabs.com/en/latest/?badge=stable)
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
-[![StackOverflow](http://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
+[![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/composeml.svg)](https://pypistats.org/packages/composeml)
 
 [Compose](https://compose.featurelabs.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.featurelabs.com) for more information.
 
@@ -16,7 +17,7 @@ Its result is then provided to the automatic feature engineering tools Featureto
 
 <br>
 <p align="center">
-    <img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/master/docs/source/images/workflow.png" alt="Compose" />
+    <img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/workflow.png" alt="Compose" />
 </p>
 <br>
 
