@@ -6,12 +6,12 @@
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
-[![Documentation Status](https://readthedocs.org/projects/composeml/badge/?version=stable)](https://compose.featurelabs.com/en/latest/?badge=stable)
+[![Documentation Status](https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00)](https://compose.alteryx.com/en/stable/?badge=stable)
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/composeml.svg)](https://pypistats.org/packages/composeml)
 
-[Compose](https://compose.featurelabs.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.featurelabs.com) for more information.
+[Compose](https://compose.alteryx.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
 
 Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
@@ -112,7 +112,7 @@ def total_spent(df):
 ```
 
 ### Construct Label Maker
-With the labeling function, we create the [`LabelMaker`](https://compose.featurelabs.com/en/latest/generated/composeml.LabelMaker.html#composeml.LabelMaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
+With the labeling function, we create the [`LabelMaker`](https://compose.alteryx.com/en/latest/generated/composeml.LabelMaker.html#composeml.LabelMaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
 
 ```python
 label_maker = cp.LabelMaker(
@@ -124,7 +124,7 @@ label_maker = cp.LabelMaker(
 ```
 
 ### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). For more details on how the label maker works, see [Main Concepts](https://compose.featurelabs.com/en/latest/main_concepts.html).
+Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.alteryx.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). For more details on how the label maker works, see [Main Concepts](https://compose.alteryx.com/en/latest/main_concepts.html).
 
 ```python
 labels = label_maker.search(
@@ -174,7 +174,7 @@ labels.head()
 </table>
 
 ### Transform Labels
-With the generated [`LabelTimes`](https://compose.featurelabs.com/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
+With the generated [`LabelTimes`](https://compose.alteryx.com/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
 
 ```python
 labels = labels.threshold(300)
@@ -266,7 +266,7 @@ labels.head()
 
 ### Describe Labels
 
-After transforming the labels, we can use [`LabelTimes.describe`](https://compose.featurelabs.com/en/latest/generated/methods/composeml.LabelTimes.describe.html#composeml.LabelTimes.describe) to print out the distribution with the settings and transforms that were used to make these labels. This is useful as a reference for understanding how the labels were generated from raw data. Also, the label distribution is helpful for determining if we have imbalanced labels.
+After transforming the labels, we can use [`LabelTimes.describe`](https://compose.alteryx.com/en/latest/generated/methods/composeml.LabelTimes.describe.html#composeml.LabelTimes.describe) to print out the distribution with the settings and transforms that were used to make these labels. This is useful as a reference for understanding how the labels were generated from raw data. Also, the label distribution is helpful for determining if we have imbalanced labels.
 
 ```python
 labels.describe()
