@@ -18,7 +18,7 @@ class LabelMaker:
             time_index (str): Name of time column in the data frame.
             labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
                 When set as a dictionary, the key is used as the name of the labeling function.
-            window_size (str or int): Size of the data slices. As a string, the value can be a timedelta or a column in the data frame to group by. 
+            window_size (str or int): Size of the data slices. As a string, the value can be a timedelta or a column in the data frame to group by.
                 As an integer, the value can be the number of rows. Default value is all future data.
         """
         self.labeling_function = labeling_function or {}
