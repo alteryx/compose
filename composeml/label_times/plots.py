@@ -39,7 +39,8 @@ class LabelPlots:
         formatter = mpl.dates.AutoDateFormatter(locator)
         ax.xaxis.set_major_locator(locator)
         ax.xaxis.set_major_formatter(formatter)
-        ax.figure.autofmt_xdate()
+        for label in ax.get_xticklabels():
+            label.set_rotation(30)
 
         if len(count_by_time.shape) > 1:
             ax.stackplot(
