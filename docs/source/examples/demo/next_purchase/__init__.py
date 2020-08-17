@@ -2,11 +2,11 @@ import os
 import pandas as pd
 import requests
 import tarfile
-from demo import utils
+from demo import PWD, utils
 from tqdm import tqdm
 
 URL = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_shopping_2017_05_01.tar.gz'
-PWD = os.path.dirname(__file__)
+PWD = os.path.join(PWD, 'next_purchase')
 
 
 def add_time(df, start='2015-01-01'):
