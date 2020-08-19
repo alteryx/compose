@@ -34,7 +34,7 @@ df = df[df.columns[:7]]
 df.head()
 ```
 
-<table border="1" class="dataframe">
+<table border="0" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>transaction_id</th>
@@ -95,9 +95,7 @@ df.head()
   </tbody>
 </table>
 
-
 First, we represent the prediction problem with a labeling function and a label maker.
-
 
 ```python
 def total_spent(ds):
@@ -113,7 +111,6 @@ label_maker = cp.LabelMaker(
 
 Then, we run a search to automatically generate the training examples.
 
-
 ```python
 label_times = label_maker.search(
     df.sort_values('transaction_time'),
@@ -127,45 +124,44 @@ label_times = label_times.threshold(300)
 label_times.head()
 ```
 
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th>customer_id</th>
-        <th>time</th>
-        <th>total_spent</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td>2014-01-01 00:00:00</td>
-        <td>True</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>2014-01-01 01:00:00</td>
-        <td>True</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>2014-01-01 00:00:00</td>
-        <td>False</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>2014-01-01 01:00:00</td>
-        <td>False</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>2014-01-01 00:00:00</td>
-        <td>False</td>
-      </tr>
-    </tbody>
-  </table>
+<table border="0" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>customer_id</th>
+      <th>time</th>
+      <th>total_spent</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2014-01-01 01:00:00</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2014-01-01 01:00:00</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
 
-
-Now, these labels are ready for building features with Featuretools and training machine learning models with EvalML.
+Now, the labels are ready to build features with Featuretools and train models with EvalML.
 
 ## Testing & Development
 The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
