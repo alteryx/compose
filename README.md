@@ -1,5 +1,7 @@
 <br>
-<p align="center"><img width=60% src="docs/source/images/compose.png" alt="Compose" /></p>
+<p align="center"><img width=70% src="docs/source/images/compose.png" alt="Compose" /></p>
+<br>
+
 <p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 
 <p align="center">
