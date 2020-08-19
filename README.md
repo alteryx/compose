@@ -1,49 +1,74 @@
-<p align="center">
-    <img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/compose.png" alt="Compose" />
-</p>
+
 <br>
 <br>
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?style=shield)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
+<p style="text-align:center">
+    <img width=50% src="docs/source/images/compose.png" alt="Compose" />
+</p>
+
+<br>
+<br>
+
+[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
 [![Documentation Status](https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00)](https://compose.alteryx.com/en/stable/?badge=stable)
 [![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/composeml.svg)](https://pypistats.org/packages/composeml)
+[![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
 
-[Compose](https://compose.alteryx.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a *"labeling function"*. Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
+[Compose](https://compose.alteryx.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a "labeling function". Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
 
 Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
 <br>
 <p align="center">
-    <img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/workflow.png" alt="Compose" />
+    <img width=90% src="docs/source/images/workflow.png" alt="Compose" />
 </p>
 <br>
 
-## Installation
-Compose can be installed by running the following command.
-```shell
+## Install
+
+Compose can be installed with Python 3.6 or later by running the following command:
+
+```
 pip install composeml
 ```
 
 ## Example
-In this example, we will generate labels on a mock dataset of transactions. For each customer, we want to label whether the total purchase amount over the next hour of transactions will exceed $300. Additionally, we want to predict one hour in advance.
 
-### Load Data
-With the package installed, we load in the data. To get an idea on how the transactions looks, we preview the data frame.
+> Will a customer spend more than 300 in the next hour of transactions?
+
+In this example, we automatically generate new training examples from a historical dataset of transactions.
+
 
 ```python
 import composeml as cp
-
 df = cp.demos.load_transactions()
-
-df[df.columns[:7]].head()
+df = df[df.columns[:7]]
+df.head()
 ```
 
-<table border="0" class="dataframe">
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
+      <th></th>
       <th>transaction_id</th>
       <th>session_id</th>
       <th>transaction_time</th>
@@ -55,6 +80,7 @@ df[df.columns[:7]].head()
   </thead>
   <tbody>
     <tr>
+      <th>0</th>
       <td>298</td>
       <td>1</td>
       <td>2014-01-01 00:00:00</td>
@@ -64,6 +90,7 @@ df[df.columns[:7]].head()
       <td>desktop</td>
     </tr>
     <tr>
+      <th>1</th>
       <td>10</td>
       <td>1</td>
       <td>2014-01-01 00:09:45</td>
@@ -73,6 +100,7 @@ df[df.columns[:7]].head()
       <td>desktop</td>
     </tr>
     <tr>
+      <th>2</th>
       <td>495</td>
       <td>1</td>
       <td>2014-01-01 00:14:05</td>
@@ -82,6 +110,7 @@ df[df.columns[:7]].head()
       <td>desktop</td>
     </tr>
     <tr>
+      <th>3</th>
       <td>460</td>
       <td>10</td>
       <td>2014-01-01 02:33:50</td>
@@ -91,6 +120,7 @@ df[df.columns[:7]].head()
       <td>tablet</td>
     </tr>
     <tr>
+      <th>4</th>
       <td>302</td>
       <td>10</td>
       <td>2014-01-01 02:37:05</td>
@@ -101,20 +131,17 @@ df[df.columns[:7]].head()
     </tr>
   </tbody>
 </table>
+</div>
 
-### Create Labeling Function
-To get started, we define the labeling function that will return the total purchase amount given a hour of transactions.
 
-```python
-def total_spent(df):
-    total = df['amount'].sum()
-    return total
-```
 
-### Construct Label Maker
-With the labeling function, we create the [`LabelMaker`](https://compose.alteryx.com/en/latest/generated/composeml.LabelMaker.html#composeml.LabelMaker) for our prediction problem. To process one hour of transactions for each customer, we set the  `target_entity` to the customer ID and the `window_size` to one hour.
+First, we represent the prediction problem with a labeling function and a label maker.
+
 
 ```python
+def total_spent(ds):
+    return ds['amount'].sum()
+
 label_maker = cp.LabelMaker(
     target_entity="customer_id",
     time_index="transaction_time",
@@ -123,179 +150,86 @@ label_maker = cp.LabelMaker(
 )
 ```
 
-### Search Labels
-Next, we automatically search and extract the labels by using [`LabelMaker.search`](https://compose.alteryx.com/en/latest/generated/methods/composeml.LabelMaker.search.html#composeml.LabelMaker.search). For more details on how the label maker works, see [Main Concepts](https://compose.alteryx.com/en/latest/main_concepts.html).
+Then, we run a search to automatically generate the training examples.
+
 
 ```python
-labels = label_maker.search(
+label_times = label_maker.search(
     df.sort_values('transaction_time'),
-    num_examples_per_instance=-1,
-    gap=1,
-    verbose=True,
+    num_examples_per_instance=2,
+    minimum_data='2014-01-01',
+    drop_empty=False,
+    verbose=False,
 )
 
-labels.head()
+label_times = label_times.threshold(300)
+label_times.head()
 ```
-<table border="0" class="dataframe">
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
+      <th></th>
       <th>customer_id</th>
-      <th>cutoff_time</th>
+      <th>time</th>
       <th>total_spent</th>
     </tr>
   </thead>
   <tbody>
     <tr>
+      <th>0</th>
       <td>1</td>
-      <td>2014-01-01 00:45:30</td>
-      <td>914.73</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>True</td>
     </tr>
     <tr>
+      <th>1</th>
       <td>1</td>
-      <td>2014-01-01 00:46:35</td>
-      <td>806.62</td>
+      <td>2014-01-01 01:00:00</td>
+      <td>True</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>2014-01-01 00:47:40</td>
-      <td>694.09</td>
+      <th>2</th>
+      <td>2</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>2014-01-01 00:52:00</td>
-      <td>687.80</td>
+      <th>3</th>
+      <td>2</td>
+      <td>2014-01-01 01:00:00</td>
+      <td>False</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>2014-01-01 00:53:05</td>
-      <td>656.43</td>
+      <th>4</th>
+      <td>3</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
-
-### Transform Labels
-With the generated [`LabelTimes`](https://compose.alteryx.com/en/latest/generated/composeml.LabelTimes.html#composeml.LabelTimes), we will apply specific transforms for our prediction problem. To make the labels binary, a threshold is applied for amounts exceeding $300.
-
-```python
-labels = labels.threshold(300)
-
-labels.head()
-```
-
-<table border="0" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>customer_id</th>
-      <th>cutoff_time</th>
-      <th>total_spent</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>2014-01-01 00:45:30</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2014-01-01 00:46:35</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2014-01-01 00:47:40</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2014-01-01 00:52:00</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2014-01-01 00:53:05</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-Additionally, the label times are shifted one hour earlier for predicting in advance.
-
-```python
-labels = labels.apply_lead('1h')
-
-labels.head()
-```
-
-<table border="0" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>customer_id</th>
-      <th>cutoff_time</th>
-      <th>total_spent</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>2013-12-31 23:45:30</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2013-12-31 23:46:35</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2013-12-31 23:47:40</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2013-12-31 23:52:00</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>2013-12-31 23:53:05</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-### Describe Labels
-
-After transforming the labels, we can use [`LabelTimes.describe`](https://compose.alteryx.com/en/latest/generated/methods/composeml.LabelTimes.describe.html#composeml.LabelTimes.describe) to print out the distribution with the settings and transforms that were used to make these labels. This is useful as a reference for understanding how the labels were generated from raw data. Also, the label distribution is helpful for determining if we have imbalanced labels.
-
-```python
-labels.describe()
-```
-
-```
-Label Distribution
-------------------
-False      56
-True       44
-Total:    100
+</div>
 
 
-Settings
---------
-num_examples_per_instance        -1
-minimum_data                   None
-window_size                  <Hour>
-gap                               1
 
-
-Transforms
-----------
-1. threshold
-  - value:    300
-
-2. apply_lead
-  - value:    1h
-```
+These labels are now ready for building features with Featuretools and training machine learning models with EvalML.
 
 ## Testing & Development
 The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
@@ -330,7 +264,7 @@ Compose open source has been developed by Feature Labs engineering team. The ope
 
 ## Feature Labs
 <a href="https://www.featurelabs.com/">
-    <img src="http://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
+    <img src="https://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
 </a>
 
 Compose is an open source project created by Feature Labs. We developed Compose to enable flexible definition of the machine learning task. Read more about our rationale behind automating and developing this stage of the machine learning process here.
