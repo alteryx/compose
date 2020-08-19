@@ -13,7 +13,7 @@
 
 <br><p align="center"><img width=90% src="docs/source/images/workflow.png" alt="Compose" /></p><br>
 
-By automating the early stage of the ML pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
+By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
 
 ## Install
 Compose can be installed for Python 3.6 or later by running the following command:
