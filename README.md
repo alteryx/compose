@@ -1,12 +1,15 @@
+<br>
 <p align="center"><img width=60% src="docs/source/images/compose.png" alt="Compose" /></p>
-<p align="center"><i>"Build better training examples in a fraction of the time."</i></p><br>
+<p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 
-[![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
-[![Codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
-[![Documentation Status](https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00)](https://compose.alteryx.com/en/stable/?badge=stable)
-[![Version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
-[![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
-[![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
+<p align="center">
+<img src="https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?" alt="CircleCI" />
+<img src="https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg?" alt="Codecov" />
+<img src="https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00" alt="ReadTheDocs" />
+<img src="https://badge.fury.io/py/composeml.svg?maxAge=2592000" alt="PyPI Version" />
+<img src="https://img.shields.io/badge/questions-on_stackoverflow-blue.svg?" alt="StackOverflow" />
+<img src="https://pepy.tech/badge/composeml/month" alt="PyPI Downloads" />
+</p>
 
 [Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. It allows you to structure prediction problems and generate labels for supervised learning. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to automatically extract training examples from historical data. Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
