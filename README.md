@@ -8,9 +8,9 @@
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 [![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
 
-[Compose](https://compose.alteryx.com) is a python library for automated prediction engineering. An end user defines an outcome of interest over the data by writing a "labeling function". Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
+[Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. An end user defines an outcome of interest over the data by writing a "labeling function". Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
 
-Its result is then provided to the automatic feature engineering tools Featuretools and subsequently to AutoML/ML libraries to develop a model. This automation for the very early stage of ML pipeline process allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
+Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. This automation for the early stage of the ML pipeline allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
 <br><p align="center"><img width=90% src="docs/source/images/workflow.png" alt="Compose" /></p><br>
 
@@ -25,7 +25,6 @@ pip install composeml
 > Will a customer spend more than 300 in the next hour of transactions?
 
 In this example, we automatically generate new training examples from a historical dataset of transactions.
-
 
 ```python
 import composeml as cp
@@ -161,7 +160,7 @@ label_times.head()
   </tbody>
 </table>
 
-The labels are ready to build features with [Featuretools](https://docs.featuretools.com/) and train models with [EvalML](https://evalml.alteryx.com/).
+We now have labels with cutoff times that can be used for building features with [Featuretools](https://docs.featuretools.com/).
 
 ## Testing & Development
 The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
