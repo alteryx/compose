@@ -161,7 +161,7 @@ label_times.head()
   </tbody>
 </table>
 
-Now, the labels are ready to build features with Featuretools and train models with EvalML.
+The labels are ready to build features with [Featuretools](https://docs.featuretools.com/) and train models with [EvalML](https://evalml.alteryx.com/).
 
 ## Testing & Development
 The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
