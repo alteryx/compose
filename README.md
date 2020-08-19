@@ -1,7 +1,4 @@
-<hr>
 <p align="center"><img width=50% src="docs/source/images/compose.png" alt="Compose" /></p>
-<hr>
-
 <p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 <p align="center">
 <img src="https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?" alt="CircleCI" />
@@ -10,8 +7,7 @@
 <img src="https://badge.fury.io/py/composeml.svg?maxAge=2592000" alt="PyPI Version" />
 <img src="https://img.shields.io/badge/questions-on_stackoverflow-blue.svg?" alt="StackOverflow" />
 <img src="https://pepy.tech/badge/composeml/month" alt="PyPI Downloads" />
-</p>
-
+</p><hr>
 
 [Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. It allows you to structure prediction problems and generate labels for supervised learning. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to automatically extract training examples from historical data. Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
