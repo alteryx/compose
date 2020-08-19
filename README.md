@@ -1,7 +1,7 @@
 
 <br><br>
 <p align="center"><img width=60% src="docs/source/images/compose.png" alt="Compose" /></p>
-<p style="text-align:center;font-size:13px;"><i>"Build better training examples in a fraction of the time."</i></p>
+<p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 <br>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
