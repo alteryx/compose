@@ -8,9 +8,9 @@
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 [![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
 
-[Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. An end user defines an outcome of interest over the data by writing a "labeling function". Compose will automatically search and extract historical training examples to train machine learning examples, balance them across time, entities and label categories to reduce biases in learning process. See the [documentation](https://compose.alteryx.com) for more information.
+[Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to extract training examples from the historical data for supervised learning. See the [documentation](https://compose.alteryx.com) for more information.
 
-Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. This automation for the early stage of the ML pipeline allows our end user to easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
+Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. By automating the early stage of the ML pipeline, our end user can easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
 
 <br><p align="center"><img width=90% src="docs/source/images/workflow.png" alt="Compose" /></p><br>
 
