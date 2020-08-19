@@ -2,9 +2,9 @@
 <br><br><p align="center"><img width=60% src="docs/source/images/compose.png" alt="Compose" /></p><br><br>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
-[![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
+[![Codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
 [![Documentation Status](https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00)](https://compose.alteryx.com/en/stable/?badge=stable)
-[![PyPI version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
+[![Version](https://badge.fury.io/py/composeml.svg?maxAge=2592000)](https://badge.fury.io/py/composeml)
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 [![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
 
@@ -160,7 +160,7 @@ label_times.head()
   </tbody>
 </table>
 
-We now have labels with cutoff times that can be used for building features with [Featuretools](https://docs.featuretools.com/).
+We now have labels that are ready to use in [Featuretools](https://docs.featuretools.com/) to generate features.
 
 ## Testing & Development
 The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
