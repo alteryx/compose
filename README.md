@@ -1,5 +1,5 @@
 
-<br><br><p align="center"><img width=50% src="docs/source/images/compose.png" alt="Compose" /></p><br><br>
+<br><br><p align="center"><img width=60% src="docs/source/images/compose.png" alt="Compose" /></p><br><br>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
 [![codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
@@ -34,66 +34,66 @@ df = df[df.columns[:7]]
 df.head()
 ```
 
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th>transaction_id</th>
-        <th>session_id</th>
-        <th>transaction_time</th>
-        <th>product_id</th>
-        <th>amount</th>
-        <th>customer_id</th>
-        <th>device</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>298</td>
-        <td>1</td>
-        <td>2014-01-01 00:00:00</td>
-        <td>5</td>
-        <td>127.64</td>
-        <td>2</td>
-        <td>desktop</td>
-      </tr>
-      <tr>
-        <td>10</td>
-        <td>1</td>
-        <td>2014-01-01 00:09:45</td>
-        <td>5</td>
-        <td>57.39</td>
-        <td>2</td>
-        <td>desktop</td>
-      </tr>
-      <tr>
-        <td>495</td>
-        <td>1</td>
-        <td>2014-01-01 00:14:05</td>
-        <td>5</td>
-        <td>69.45</td>
-        <td>2</td>
-        <td>desktop</td>
-      </tr>
-      <tr>
-        <td>460</td>
-        <td>10</td>
-        <td>2014-01-01 02:33:50</td>
-        <td>5</td>
-        <td>123.19</td>
-        <td>2</td>
-        <td>tablet</td>
-      </tr>
-      <tr>
-        <td>302</td>
-        <td>10</td>
-        <td>2014-01-01 02:37:05</td>
-        <td>5</td>
-        <td>64.47</td>
-        <td>2</td>
-        <td>tablet</td>
-      </tr>
-    </tbody>
-  </table>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>transaction_id</th>
+      <th>session_id</th>
+      <th>transaction_time</th>
+      <th>product_id</th>
+      <th>amount</th>
+      <th>customer_id</th>
+      <th>device</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>298</td>
+      <td>1</td>
+      <td>2014-01-01 00:00:00</td>
+      <td>5</td>
+      <td>127.64</td>
+      <td>2</td>
+      <td>desktop</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>1</td>
+      <td>2014-01-01 00:09:45</td>
+      <td>5</td>
+      <td>57.39</td>
+      <td>2</td>
+      <td>desktop</td>
+    </tr>
+    <tr>
+      <td>495</td>
+      <td>1</td>
+      <td>2014-01-01 00:14:05</td>
+      <td>5</td>
+      <td>69.45</td>
+      <td>2</td>
+      <td>desktop</td>
+    </tr>
+    <tr>
+      <td>460</td>
+      <td>10</td>
+      <td>2014-01-01 02:33:50</td>
+      <td>5</td>
+      <td>123.19</td>
+      <td>2</td>
+      <td>tablet</td>
+    </tr>
+    <tr>
+      <td>302</td>
+      <td>10</td>
+      <td>2014-01-01 02:37:05</td>
+      <td>5</td>
+      <td>64.47</td>
+      <td>2</td>
+      <td>tablet</td>
+    </tr>
+  </tbody>
+</table>
 
 
 First, we represent the prediction problem with a labeling function and a label maker.
