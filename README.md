@@ -8,11 +8,11 @@
 [![StackOverflow](https://img.shields.io/badge/questions-on_stackoverflow-blue.svg)](https://stackoverflow.com/questions/tagged/composeml)
 [![Downloads](https://pepy.tech/badge/composeml/month)](https://pepy.tech/project/composeml/month)
 
-[Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to extract training examples from the historical data for supervised learning. See the [documentation](https://compose.alteryx.com) for more information.
-
-Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. By automating the early stage of the ML pipeline, our end user can easily define a task and solve it. The workflow of an applied machine learning engineer then becomes:
+[Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to extract training examples from the historical data for supervised learning. Its result is provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
 <br><p align="center"><img width=90% src="docs/source/images/workflow.png" alt="Compose" /></p><br>
+
+By automating the early stage of the ML pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
 
 ## Install
 Compose can be installed for Python 3.6 or later by running the following command:
@@ -174,7 +174,7 @@ The Feature Labs open source community is happy to provide support to users of C
 4. For everything else, the core developers can be reached by email at [help@featurelabs.com](mailto:help@featurelabs.com).
 
 ## Citing Compose
-Compose is built upon a newly defined part of the machine learning process - prediction engineering. If you use Compose please consider citing this paper:
+Compose is built upon a newly defined part of the machine learning process — prediction engineering. If you use Compose, please consider citing this paper:
 James Max Kanter, Gillespie, Owen, Kalyan Veeramachaneni. [Label, Segment,Featurize: a cross domain framework for prediction engineering.](https://dai.lids.mit.edu/wp-content/uploads/2017/10/Pred_eng1.pdf) IEEE DSAA 2016.
 
 BibTeX entry:
