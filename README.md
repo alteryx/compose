@@ -1,7 +1,5 @@
-<br>
-<p align="center"><img width=65% src="docs/source/images/compose.png" alt="Compose" /></p>
-<p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
-<br>
+<p align="center"><img width=55% src="docs/source/images/compose.png" alt="Compose" /></p>
+<p align="center"><i>"Build better training examples in a fraction of the time."</i></p><br>
 
 [![CircleCI](https://circleci.com/gh/FeatureLabs/compose/tree/main.svg?)](https://circleci.com/gh/FeatureLabs/compose/tree/main)
 [![Codecov](https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg)](https://codecov.io/gh/FeatureLabs/compose)
