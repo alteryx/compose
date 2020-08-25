@@ -9,7 +9,7 @@ URL = r'https://s3.amazonaws.com/instacart-datasets/instacart_online_grocery_sho
 PWD = os.path.join(PWD, 'next_purchase')
 
 
-def add_time(df, start='2015-01-01'):
+def _add_time(df, start='2015-01-01'):
     def timedelta(value, string):
         return pd.Timedelta(string.format(value))
 
@@ -39,7 +39,7 @@ def add_time(df, start='2015-01-01'):
     return df
 
 
-def data(nrows=1000000):
+def _data(nrows=1000000):
     output = os.path.join(PWD, 'download')
     path = os.path.join(output, 'instacart_2017_05_01')
     if not os.path.exists(path): utils.download(URL, output)
@@ -54,19 +54,19 @@ def data(nrows=1000000):
     orders = pd.read_csv(file, nrows=nrows)
 
     df = order_products.merge(products).merge(departments).merge(orders)
-    df = df.pipe(add_time)
+    df = df.pipe(_add_time)
     return df
 
 
-def read(file):
+def _read(file):
     path = os.path.join(PWD, file)
     df = pd.read_csv(path, parse_dates=['order_time'], index_col='id')
     return df
 
 
 def historical_sample():
-    return read('historical.csv')
+    return _read('historical.csv')
 
 
 def future_sample():
-    return read('future.csv')
+    return _read('future.csv')
