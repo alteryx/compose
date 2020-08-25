@@ -17,7 +17,7 @@
     <a href="https://stackoverflow.com/questions/tagged/composeml" target="_blank">
         <img src="https://img.shields.io/badge/questions-on_stackoverflow-blue.svg?" alt="StackOverflow" />
     </a>
-    <a href="https://pypistats.org/packages/composeml">
+    <a href="https://pypistats.org/packages/composeml" target="_blank">
         <img src="https://pepy.tech/badge/composeml/month" alt="PyPI Downloads" />
     </a>
 </p>
