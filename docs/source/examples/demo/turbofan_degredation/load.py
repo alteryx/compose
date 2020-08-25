@@ -6,14 +6,14 @@ URL = r'https://ti.arc.nasa.gov/c/6/'
 PWD = os.path.dirname(__file__)
 
 
-def download_data():
+def _download_data():
     output = os.path.join(PWD, 'download')
     utils.download(URL, output)
 
 
-def load_data():
+def _data():
     path = os.path.join(PWD, 'download', 'train_FD004.txt')
-    if not os.path.exists(path): download_data()
+    if not os.path.exists(path): _download_data()
     cols = ['engine_no', 'time_in_cycles']
     cols += ['operational_setting_{}'.format(i + 1) for i in range(3)]
     cols += ['sensor_measurement_{}'.format(i + 1) for i in range(26)]
@@ -23,7 +23,13 @@ def load_data():
     return df
 
 
-def load_sample():
-    path = os.path.join(PWD, 'sample.csv')
+def _read(file):
+    path = os.path.join(PWD, file)
     df = pd.read_csv(path, parse_dates=['time'], index_col='id')
     return df
+
+def historical_sample():
+    return _read('historical.csv')
+    
+def future_sample():
+    return _read('future.csv')
