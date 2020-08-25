@@ -5,7 +5,7 @@ from os.path import join
 PWD = join(PWD, 'chicago_bike')
 
 
-def read(file):
+def _read(file):
     return read_csv(
         join(PWD, file),
         parse_dates=['starttime', 'stoptime'],
@@ -14,8 +14,8 @@ def read(file):
 
 
 def historical_sample():
-    return read('historical.csv')
+    return _read('historical.csv')
 
 
 def future_sample():
-    return read('future.csv')
+    return _read('future.csv')
