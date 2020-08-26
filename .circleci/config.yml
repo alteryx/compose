@@ -75,9 +75,10 @@ jobs:
           doc_requirements: true
 
       - run:
-          name: "Run the doc tests."
+          name: "Run doc tests."
           command: |
             source env/bin/activate
+            sudo apt install -y graphviz
             make docs-build
 
   lint_tests:
