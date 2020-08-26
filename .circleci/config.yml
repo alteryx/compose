@@ -58,6 +58,8 @@ commands:
                 command: |
                   source env/bin/activate
                   pip install -r docs/requirements.txt
+                  sudo apt install -q -y pandoc
+                  sudo apt install -q -y graphviz
 
 jobs:
   doc_tests:
@@ -78,7 +80,6 @@ jobs:
           name: "Run doc tests."
           command: |
             source env/bin/activate
-            sudo apt install -y graphviz
             make docs-build
 
   lint_tests:
