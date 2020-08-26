@@ -26,6 +26,9 @@ commands:
       test_requirements:
         type: boolean
         default: false
+      doc_requirements:
+        type: boolean
+        default: false
 
     steps:
       - checkout
@@ -47,7 +50,36 @@ commands:
                   source env/bin/activate
                   pip install -r package/test-requirements.txt
 
+      - when:
+          condition: << parameters.doc_requirements >>
+          steps:
+            - run:
+                name: "Install requirements to build the docs."
+                command: |
+                  source env/bin/activate
+                  pip install -r docs/requirements.txt
+
 jobs:
+  doc_tests:
+    parameters:
+      python_version:
+        type: string
+        default: "3.6"
+
+    executor:
+      name: python
+      version: << parameters.python_version >>
+
+    steps:
+      - installation:
+          doc_requirements: true
+
+      - run:
+          name: "Run the doc tests."
+          command: |
+            source env/bin/activate
+            make docs-build
+
   lint_tests:
     parameters:
       python_version:
@@ -140,3 +172,7 @@ workflows:
           name: "Unit Tests - Python 3.8"
           python_version: "3.8"
           codecov: true
+
+      - doc_tests:
+          name: "Doc Tests - Python 3.6"
+          python_version: "3.6"
