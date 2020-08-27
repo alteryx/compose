@@ -186,7 +186,6 @@ The Feature Labs open source community is happy to provide support to users of C
 1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml) with the `composeml` tag.
 2. For bugs, issues, or feature requests start a Github [issue](https://github.com/FeatureLabs/compose/issues).
 3. For discussion regarding development on the core library, use [Slack](https://featuretools.slack.com/messages/CKP6D0KUP).
-4. For everything else, the core developers can be reached by email at [help@featurelabs.com](mailto:help@featurelabs.com).
 
 ## Citing Compose
 Compose is built upon a newly defined part of the machine learning process — prediction engineering. If you use Compose, please consider citing this paper:
