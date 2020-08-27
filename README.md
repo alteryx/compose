@@ -177,14 +177,12 @@ label_times.head()
 
 We now have labels that are ready to use in [Featuretools](https://docs.featuretools.com/) to generate features.
 
-## Testing & Development
-The Feature Labs community welcomes pull requests. Instructions for testing and development are available here.
-
 ## Support
-The Feature Labs open source community is happy to provide support to users of Compose. Project support can be found in four places depending on the type of question:
+
+The Innovation Labs open source community is happy to provide support to users of Compose. Project support can be found in three places depending on the type of question:
 
 1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml) with the `composeml` tag.
-2. For bugs, issues, or feature requests start a Github [issue](https://github.com/FeatureLabs/compose/issues).
+2. For bugs, issues, or feature requests start a Github [issue](https://github.com/FeatureLabs/compose/issues/new).
 3. For discussion regarding development on the core library, use [Slack](https://featuretools.slack.com/messages/CKP6D0KUP).
 
 ## Citing Compose
@@ -205,13 +203,15 @@ BibTeX entry:
 ```
 
 ## Acknowledgements 
-Compose open source has been developed by Feature Labs engineering team. The open source development has been supported in part by DARPA's Data driven discovery of models program (D3M). 
 
-## Feature Labs
-<a href="https://www.featurelabs.com/">
-    <img src="https://www.featurelabs.com/wp-content/uploads/2017/12/logo.png" alt="Featuretools" />
+The open source development has been supported in part by DARPA's Data driven discovery of models program (D3M). 
+
+## Innovation Labs
+
+<a href="https://www.alteryx.com/innovation-labs" target="_blank">
+    <p align="left"><img width=30% src="docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
 </a>
 
-Compose is an open source project created by Feature Labs. We developed Compose to enable flexible definition of the machine learning task. Read more about our rationale behind automating and developing this stage of the machine learning process here.
 
-To see the other open source projects we're working on visit Feature Labs [Open Source](https://www.featurelabs.com/open). If building impactful data science pipelines is important to you or your business, please [get in touch](https://www.featurelabs.com/contact/).
+
+Compose has been developed and open sourced by Innovation Labs. We developed Compose to enable flexible definition of the machine learning task. To see the other open source projects we're working on visit [Innovation Labs](https://www.alteryx.com/innovation-labs).
