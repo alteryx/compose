@@ -3,6 +3,7 @@ include LICENSE
 include README.md
 include composeml/demos/*.csv
 include docs/source/images/compose.png
+include docs/source/images/innovation_labs.png
 include docs/source/images/workflow.png
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
