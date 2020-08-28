@@ -1,4 +1,4 @@
-<p align="center"><img width=50% src="docs/source/images/compose.png" alt="Compose" /></p>
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/compose.png" alt="Compose" /></p>
 <p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 <p align="center">
     <a href="https://circleci.com/gh/FeatureLabs/compose/tree/main" target="_blank">
@@ -25,7 +25,7 @@
 
 [Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. It allows you to structure prediction problems and generate labels for supervised learning. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to automatically extract training examples from historical data. Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
-<br><p align="center"><img width=90% src="docs/source/images/workflow.png" alt="Compose" /></p><br>
+<br><p align="center"><img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/workflow.png" alt="Compose" /></p><br>
 
 By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
 
@@ -209,7 +209,7 @@ The open source development has been supported in part by DARPA's Data driven di
 ## Innovation Labs
 
 <a href="https://www.alteryx.com/innovation-labs" target="_blank">
-    <p align="left"><img width=40% src="docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
+    <p align="left"><img width=40% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
 </a>
 
 Compose has been developed and open sourced by Innovation Labs. We developed Compose to enable flexible definition of the machine learning task. To see the other open source projects we're working on visit [Innovation Labs](https://www.alteryx.com/innovation-labs).
