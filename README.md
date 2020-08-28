@@ -209,7 +209,7 @@ The open source development has been supported in part by DARPA's Data driven di
 ## Innovation Labs
 
 <a href="https://www.alteryx.com/innovation-labs" target="_blank">
-    <p align="left"><img width=30% src="docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
+    <p align="left"><img width=40% src="docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
 </a>
 
 
