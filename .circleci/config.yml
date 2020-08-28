@@ -78,6 +78,7 @@ jobs:
 
       - run:
           name: "Run doc tests."
+          no_output_timeout: 30m
           command: |
             source env/bin/activate
             make docs-build
