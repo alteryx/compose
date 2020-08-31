@@ -2,6 +2,19 @@
 Changelog
 =========
 
+**v0.5.0** August 28, 2020
+    * Enhancements
+        * Added Column-Based Windows (:pr:`151`).
+    * Changes
+        * Refactored Data Slice Generator (:pr:`150`).
+    * Documentation Changes
+        * Updated README (:pr:`164`).
+        * Updated Predict Next Purchase Demo (:pr:`154`).
+        * Updated Predict Turbofan Degradation Demo (:pr:`154`).
+
+**Breaking Changes**
+    * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see the Data Slice Generator Guide.
+
 **v0.4.0** July 2, 2020
     * Enhancements
         * Target values can be sampled from each group (:pr:`138`).
