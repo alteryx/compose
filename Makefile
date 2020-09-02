@@ -19,4 +19,4 @@ notebook-run:
 notebook-clear:
 	jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace docs/source/examples/*.ipynb
 
-doc-tests: notebook-run doc-build notebook-clear
+doc-tests: doc-build
