@@ -14,9 +14,9 @@ doc-build:
 	make -C docs -e "SPHINXOPTS=-W" clean html
 
 notebook-run:
-	jupyter nbconvert --inplace  --execute docs/source/examples/*.ipynb
+	jupyter nbconvert --ExecutePreprocessor.timeout=1800 --inplace  --execute docs/source/examples/*.ipynb
 
 notebook-clear:
-	jupyter nbconvert --inplace --ClearOutputPreprocessor.enabled=True --clear-output docs/source/examples/*.ipynb
+	jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace --clear-output docs/source/examples/*.ipynb
 
 doc-tests: notebook-run doc-build notebook-clear
