@@ -10,5 +10,13 @@ lint-tests:
 unit-tests:
 	pytest composeml --cache-clear --show-capture=stderr -vv ${ADDOPTS}
 
-docs-build:
+doc-build:
 	make -C docs -e "SPHINXOPTS=-W" clean html
+
+notebook-run:
+	jupyter nbconvert --inplace  --execute docs/source/examples/*.ipynb
+
+notebook-clear:
+	jupyter nbconvert --inplace --ClearOutputPreprocessor.enabled=True --clear-output docs/source/examples/*.ipynb
+
+doc-tests: notebook-run doc-build notebook-clear
