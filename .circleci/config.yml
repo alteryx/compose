@@ -6,9 +6,15 @@ executors:
       version:
         type: string
         default: "3.7"
+      resource_class:
+        type: string
+        default: medium
 
     docker:
       - image: circleci/python:<< parameters.version >>
+
+    resource_class: << parameters.resource_class >>
+
 
 commands:
   build_package:
@@ -71,6 +77,7 @@ jobs:
     executor:
       name: python
       version: << parameters.python_version >>
+      resource_class: large
 
     steps:
       - installation:
@@ -92,6 +99,7 @@ jobs:
     executor:
       name: python
       version: << parameters.python_version >>
+      resource_class: small
 
     steps:
       - installation:
