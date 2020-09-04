@@ -7,7 +7,7 @@ Compose is available on PyPI_ and Conda-forge_ for Python 3.6 or later.
 :code:`pip`
 ===========
 
-To install from PyPI_, run the following command:
+To install from PyPI_, run the command:
 
 .. code-block::
 
@@ -16,7 +16,7 @@ To install from PyPI_, run the following command:
 :code:`conda`
 =============
 
-To install from Conda-forge_, run the following command:
+To install from Conda-forge_, run the command:
 
 .. code-block::
 
