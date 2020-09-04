@@ -22,4 +22,3 @@ What is Compose?
 ================
 
 **Compose** is advanced software for automating the prediction engineering process. Compose enables you to systematically define prediction problems by automatically extracting historical training examples to train machine learning algorithms.
-
