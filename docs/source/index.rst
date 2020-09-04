@@ -14,6 +14,7 @@
     :align: center
 
 |
+
 ================
 What is Compose?
 ================
@@ -24,11 +25,12 @@ Compose is a machine learning tool for automated prediction engineering. It allo
 .. _EvalML: https://evalml.alteryx.com/
 
 |
+
 .. image:: images/workflow.png
     :align: center
 
 |
+
 By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it.
 
-|
 |
