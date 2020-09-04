@@ -12,3 +12,6 @@ unit-tests:
 
 docs-build:
 	make -C docs clean html
+
+example-run:
+	jupyter nbconvert --inplace --execute docs/source/examples/*.ipynb
