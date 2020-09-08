@@ -14,3 +14,5 @@ The labeling function will then transform the extracted data slice into a label.
     :align: center
 
 When a labeling function returns continuous values, there are :doc:`label transforms </user_guide/using_label_transforms>` available to further process the labels into discrete values.
+
+|
