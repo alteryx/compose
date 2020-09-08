@@ -1,7 +1,3 @@
-================
-What is Compose?
-================
-
 .. toctree::
     :hidden:
     :maxdepth: 1
@@ -13,15 +9,15 @@ What is Compose?
     api_reference
     changelog
 
-------------
-
-|
-
 .. image:: images/compose.png
     :width: 500px
     :align: center
 
 |
+
+================
+What is Compose?
+================
 
 Compose is a machine learning tool for automated prediction engineering. It allows you to structure prediction problems and generate labels for supervised learning. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to automatically extract training examples from historical data. Its result is then provided to Featuretools_ for automated feature engineering and subsequently to EvalML_ for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
