@@ -83,12 +83,9 @@ pygments_style = None
 html_theme = "pydata_sphinx_theme"
 html_logo = "images/compose.png"
 html_favicon = "images/favicon.ico"
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
+html_theme_options = {
+  "github_url": "https://github.com/FeatureLabs/compose",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

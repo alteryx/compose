@@ -33,4 +33,4 @@ Compose is a machine learning tool for automated prediction engineering. It allo
 
 By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it.
 
-|
+.. include:: main_concepts.rst
