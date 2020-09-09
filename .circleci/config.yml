@@ -6,9 +6,15 @@ executors:
       version:
         type: string
         default: "3.7"
+      resource_class:
+        type: string
+        default: medium
 
     docker:
       - image: circleci/python:<< parameters.version >>
+
+    resource_class: << parameters.resource_class >>
+
 
 commands:
   build_package:
@@ -24,6 +30,9 @@ commands:
   installation:
     parameters:
       test_requirements:
+        type: boolean
+        default: false
+      doc_requirements:
         type: boolean
         default: false
 
@@ -47,7 +56,40 @@ commands:
                   source env/bin/activate
                   pip install -r package/test-requirements.txt
 
+      - when:
+          condition: << parameters.doc_requirements >>
+          steps:
+            - run:
+                name: "Install requirements to build the docs."
+                command: |
+                  source env/bin/activate
+                  pip install -r docs/requirements.txt
+                  sudo apt install -q -y pandoc
+                  sudo apt install -q -y graphviz
+
 jobs:
+  doc_tests:
+    parameters:
+      python_version:
+        type: string
+        default: "3.6"
+
+    executor:
+      name: python
+      version: << parameters.python_version >>
+      resource_class: large
+
+    steps:
+      - installation:
+          doc_requirements: true
+
+      - run:
+          name: "Run doc tests."
+          no_output_timeout: 30m
+          command: |
+            source env/bin/activate
+            make doc-tests
+
   lint_tests:
     parameters:
       python_version:
@@ -57,6 +99,7 @@ jobs:
     executor:
       name: python
       version: << parameters.python_version >>
+      resource_class: small
 
     steps:
       - installation:
@@ -140,3 +183,7 @@ workflows:
           name: "Unit Tests - Python 3.8"
           python_version: "3.8"
           codecov: true
+
+      - doc_tests:
+          name: "Doc Tests - Python 3.6"
+          python_version: "3.6"

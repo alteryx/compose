@@ -10,5 +10,7 @@ lint-tests:
 unit-tests:
 	pytest composeml --cache-clear --show-capture=stderr -vv ${ADDOPTS}
 
-docs-build:
-	make -C docs clean html
+doc-build:
+	make -C docs -e "SPHINXOPTS=-W" clean html
+
+doc-tests: doc-build
