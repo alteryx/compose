@@ -2,6 +2,8 @@
 Changelog
 =========
 
+|
+
 **v0.5.0** August 28, 2020
     * Enhancements
         * Added Column-Based Windows (:pr:`151`).
@@ -12,8 +14,12 @@ Changelog
         * Updated Predict Next Purchase Demo (:pr:`154`).
         * Updated Predict Turbofan Degradation Demo (:pr:`154`).
 
-**Breaking Changes**
-    * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see the Data Slice Generator Guide.
+.. warning::
+
+    **Breaking Changes**
+        * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see the Data Slice Generator Guide.
+
+|
 
 **v0.4.0** July 2, 2020
     * Enhancements
@@ -23,8 +29,12 @@ Changelog
     * Changes
         * The label times object was refactored to improve design and structure (:pr:`135`).
 
-**Breaking Changes**
-    * Loading label times from previous versions will result in an error.
+.. warning::
+
+    **Breaking Changes**
+        * Loading label times from previous versions will result in an error.
+
+|
 
 **v0.3.0** June 1, 2020
     * Enhancements
@@ -42,8 +52,12 @@ Changelog
     * Testing Changes
         * Added tests that use Python 3.8 in CirlceCI (:pr:`128`)
 
-**Breaking Changes**
-    * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
+.. warning::
+
+    **Breaking Changes**
+        * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
+
+|
 
 **v0.1.8** March 11, 2020
     * Fixes
@@ -103,3 +117,6 @@ Changelog
 
 **v0.1.1** May 31, 2019
     * Initial Release
+
+|
+|
