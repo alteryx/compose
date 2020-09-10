@@ -8,11 +8,13 @@ What is Compose?
 
     install
     getting_started
+    main_concepts
     user_guide
     examples
     api_reference
     faq
     changelog
+    faq
 
 ------------
 
