@@ -14,7 +14,6 @@ What is Compose?
     api_reference
     faq
     changelog
-    faq
 
 ------------
 
