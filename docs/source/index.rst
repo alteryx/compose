@@ -11,8 +11,8 @@ What is Compose?
     user_guide
     examples
     api_reference
-    changelog
     faq
+    changelog
 
 ------------
 
