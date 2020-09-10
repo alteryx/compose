@@ -13,5 +13,10 @@ unit-tests:
 docs-build:
 	make -C docs clean html
 
+doc-build-test:
+	make -C docs -e "SPHINXOPTS=-W" clean html
+
 example-run:
 	jupyter nbconvert --inplace --execute docs/source/examples/*.ipynb
+
+doc-tests: doc-build-test
