@@ -17,7 +17,7 @@ Release Notes
 .. warning::
 
     **Breaking Changes**
-        * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see the Data Slice Generator Guide.
+        * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
 
 |
 
