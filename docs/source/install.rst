@@ -4,8 +4,8 @@ Install
 
 Compose is available on PyPI and Conda-forge for Python version 3.6 or later.
 
-:code:`pip`
-===========
+pip
+===
 
 To install from PyPI_, run the command:
 
@@ -13,8 +13,8 @@ To install from PyPI_, run the command:
 
     pip install composeml
 
-:code:`conda`
-=============
+conda
+=====
 
 To install from Conda-forge_, run the command:
 
