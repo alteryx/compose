@@ -2,8 +2,12 @@
 Examples
 ========
 
+In the examples below, you will learn how to use Compose for building AutoML applications.
+
 .. toctree::
     :glob:
-    :maxdepth: 2
+    :maxdepth: 1
 
     examples/*
+
+|
