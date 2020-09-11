@@ -7,12 +7,12 @@ What is Compose?
     :maxdepth: 1
 
     install
-    getting_started
+    start
+    tutorials
     user_guide
-    examples
     api_reference
-    faq
     release_notes
+    faq
 
 ------------
 

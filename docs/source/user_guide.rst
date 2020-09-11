@@ -2,7 +2,7 @@
 User Guide
 ==========
 
-In the guides below, a variety of topics are covered so you can learn how to use Compose as productive as possible.
+In the guides below, you will learn how to use label transforms and more to help you generate training examples more effectively.
 
 .. toctree::
     :glob:
