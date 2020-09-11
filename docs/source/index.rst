@@ -12,7 +12,7 @@ What is Compose?
     examples
     api_reference
     faq
-    changelog
+    release_notes
 
 ------------
 
