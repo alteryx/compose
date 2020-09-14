@@ -30,7 +30,7 @@ class LabelPlots:
         count_by_time.sort_index(inplace=True)
         target_column = self._label_times.target_columns[0]
 
-        ax = ax or mpl.pyplot.axes()
+        ax = ax or mpl.pyplot.axes(label=id(self))
         vmin = count_by_time.index.min()
         vmax = count_by_time.index.max()
         ax.set_xlim(vmin, vmax)
@@ -89,9 +89,9 @@ class LabelPlots:
         is_discrete = self._label_times.is_discrete[target_column]
 
         if is_discrete:
-            ax = sns.countplot(dist, palette=COLOR, **kwargs)
+            ax = sns.countplot(x=dist, palette=COLOR, **kwargs)
         else:
-            ax = sns.distplot(dist, kde=True, color=COLOR[1], **kwargs)
+            ax = sns.histplot(x=dist, kde=True, color=COLOR[1], **kwargs)
 
         ax.set_title('Label Distribution')
         ax.set_ylabel('Count')
