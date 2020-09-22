@@ -4,6 +4,16 @@ Release Notes
 
 |
 
+**v0.5.1** September 22, 2020
+    * Documentation Changes
+        * Update F1 Macro in Turbofan Degradation Tutorial (:pr:`180`).
+        * Apply Pandas Docs Theme (:pr:`172`).
+        * Add Chicago Bike Tutorial (:pr:`157`).
+    * Testing Changes
+        * Test Doc Builds (:pr:`165`)
+
+|
+
 **v0.5.0** August 28, 2020
     * Enhancements
         * Added Column-Based Windows (:pr:`151`).
