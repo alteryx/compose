@@ -81,7 +81,7 @@ pygments_style = None
 #
 
 html_theme = "pydata_sphinx_theme"
-html_logo = "images/compose.png"
+html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
   "github_url": "https://github.com/FeatureLabs/compose",
