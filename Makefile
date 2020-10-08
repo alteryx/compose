@@ -16,7 +16,14 @@ docs-build:
 docs-build-test:
 	make -C docs -e "SPHINXOPTS=-W" clean html
 
+doc-tests: docs-build-test
+
 example-run:
 	jupyter nbconvert --inplace --execute docs/source/examples/*.ipynb
 
-doc-tests: docs-build-test
+package-build:
+	rm -rf dist/package
+	python setup.py sdist
+	$(eval package=$(shell python setup.py --fullname))
+	tar -zxvf "dist/${package}.tar.gz" 
+	mv ${package} dist/package
