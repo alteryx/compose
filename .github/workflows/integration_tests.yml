@@ -1,0 +1,24 @@
+on: push
+name: Integration Tests
+jobs:
+  lint_tests:
+    name: Lint Tests - Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - name: Build package distribution.
+        run: make package_build
+      - name: Install package with test requirements.
+        run: |
+          pip config --site set global.progress_bar off
+          pip install dist/package/
+          pip install -r dist/package/test-requirements.txt
+      - name: Run lint tests.
+        run: cd dist/package && make lint-tests -f ../../Makefile
