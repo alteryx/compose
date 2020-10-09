@@ -88,7 +88,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             source env/bin/activate
-            make doc-tests
+            make doc_tests
 
   lint_tests:
     parameters:
@@ -110,7 +110,7 @@ jobs:
           command: |
             source env/bin/activate
             cd package
-            make lint-tests -f ../Makefile
+            make lint_tests -f ../Makefile
 
   unit_tests:
     parameters:
@@ -137,7 +137,7 @@ jobs:
             - run: |
                 source env/bin/activate
                 cd package
-                make unit-tests ADDOPTS="--cov=composeml" -f ../Makefile
+                make unit_tests ADDOPTS="--cov=composeml" -f ../Makefile
                 codecov --root ..
 
       - unless:
@@ -146,14 +146,14 @@ jobs:
             - run: |
                 source env/bin/activate
                 cd package
-                make unit-tests -f ../Makefile
+                make unit_tests -f ../Makefile
 
       - unless:
           condition: << parameters.codecov >>
           steps:
             - run: |
                 source env/bin/activate
-                make unit-tests
+                make unit_tests
 
 workflows:
   version: 2
