@@ -5,7 +5,7 @@ on:
 name: Integration Tests
 jobs:
   lint_tests:
-    name: Lint Tests - Python ${{ matrix.python-version }}
+    name: Lint Tests / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,7 +28,7 @@ jobs:
         run: cd dist/package && make lint_tests -f ../../Makefile
 
   unit_tests:
-    name: Unit Tests - Python ${{ matrix.python-version }}
+    name: Unit Tests / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,7 +55,7 @@ jobs:
         run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
 
   doc_tests:
-    name: Doc Tests - Python 3.6
+    name: Doc Tests / Python 3.6
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python 3.6
