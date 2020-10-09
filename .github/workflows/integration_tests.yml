@@ -4,6 +4,28 @@ on:
 
 name: Integration Tests
 jobs:
+  doc_tests:
+    name: Doc Tests / Python 3.6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build source distribution
+        run: make package_build
+      - name: Install package with doc requirements
+        run: |
+          pip config --site set global.progress_bar off
+          pip install dist/package/
+          pip install -r docs/requirements.txt
+          sudo apt install -q -y pandoc
+          sudo apt install -q -y graphviz
+      - name: Run doc tests
+        run: make doc_tests
+
   lint_tests:
     name: Lint Tests / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
@@ -53,25 +75,3 @@ jobs:
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
         run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
-
-  doc_tests:
-    name: Doc Tests / Python 3.6
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.6
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Build source distribution
-        run: make package_build
-      - name: Install package with doc requirements
-        run: |
-          pip config --site set global.progress_bar off
-          pip install dist/package/
-          pip install -r docs/requirements.txt
-          sudo apt install -q -y pandoc
-          sudo apt install -q -y graphviz
-      - name: Run doc tests
-        run: make doc_tests
