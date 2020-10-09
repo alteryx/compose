@@ -44,9 +44,9 @@ jobs:
           pip config --site set global.progress_bar off
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
-      - if: ${{ matrix.python-version }} != 3.8
+      - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests (no code coverage) 
         run: cd dist/package && make unit-tests -f ../../Makefile
-      - if: ${{ matrix.python-version }} == 3.8
+      - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
         run: cd dist/package && make unit-tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
