@@ -15,14 +15,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Build source distribution
-        run: make package-build
+        run: make package_build
       - name: Install package with test requirements
         run: |
           pip config --site set global.progress_bar off
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
       - name: Run lint tests
-        run: cd dist/package && make lint-tests -f ../../Makefile
+        run: cd dist/package && make lint_tests -f ../../Makefile
 
   unit_tests:
     name: Unit Tests - Python ${{ matrix.python-version }}
@@ -38,7 +38,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Build source distribution
-        run: make package-build
+        run: make package_build
       - name: Install package with test requirements
         run: |
           pip config --site set global.progress_bar off
@@ -46,10 +46,10 @@ jobs:
           pip install -r dist/package/test-requirements.txt
       - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests (no code coverage) 
-        run: cd dist/package && make unit-tests -f ../../Makefile
+        run: cd dist/package && make unit_tests -f ../../Makefile
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
-        run: cd dist/package && make unit-tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
+        run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
 
   doc_tests:
     name: Doc Tests - Python 3.6
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Build source distribution
-        run: make package-build
+        run: make package_build
       - name: Install package with doc requirements
         run: |
           pip config --site set global.progress_bar off
@@ -71,4 +71,4 @@ jobs:
           sudo apt install -q -y pandoc
           sudo apt install -q -y graphviz
       - name: Run doc tests
-        run: make doc-tests
+        run: make doc_tests
