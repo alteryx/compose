@@ -8,17 +8,45 @@ jobs:
       matrix:
         python-version: ["3.6", "3.7", "3.8"]
     steps:
-      - name: Setup Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/checkout@v2
-      - name: Build package distribution.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build source distribution
         run: make package-build
-      - name: Install package with test requirements.
+      - name: Install package with test requirements
         run: |
           pip config --site set global.progress_bar off
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
-      - name: Run lint tests.
+      - name: Run lint tests
         run: cd dist/package && make lint-tests -f ../../Makefile
+
+  unit_tests:
+    name: Unit Tests - Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build source distribution
+        run: make package-build
+      - name: Install package with test requirements
+        run: |
+          pip config --site set global.progress_bar off
+          pip install dist/package/
+          pip install -r dist/package/test-requirements.txt
+      - if: ${{ matrix.python-version }} != 3.8
+        name: Run unit tests (no code coverage) 
+        run: cd dist/package && make unit-tests -f ../../Makefile
+      - if: ${{ matrix.python-version }} == 3.8
+        name: Run unit tests with code coverage
+        run: cd dist/package && make unit-tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../..
