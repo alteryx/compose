@@ -1,6 +1,6 @@
 on:
-  pull_request:
-    types: [opened, ready_for_review]
+  push:
+    branches-ignore: [main]
 
 name: Integration Tests
 jobs:
