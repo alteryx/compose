@@ -1,4 +1,7 @@
-on: push
+on:
+  pull_request:
+    types: [opened, edited]
+
 name: Integration Tests
 jobs:
   lint_tests:
