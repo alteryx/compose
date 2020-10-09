@@ -1,6 +1,6 @@
 on:
   pull_request:
-    types: [opened, edited]
+    types: [opened, ready_for_review]
 
 name: Integration Tests
 jobs:
