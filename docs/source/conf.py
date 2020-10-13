@@ -85,6 +85,7 @@ html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
   "github_url": "https://github.com/FeatureLabs/compose#readme",
+  "twitter_url": "https://twitter.com/alteryx?lang=en",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
