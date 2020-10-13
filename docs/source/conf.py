@@ -20,8 +20,8 @@ from composeml import __version__ as version
 # -- Project information -----------------------------------------------------
 
 project = 'Compose'
-copyright = '2020, Feature Labs, Inc.'
-author = 'Feature Labs, Inc.'
+copyright = '2020, Alteryx, Inc.'
+author = 'Alteryx, Inc.'
 
 # The full version, including alpha/beta/rc tags
 release = version
@@ -84,7 +84,7 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
-  "github_url": "https://github.com/FeatureLabs/compose",
+  "github_url": "https://github.com/FeatureLabs/compose#readme",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -134,7 +134,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Compose.tex', 'Compose Documentation',
-     'Feature Labs, Inc.', 'manual'),
+     'Alteryx, Inc.', 'manual'),
 ]
 
 
