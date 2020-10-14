@@ -3,10 +3,39 @@
 {%- block extrahead %}
 
 <script>
-  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
-  analytics.load("ze8imyBlahLiQl1WxZCnHzhNWgviYKOn");
-  analytics.page();
-  }}();
+  !function () {
+    var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+      analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+      analytics.load("ze8imyBlahLiQl1WxZCnHzhNWgviYKOn");
+      analytics.page();
+    }
+  }();
 </script>
+
+{% endblock %}
+
+{%- block footer %}
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-cell-1">
+      <img class="footer-image-alteryx" src="_static/images/alteryx_open_source.svg" alt="Alteryx Open Source">
+    </div>
+    <div class="footer-cell-2">
+      <a href="https://github.com/FeatureLabs/compose#readme" target="_blank">
+        <img class="footer-image-github" src="_static/images/github.svg" alt="GitHub">
+      </a>
+      <a href="https://twitter.com/alteryx?lang=en" target="_blank">
+        <img class="footer-image-twitter" src="_static/images/twitter.svg" alt="Twitter">
+      </a>
+    </div>
+    <div class="footer-cell-3">
+      <hr class="footer-line">
+    </div>
+    <div class="footer-cell-4">
+      <img class="footer-image-copyright" src="_static/images/copyright.svg" alt="Copyright">
+    </div>
+  </div>
+</footer>
 
 {% endblock %}
