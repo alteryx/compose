@@ -119,7 +119,22 @@ def test_distribution_categorical(total_spent):
 
 
 def test_distribution_continous(total_spent):
-    assert total_spent.distribution is None
+    distribution = total_spent.distribution
+    actual = to_csv(distribution.round(4))
+
+    expected = [
+        ',total_spent',
+        'count,10.0',
+        'mean,4.5',
+        'std,3.0277',
+        'min,0.0',
+        '25%,2.25',
+        '50%,4.5',
+        '75%,6.75',
+        'max,9.0',
+    ]
+
+    assert actual == expected
 
 
 def test_target_type(total_spent):
