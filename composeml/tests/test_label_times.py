@@ -87,6 +87,18 @@ def test_describe_no_transforms(capsys):
     LabelTimes(data).describe()
     captured = capsys.readouterr()
     out = '\n'.join([
+        'Label Distribution',
+        '------------------',
+        'count    3.0',
+        'mean     1.0',
+        'std      1.0',
+        'min      0.0',
+        '25%      0.5',
+        '50%      1.0',
+        '75%      1.5',
+        'max      2.0',
+        '',
+        '',
         'Settings',
         '--------',
         'target_column        target',
