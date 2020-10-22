@@ -10,5 +10,6 @@ In the guides below, you will learn how to use label transforms and more to help
 
     user_guide/using_label_transforms
     user_guide/data_slice_generator
+    user_guide/multiple_labeling_functions
 
 |
