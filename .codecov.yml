@@ -1,12 +1,15 @@
 codecov:
+  token: aa5ff8df-1603-4e4f-b4b6-52991ad1dae6
   notify:
     require_ci_to_pass: yes
+
+comment:
+  layout: "diff, files"
 
 coverage:
   precision: 2
   round: down
   range: 90..100
-
   status:
     project:
       default:
@@ -15,6 +18,3 @@ coverage:
       default:
         target: 100%
     changes: no
-
-comment:
-  layout: "diff, files"
