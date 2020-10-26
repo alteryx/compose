@@ -1,6 +1,4 @@
-on:
-  push:
-    branches-ignore: [main]
+on: push
 
 name: Integration Tests
 jobs:
