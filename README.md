@@ -223,4 +223,3 @@ The open source development has been supported in part by DARPA's Data driven di
 </a>
 
 Compose has been developed and open sourced by Innovation Labs. We developed Compose to enable flexible definition of the machine learning task. To see the other open source projects we're working on visit [Innovation Labs](https://www.alteryx.com/innovation-labs).
-
