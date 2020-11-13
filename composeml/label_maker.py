@@ -254,4 +254,3 @@ class LabelMaker:
             df.index = df.index.astype('datetime64[ns]')
 
         return df
-
