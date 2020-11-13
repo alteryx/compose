@@ -1,7 +1,7 @@
 pytest==4.4.1
 pytest-cov==2.6.1
 fastparquet>=0.1.6
-codecov>=2.1.0
+codecov==2.1.0
 flake8==3.7.8
 autopep8==1.4.4
 isort==4.3.21
