@@ -72,4 +72,10 @@ jobs:
         run: cd dist/package && make unit_tests -f ../../Makefile
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
-        run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile && codecov --root ../.. -X gcov
+        run: cd dist/package && make unit_tests addopts="--cov=composeml --cov-report=xml" -f ../../Makefile
+      - if: ${{ matrix.python-version == 3.8 }}
+        name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./dist/package/coverage.xml
+          fail_ci_if_error: true
