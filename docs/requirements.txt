@@ -2,6 +2,7 @@ jupyter>=1.0.0
 nbconvert>=5.5.0
 nbsphinx>=0.4.2
 Sphinx>=3.0.3
+woodwork==0.0.4
 evalml>=0.15.0
 featuretools>=0.9.0
 nlp_primitives>=0.3.0
