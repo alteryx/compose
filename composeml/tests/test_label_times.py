@@ -46,17 +46,18 @@ def test_count_by_time_continuous(total_spent):
     assert given_answer == answer
 
 
-def test_describe(capsys, total_spent):
-    labels = ['A', 'B']
-    total_spent.bin(2, labels=labels).describe()
+def test_sorted_distribution(capsys, total_spent):
+    bins = [0, 5, 10, 20]
+    total_spent.bin(bins).describe()
     captured = capsys.readouterr()
 
     out = '\n'.join([
         'Label Distribution',
         '------------------',
-        'A          5',
-        'B          5',
-        'Total:    10',
+        '(0, 5]      5',
+        '(5, 10]     4',
+        '(10, 20]    0',
+        'Total:      9',
         '',
         '',
         'Settings',
@@ -70,11 +71,11 @@ def test_describe(capsys, total_spent):
         'Transforms',
         '----------',
         '1. bin',
-        '  - bins:              2',
-        '  - labels:       [A, B]',
-        '  - precision:         3',
-        '  - quantiles:     False',
-        '  - right:          True',
+        '  - bins:         [0, 5, 10, 20]',
+        '  - labels:                 None',
+        '  - precision:                 3',
+        '  - quantiles:             False',
+        '  - right:                  True',
         '',
         '',
     ])

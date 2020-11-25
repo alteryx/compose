@@ -8,8 +8,8 @@ def describe_label_times(label_times):
 
     if is_discrete:
         distribution = label_times[target_column].value_counts()
-        distribution.index = distribution.index.astype('str')
         distribution.sort_index(inplace=True)
+        distribution.index = distribution.index.astype('str')
         distribution['Total:'] = distribution.sum()
     else:
         distribution = label_times[target_column].describe()
