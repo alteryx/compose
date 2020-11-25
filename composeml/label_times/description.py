@@ -7,12 +7,15 @@ def describe_label_times(label_times):
     is_discrete = label_times.is_discrete[target_column]
 
     if is_discrete:
-        print('Label Distribution\n' + '-' * 18, end='\n')
         distribution = label_times[target_column].value_counts()
         distribution.sort_index(inplace=True)
         distribution.index = distribution.index.astype('str')
         distribution['Total:'] = distribution.sum()
-        print(distribution.to_string(), end='\n\n\n')
+    else:
+        distribution = label_times[target_column].describe()
+
+    print('Label Distribution\n' + '-' * 18, end='\n')
+    print(distribution.to_string(), end='\n\n\n')
 
     metadata = label_times.settings
     target_column = metadata['label_times']['target_columns'][0]

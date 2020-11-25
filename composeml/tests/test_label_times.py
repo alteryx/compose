@@ -88,6 +88,18 @@ def test_describe_no_transforms(capsys):
     LabelTimes(data).describe()
     captured = capsys.readouterr()
     out = '\n'.join([
+        'Label Distribution',
+        '------------------',
+        'count    3.0',
+        'mean     1.0',
+        'std      1.0',
+        'min      0.0',
+        '25%      0.5',
+        '50%      1.0',
+        '75%      1.5',
+        'max      2.0',
+        '',
+        '',
         'Settings',
         '--------',
         'target_column        target',
@@ -120,7 +132,22 @@ def test_distribution_categorical(total_spent):
 
 
 def test_distribution_continous(total_spent):
-    assert total_spent.distribution is None
+    distribution = total_spent.distribution
+    actual = to_csv(distribution.round(4))
+
+    expected = [
+        ',total_spent',
+        'count,10.0',
+        'mean,4.5',
+        'std,3.0277',
+        'min,0.0',
+        '25%,2.25',
+        '50%,4.5',
+        '75%,6.75',
+        'max,9.0',
+    ]
+
+    assert actual == expected
 
 
 def test_target_type(total_spent):

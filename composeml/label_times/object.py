@@ -172,6 +172,8 @@ class LabelTimes(pd.DataFrame):
             labels = labels.groupby(target_column)
             distribution = labels['count'].count()
             return distribution
+        else:
+            return self[target_column].describe()
 
     @property
     def count(self):
