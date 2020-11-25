@@ -46,7 +46,7 @@ def test_count_by_time_continuous(total_spent):
     assert given_answer == answer
 
 
-def test_describe(capsys, total_spent):
+def test_sorted_distribution(capsys, total_spent):
     bins = [0, 5, 10, 20]
     total_spent.bin(bins).describe()
     captured = capsys.readouterr()
