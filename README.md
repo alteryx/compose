@@ -1,11 +1,11 @@
-<p align="center"><img width=50% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/compose.png" alt="Compose" /></p>
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/compose.png" alt="Compose" /></p>
 <p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 <p align="center">
-    <a href="https://github.com/FeatureLabs/compose/actions?query=workflow%3A%22Integration+Tests%22" target="_blank">
-        <img src="https://github.com/FeatureLabs/compose/workflows/Integration%20Tests/badge.svg" alt="Integration Tests" />
+    <a href="https://github.com/alteryx/compose/actions?query=workflow%3A%22Integration+Tests%22" target="_blank">
+        <img src="https://github.com/alteryx/compose/workflows/Integration%20Tests/badge.svg" alt="Integration Tests" />
     </a>
-    <a href="https://codecov.io/gh/FeatureLabs/compose" target="_blank">
-        <img src="https://codecov.io/gh/FeatureLabs/compose/branch/main/graph/badge.svg?" alt="Codecov" />
+    <a href="https://codecov.io/gh/alteryx/compose" target="_blank">
+        <img src="https://codecov.io/gh/alteryx/compose/branch/main/graph/badge.svg?" alt="Codecov" />
     </a>
     <a href="https://compose.alteryx.com/en/stable/?badge=stable" target="_blank">
         <img src="https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00"
@@ -25,7 +25,7 @@
 
 [Compose](https://compose.alteryx.com) is a machine learning tool for automated prediction engineering. It allows you to structure prediction problems and generate labels for supervised learning. An end user defines an outcome of interest by writing a *labeling function*, then runs a search to automatically extract training examples from historical data. Its result is then provided to [Featuretools](https://docs.featuretools.com/) for automated feature engineering and subsequently to [EvalML](https://evalml.alteryx.com/) for automated machine learning. The workflow of an applied machine learning engineer then becomes:
 
-<br><p align="center"><img width=90% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/workflow.png" alt="Compose" /></p><br>
+<br><p align="center"><img width=90% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/workflow.png" alt="Compose" /></p><br>
 
 By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
 
@@ -192,7 +192,7 @@ We now have labels that are ready to use in [Featuretools](https://docs.featuret
 The Innovation Labs open source community is happy to provide support to users of Compose. Project support can be found in three places depending on the type of question:
 
 1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml) with the `composeml` tag.
-2. For bugs, issues, or feature requests start a Github [issue](https://github.com/FeatureLabs/compose/issues/new).
+2. For bugs, issues, or feature requests start a Github [issue](https://github.com/alteryx/compose/issues/new).
 3. For discussion regarding development on the core library, use [Slack](https://featuretools.slack.com/messages/CKP6D0KUP).
 
 ## Citing Compose
@@ -219,7 +219,7 @@ The open source development has been supported in part by DARPA's Data driven di
 ## Innovation Labs
 
 <a href="https://www.alteryx.com/innovation-labs" target="_blank">
-    <p align="left"><img width=40% src="https://raw.githubusercontent.com/FeatureLabs/compose/main/docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
+    <p align="left"><img width=40% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
 </a>
 
 Compose has been developed and open sourced by Innovation Labs. We developed Compose to enable flexible definition of the machine learning task. To see the other open source projects we're working on visit [Innovation Labs](https://www.alteryx.com/innovation-labs).
