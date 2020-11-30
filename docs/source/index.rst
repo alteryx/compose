@@ -10,9 +10,9 @@ What is Compose?
     start
     tutorials
     user_guide
+    resources
     api_reference
     release_notes
-    faq
 
 ------------
 
