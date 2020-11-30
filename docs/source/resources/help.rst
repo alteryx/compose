@@ -2,7 +2,7 @@
 Help
 ====
 
-The Alteryx open source community is happy to provide support to users of Compose.
+Couldn't find what you were looking for? The Alteryx open source community is happy to provide support to users of Compose.
 
 
 Discussion
@@ -42,3 +42,5 @@ few simple guidelines:
     <https://stackoverflow.com/help/mcve>`_. You will get
     much better answers if your provide code that people can use to reproduce
     your problem.
+
+|
