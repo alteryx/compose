@@ -191,9 +191,9 @@ We now have labels that are ready to use in [Featuretools](https://docs.featuret
 
 The Innovation Labs open source community is happy to provide support to users of Compose. Project support can be found in three places depending on the type of question:
 
-1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml) with the `composeml` tag.
+1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/compose-ml) with the `composeml` tag.
 2. For bugs, issues, or feature requests start a Github [issue](https://github.com/alteryx/compose/issues/new).
-3. For discussion regarding development on the core library, use [Slack](https://featuretools.slack.com/messages/CKP6D0KUP).
+3. For discussion regarding development on the core library, use [Slack](https://join.slack.com/t/featuretools/shared_invite/enQtNTEwODEzOTEwMjg4LTQ1MjZlOWFmZDk2YzAwMjEzNTkwZTZkN2NmOGFjOGI4YzE5OGMyMGM5NGIxNTE4NjkzYWI3OWEwZjkyZGExYmQ).
 
 ## Citing Compose
 Compose is built upon a newly defined part of the machine learning process — prediction engineering. If you use Compose, please consider citing this paper:
