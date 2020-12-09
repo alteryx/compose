@@ -2,7 +2,7 @@
 User Guide
 ==========
 
-In the guides below, you will learn how to use label transforms and more to help you generate training examples more effectively.
+Use these guides to learn how to use label transformations and generate better training examples.
 
 .. toctree::
     :glob:
