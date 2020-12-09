@@ -1,8 +1,8 @@
 <p align="center"><img width=50% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/compose.png" alt="Compose" /></p>
 <p align="center"><i>"Build better training examples in a fraction of the time."</i></p>
 <p align="center">
-    <a href="https://github.com/alteryx/compose/actions?query=workflow%3A%22Integration+Tests%22" target="_blank">
-        <img src="https://github.com/alteryx/compose/workflows/Integration%20Tests/badge.svg" alt="Integration Tests" />
+    <a href="https://github.com/alteryx/compose/actions?query=workflow%3ATests" target="_blank">
+        <img src="https://github.com/alteryx/compose/workflows/Tests/badge.svg" alt="Tests" />
     </a>
     <a href="https://codecov.io/gh/alteryx/compose" target="_blank">
         <img src="https://codecov.io/gh/alteryx/compose/branch/main/graph/badge.svg?" alt="Codecov" />
