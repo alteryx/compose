@@ -1,6 +1,6 @@
 on: push
 
-name: Integration Tests
+name: Tests
 jobs:
   doc_tests:
     name: Doc Tests / Python 3.6
@@ -17,6 +17,7 @@ jobs:
       - name: Install package with doc requirements
         run: |
           pip config --site set global.progress_bar off
+          pip install --upgrade pip
           pip install dist/package/
           pip install -r docs/requirements.txt
           sudo apt install -q -y pandoc
@@ -42,6 +43,7 @@ jobs:
       - name: Install package with test requirements
         run: |
           pip config --site set global.progress_bar off
+          pip install --upgrade pip
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
       - name: Run lint tests
@@ -65,6 +67,7 @@ jobs:
       - name: Install package with test requirements
         run: |
           pip config --site set global.progress_bar off
+          pip install --upgrade pip
           pip install dist/package/
           pip install -r dist/package/test-requirements.txt
       - if: ${{ matrix.python-version != 3.8 }}
