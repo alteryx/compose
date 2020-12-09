@@ -14,7 +14,7 @@
     <a href="https://badge.fury.io/py/composeml" target="_blank">
         <img src="https://badge.fury.io/py/composeml.svg?maxAge=2592000" alt="PyPI Version" />
     </a>
-    <a href="https://stackoverflow.com/questions/tagged/composeml" target="_blank">
+    <a href="https://stackoverflow.com/questions/tagged/compose-ml" target="_blank">
         <img src="https://img.shields.io/badge/questions-on_stackoverflow-blue.svg?" alt="StackOverflow" />
     </a>
     <a href="https://pepy.tech/project/composeml" target="_blank">
