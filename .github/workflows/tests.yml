@@ -1,6 +1,6 @@
 on: push
 
-name: Integration Tests
+name: Tests
 jobs:
   doc_tests:
     name: Doc Tests / Python 3.6
