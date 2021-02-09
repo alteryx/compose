@@ -12,6 +12,7 @@
   }();
 </script>
 
+{% set image = 'https://user-images.githubusercontent.com/4307001/105420214-98052d00-5c05-11eb-86cc-1d1722099472.png' %}
 {% set description = 'A machine learning tool for automated prediction engineering' %}
 {% if meta is defined %}
     {% if meta.description is defined %}
@@ -22,8 +23,8 @@
 <meta property="og:title" content="{{ title|striptags|e }}{{ titlesuffix }}">
 <meta content="{{description}}" />
 <meta property="og:description" content="{{description}}">
-<meta property="og:image" content="{{ pathto('_static/images/compose_open_graph.png', 1) }}">
-<meta property="twitter:image" content="{{ pathto('_static/images/compose_open_graph.png', 1) }}">
+<meta property="og:image" content="{{image}}">
+<meta property="twitter:image" content="{{image}}">
 <meta name="twitter:card" content="summary_large_image">
 
 {% endblock %}
