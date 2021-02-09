@@ -84,7 +84,7 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
-  "github_url": "https://github.com/FeatureLabs/compose#readme",
+  "github_url": "https://github.com/FeatureLabs/compose",
   "twitter_url": "https://twitter.com/AlteryxOSS",
 }
 
