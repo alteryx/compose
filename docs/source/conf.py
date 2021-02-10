@@ -84,8 +84,8 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
-  "github_url": "https://github.com/FeatureLabs/compose#readme",
-  "twitter_url": "https://twitter.com/alteryx?lang=en",
+  "github_url": "https://github.com/alteryx/compose",
+  "twitter_url": "https://twitter.com/AlteryxOSS",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -182,8 +182,8 @@ epub_exclude_files = ['search.html']
 # -- Extension configuration -------------------------------------------------
 
 extlinks = {
-    'issue': ('https://github.com/FeatureLabs/compose/issues/%s', '#'),
-    'pr': ('https://github.com/FeatureLabs/compose/pull/%s', '#'),
+    'issue': ('https://github.com/alteryx/compose/issues/%s', '#'),
+    'pr': ('https://github.com/alteryx/compose/pull/%s', '#'),
     'user': ('https://github.com/%s', '@')
 }
 

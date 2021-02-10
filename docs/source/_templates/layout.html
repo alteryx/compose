@@ -12,6 +12,21 @@
   }();
 </script>
 
+{% set image = 'https://compose-web-images.s3.amazonaws.com/compose_open_graph.png' %}
+{% set description = 'A machine learning tool for automated prediction engineering' %}
+{% if meta is defined %}
+    {% if meta.description is defined %}
+        {% set description = meta.description %}
+    {% endif %}
+{% endif %}
+
+<meta property="og:title" content="{{ title|striptags|e }}{{ titlesuffix }}">
+<meta content="{{description}}" />
+<meta property="og:description" content="{{description}}">
+<meta property="og:image" content="{{image}}">
+<meta property="twitter:image" content="{{image}}">
+<meta name="twitter:card" content="summary_large_image">
+
 {% endblock %}
 
 {%- block footer %}
@@ -22,10 +37,10 @@
       <img class="footer-image-alteryx" src="{{ pathto('_static/images/alteryx_open_source.svg', 1) }}" alt="Alteryx Open Source">
     </div>
     <div class="footer-cell-2">
-      <a href="https://github.com/FeatureLabs/compose#readme" target="_blank">
+      <a href="https://github.com/alteryx/compose" target="_blank">
         <img class="footer-image-github" src="{{ pathto('_static/images/github.svg', 1) }}" alt="GitHub">
       </a>
-      <a href="https://twitter.com/alteryx?lang=en" target="_blank">
+      <a href="https://twitter.com/AlteryxOSS" target="_blank">
         <img class="footer-image-twitter" src="{{ pathto('_static/images/twitter.svg', 1) }}" alt="Twitter">
       </a>
     </div>
