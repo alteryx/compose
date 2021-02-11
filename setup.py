@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='composeml',
-    version='0.5.1',
+    version='0.6.0',
     author='Feature Labs, Inc.',
     author_email='support@featurelabs.com',
     license='BSD 3-clause',
