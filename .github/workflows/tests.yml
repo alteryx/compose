@@ -8,13 +8,13 @@ on:
 name: Tests
 jobs:
   doc_tests:
-    name: Doc Tests / Python 3.6
+    name: Doc Tests / Python 3.8
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.8
       - name: Checkout repository
         uses: actions/checkout@v2
         with:

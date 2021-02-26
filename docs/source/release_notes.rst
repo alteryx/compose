@@ -4,6 +4,28 @@ Release Notes
 
 |
 
+**v0.6.0** February 11, 2021
+    * Enhancements
+        * Added description for continuous target distributions (:pr:`187`)
+    * Fixes
+        * Sorted label distribution in description (:pr:`188`)
+    * Documentation Changes
+        * Made logo easier to read (:pr:`182`)
+        * Added Alteryx footer to docs (:pr:`185`, :pr:`186`)
+        * Updated tutorials to the latest API changes (:pr:`190`, :pr:`198`, :pr:`204`)
+        * Updated repository links to GitHub (:pr:`191`)
+        * Added help page to docs (:pr:`194`)
+        * Improved docs based on tech writer feedback (:pr:`195`)
+        * Added open graph info to docs (:pr:`203`)
+    * Testing Changes
+        * Migrated CI tests to Github Actions (:pr:`184`, :pr:`189`)
+        * Updated tests to trigger on pull request events (:pr:`199`)
+
+    | Thanks to the following people for contributing to this release:
+    | :user:`flowersw`, :user:`jeff-hernandez`, :user:`rwedge`
+
+|
+
 **v0.5.1** September 22, 2020
     * Documentation Changes
         * Update F1 Macro in Turbofan Degradation Tutorial (:pr:`180`).
