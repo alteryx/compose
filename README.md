@@ -6,7 +6,7 @@
     </a>
     <a href="https://codecov.io/gh/alteryx/compose">
         <img src="https://codecov.io/gh/alteryx/compose/branch/main/graph/badge.svg?token=mDz4ueTUEO"/>
-    </a>    
+    </a>
     <a href="https://compose.alteryx.com/en/stable/?badge=stable" target="_blank">
         <img src="https://readthedocs.com/projects/feature-labs-inc-compose/badge/?version=stable&token=5c3ace685cdb6e10eb67828a4dc74d09b20bb842980c8ee9eb4e9ed168d05b00"
             alt="ReadTheDocs" />
