@@ -201,7 +201,7 @@ James Max Kanter, Gillespie, Owen, Kalyan Veeramachaneni. [Label, Segment,Featur
 
 BibTeX entry:
 
-```
+```bibtex
 @inproceedings{kanter2016label,
   title={Label, segment, featurize: a cross domain framework for prediction engineering},
   author={Kanter, James Max and Gillespie, Owen and Veeramachaneni, Kalyan},
