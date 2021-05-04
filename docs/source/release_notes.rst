@@ -4,6 +4,18 @@ Release Notes
 
 |
 
+**Future Release**
+    * Enhancements
+      * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
+    * Fixes
+    * Documentation Changes
+    * Testing Changes
+
+    | Thanks to the following people for contributing to this release:
+    | :user:`jeff-hernandez`
+
+|
+
 **v0.6.0** February 11, 2021
     * Enhancements
         * Added description for continuous target distributions (:pr:`187`)
