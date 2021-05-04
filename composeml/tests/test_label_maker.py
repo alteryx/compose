@@ -491,3 +491,58 @@ def test_label_type(transactions, total_spent_fn):
     lt = lm.search(transactions, num_examples_per_instance=1)
     assert lt.target_types['total_spent'] == 'continuous'
     assert lt.bin(2).target_types['total_spent'] == 'discrete'
+
+
+def test_search_with_maximum_data(transactions):
+    lm = LabelMaker(
+        target_entity='customer_id',
+        time_index='time',
+        labeling_function=len,
+        window_size='1h',
+    )
+
+    lt = lm.search(
+        df=transactions.sort_values('time'),
+        num_examples_per_instance=-1,
+        minimum_data='2019-01-01 08:00:00',
+        maximum_data='2019-01-01 09:00:00',
+        drop_empty=False,
+    )
+
+    expected = [
+        'customer_id,time,len',
+        '0,2019-01-01 08:00:00,2',
+        '0,2019-01-01 09:00:00,0',
+        '1,2019-01-01 08:00:00,0',
+        '1,2019-01-01 09:00:00,2',
+        '2,2019-01-01 08:00:00,0',
+        '2,2019-01-01 09:00:00,0',
+        '3,2019-01-01 08:00:00,0',
+        '3,2019-01-01 09:00:00,0',
+    ]
+
+    actual = lt.pipe(to_csv, index=False)
+    assert actual == expected
+
+    lt = lm.search(
+        df=transactions.sort_values('time'),
+        num_examples_per_instance=-1,
+        maximum_data='30min',
+        drop_empty=False,
+        gap='30min',
+    )
+
+    expected = [
+        'customer_id,time,len',
+        '0,2019-01-01 08:00:00,2',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:00:00,2',
+        '1,2019-01-01 09:30:00,2',
+        '2,2019-01-01 10:30:00,2',
+        '2,2019-01-01 11:00:00,2',
+        '3,2019-01-01 12:30:00,1',
+        '3,2019-01-01 13:00:00,0',
+    ]
+
+    actual = lt.pipe(to_csv, index=False)
+    assert actual == expected
