@@ -4,6 +4,18 @@ Release Notes
 
 |
 
+**Future Release**
+    * Enhancements
+    * Fixes
+    * Documentation Changes
+    * Testing Changes
+      * Check if release notes were updated (:pr:`217`)
+
+    | Thanks to the following people for contributing to this release:
+    | :user:`jeff-hernandez`
+
+|
+
 **v0.6.0** February 11, 2021
     * Enhancements
         * Added description for continuous target distributions (:pr:`187`)
