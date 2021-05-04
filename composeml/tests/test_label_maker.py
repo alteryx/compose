@@ -523,3 +523,26 @@ def test_search_with_maximum_data(transactions):
 
     actual = lt.pipe(to_csv, index=False)
     assert actual == expected
+
+    lt = lm.search(
+        df=transactions.sort_values('time'),
+        num_examples_per_instance=-1,
+        maximum_data='30min',
+        drop_empty=False,
+        gap='30min',
+    )
+
+    expected = [
+        'customer_id,time,len',
+        '0,2019-01-01 08:00:00,2',
+        '0,2019-01-01 08:30:00,1',
+        '1,2019-01-01 09:00:00,2',
+        '1,2019-01-01 09:30:00,2',
+        '2,2019-01-01 10:30:00,2',
+        '2,2019-01-01 11:00:00,2',
+        '3,2019-01-01 12:30:00,1',
+        '3,2019-01-01 13:00:00,0',
+    ]
+
+    actual = lt.pipe(to_csv, index=False)
+    assert actual == expected
