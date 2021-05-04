@@ -62,13 +62,14 @@ class LabelMaker:
         assert isinstance(value, dict), 'value type for labeling function not supported'
         self._labeling_function = value
 
-    def slice(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True):
+    def slice(self, df, num_examples_per_instance, minimum_data=None, maximum_data=None, gap=None, drop_empty=True):
         """Generates data slices of target entity.
 
         Args:
             df (DataFrame): Data frame to create slices on.
             num_examples_per_instance (int): Number of examples per unique instance of target entity.
-            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            minimum_data (str): Minimum data before starting the search. Default value is first time of index.
+            maximum_data (str): Maximum data before stopping the search. Default value is last time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
@@ -84,6 +85,7 @@ class LabelMaker:
         generator = DataSliceGenerator(
             window_size=self.window_size,
             min_data=minimum_data,
+            max_data=maximum_data,
             drop_empty=drop_empty,
             gap=gap,
         )
@@ -181,6 +183,7 @@ class LabelMaker:
                df,
                num_examples_per_instance,
                minimum_data=None,
+               maximum_data=None,
                gap=None,
                drop_empty=True,
                verbose=True,
@@ -192,7 +195,8 @@ class LabelMaker:
             df (DataFrame): Data frame to search and extract labels.
             num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
                 A dictionary can be used to further specify the expected number of examples to return from each label.
-            minimum_data (str): Minimum data before starting search. Default value is first time of index.
+            minimum_data (str): Minimum data before starting the search. Default value is first time of index.
+            maximum_data (str): Maximum data before stopping the search. Default value is last time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
@@ -211,6 +215,7 @@ class LabelMaker:
         generator = DataSliceGenerator(
             window_size=self.window_size,
             min_data=minimum_data,
+            max_data=maximum_data,
             drop_empty=drop_empty,
             gap=gap,
         )
@@ -231,6 +236,7 @@ class LabelMaker:
             search_settings={
                 'num_examples_per_instance': num_examples_per_instance,
                 'minimum_data': str(minimum_data),
+                'maximum_data': str(maximum_data),
                 'window_size': str(self.window_size),
                 'gap': str(gap),
             },

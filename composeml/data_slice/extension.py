@@ -94,10 +94,11 @@ class DataSliceExtension:
     def _apply(self, size, start, stop, step, drop_empty=True):
         """Generates data slices based on the data frame."""
         df = self._apply_start(self._df, start, step)
-        if df.empty: return df
+        if df.empty and drop_empty: return df
 
         df, slice_number = DataSliceFrame(df), 1
-        while not df.empty and start.value <= stop.value:
+        while start.value and start.value <= stop.value:
+            if df.empty and drop_empty: break
             ds = self._apply_size(df, start, size)
             df = self._apply_step(df, start, step)
             if ds.empty and drop_empty: continue
@@ -153,8 +154,7 @@ class DataSliceExtension:
             start.value = first_index
         else:
             start.value += step.value
-            if start.value <= self._last_index:
-                df = df[start.value:]
+            df = df[start.value:]
 
         return df
 
