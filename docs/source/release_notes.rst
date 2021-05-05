@@ -6,10 +6,11 @@ Release Notes
 
 **Future Release**
     * Enhancements
-      * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
+        * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
     * Fixes
     * Documentation Changes
     * Testing Changes
+        * Check if release notes were updated (:pr:`217`)
 
     | Thanks to the following people for contributing to this release:
     | :user:`jeff-hernandez`
