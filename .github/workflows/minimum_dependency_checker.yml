@@ -25,13 +25,13 @@ jobs:
         continue-on-error: true
         run: |
           mkdir /tmp/dependencies_updated_artifacts
-          mkdir -p compose/tests/requirement_files
+          mkdir -p composeml/tests/requirement_files
           printf "${{ steps.min_dep_gen_test.outputs.min_reqs }}" > /tmp/minimum_test_requirements.txt
-          diff /tmp/minimum_test_requirements.txt compose/tests/requirement_files/minimum_test_requirements.txt
+          diff /tmp/minimum_test_requirements.txt composeml/tests/requirement_files/minimum_test_requirements.txt
       - name: if min test deps have changed, write output file
         if: steps.check_min_test.outcome != 'success'
         run: |
-          printf "${{ steps.min_dep_gen_test.outputs.min_reqs }}" > compose/tests/requirement_files/minimum_test_requirements.txt
+          printf "${{ steps.min_dep_gen_test.outputs.min_reqs }}" > composeml/tests/requirement_files/minimum_test_requirements.txt
       - name: Run min dep generator - core reqs
         id: min_dep_gen_core
         uses: alteryx/minimum-dependency-generator@v2
@@ -42,11 +42,11 @@ jobs:
         continue-on-error: true
         run: |
           printf "${{ steps.min_dep_gen_core.outputs.min_reqs }}" > /tmp/minimum_core_requirements.txt
-          diff /tmp/minimum_core_requirements.txt compose/tests/requirement_files/minimum_core_requirements.txt
+          diff /tmp/minimum_core_requirements.txt composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: if min core deps have changed, write output file
         if: steps.check_core_deps.outcome != 'success'
         run: |
-          printf "${{ steps.min_dep_gen_core.outputs.min_reqs }}" > compose/tests/requirement_files/minimum_core_requirements.txt
+          printf "${{ steps.min_dep_gen_core.outputs.min_reqs }}" > composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Create Pull Request
         uses: FeatureLabs/create-pull-request@v3
         with:
