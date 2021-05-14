@@ -11,9 +11,10 @@ Release Notes
     * Documentation Changes
     * Testing Changes
         * Check if release notes were updated (:pr:`217`)
+        * Add minimum dependency checker to generate minimum requirement files (:pr:`218`)
 
     | Thanks to the following people for contributing to this release:
-    | :user:`jeff-hernandez`
+    | :user:`gsheni`, :user:`jeff-hernandez`
 
 |
 
