@@ -2,6 +2,10 @@ name: Unit Tests - Minimum Dependencies
 on:
   pull_request:
     types: [opened, synchronize]
+    paths:
+      - 'requirements.txt'
+      - 'test-requirements.txt'
+      - 'composeml/tests/requirement_files/**'
   push:
     branches:
       - main
