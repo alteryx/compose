@@ -1,0 +1,33 @@
+name: Unit Tests - Minimum Dependencies
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'requirements.txt'
+      - 'test-requirements.txt'
+  push:
+    branches:
+      - main
+jobs:
+  py36_unit_tests_minimum_dependencies:
+    name: 3.7 unit tests minimum dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Set up python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install woodwork - minimum tests requirements
+        run: |
+          python -m pip install -r woodwork/tests/requirement_files/minimum_test_requirements.txt
+      - name: Install woodwork - minimum core requirements
+        run: |
+          python -m pip install -r woodwork/tests/requirement_files/minimum_core_requirements.txt
+      - name: Run unit tests without code coverage
+        run: |
+          python -m pytest woodwork/ -n 2
