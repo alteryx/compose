@@ -1,5 +1,5 @@
 pandas>=1.1.0
-numpy>=1.15.0
+numpy>=1.15.4
 tqdm>=4.32.0
 matplotlib>=3.3.3
 seaborn>=0.11.0
