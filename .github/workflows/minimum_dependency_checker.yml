@@ -59,4 +59,4 @@ jobs:
           branch: min-dep-update
           branch-suffix: short-commit-hash
           base: main
-          reviewers: thehomebrewnerd, tamargrey, jeff-hernandez
+          reviewers: rwedge, jeff-hernandez
