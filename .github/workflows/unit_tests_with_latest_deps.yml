@@ -1,0 +1,44 @@
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+
+name: Unit Tests - Latest Dependencies
+jobs:
+  unit_tests:
+    name: Unit Tests / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Build source distribution
+        run: make package_build
+      - name: Install package with test requirements
+        run: |
+          python -m pip config --site set global.progress_bar off
+          python -m pip install --upgrade pip
+          python -m pip install dist/package/
+          python -m pip install -r dist/package/test-requirements.txt
+      - if: ${{ matrix.python-version != 3.8 }}
+        name: Run unit tests (no code coverage)
+        run: cd dist/package && make unit_tests -f ../../Makefile
+      - if: ${{ matrix.python-version == 3.8 }}
+        name: Run unit tests with code coverage
+        run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile
+      - if: ${{ matrix.python-version == 3.8 }}
+        name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
