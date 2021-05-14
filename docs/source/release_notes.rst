@@ -12,7 +12,7 @@ Release Notes
     * Testing Changes
         * Check if release notes were updated (:pr:`217`)
         * Add minimum dependency checker to generate minimum requirement files (:pr:`218`)
-        * Add CI workflow for unit tests with minimum dependencies (:pr:`217`)
+        * Add CI workflow for unit tests with minimum dependencies (:pr:`220`)
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`jeff-hernandez`
