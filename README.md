@@ -32,6 +32,13 @@ By automating the early stage of the machine learning pipeline, our end user can
 ## Install
 Compose is available on PyPI and Conda-forge for Python 3.6 or later.
 
+### Add-ons
+
+**Update checker** - Receive automatic notifications of new Compose releases
+```
+python -m pip install composeml[update_checker]
+```
+
 ### `pip`
 To install from [PyPI](https://pypi.org/project/composeml/), run the command:
 
