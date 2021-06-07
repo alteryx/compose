@@ -1,5 +1,9 @@
 from setuptools import find_packages, setup
 
+extras_require = {
+    'update_checker': ['alteryx-open-src-update-checker >= 2.0.0'],
+}
+
 setup(
     name='composeml',
     version='0.6.0',
@@ -14,4 +18,5 @@ setup(
     packages=find_packages(),
     python_requires='>=3.6',
     include_package_data=True,
+    extras_require=extras_require,
 )
