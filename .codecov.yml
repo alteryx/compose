@@ -17,3 +17,6 @@ coverage:
       default:
         target: 100%
     changes: no
+
+ignore:
+  - "composeml/update_checker.py"
