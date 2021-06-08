@@ -10,11 +10,13 @@ Release Notes
         * Add optional automatic update checker (:pr:`223`)
     * Fixes
     * Documentation Changes
+        * Update doc tutorials to the latest API changes (:pr:`227`)
     * Testing Changes
         * Check if release notes were updated (:pr:`217`)
         * Add minimum dependency checker to generate minimum requirement files (:pr:`218`)
         * Add CI workflow for unit tests with minimum dependencies (:pr:`220`)
         * Create separate worksflows for each CI job (:pr:`220`)
+        * Pass token to authorize uploading of codecov reports (:pr:`226`)
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`jeff-hernandez`
