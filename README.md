@@ -29,28 +29,25 @@
 
 By automating the early stage of the machine learning pipeline, our end user can easily define a task and solve it. See the [documentation](https://compose.alteryx.com) for more information.
 
-## Install
-Compose is available on PyPI and Conda-forge for Python 3.6 or later.
+## Installation
+Install with pip
+
+```
+python -m pip install composeml
+```
+
+or from the Conda-forge channel on [conda](https://anaconda.org/conda-forge/composeml):
+
+```
+conda install -c conda-forge composeml
+```
 
 ### Add-ons
 
 **Update checker** - Receive automatic notifications of new Compose releases
+
 ```
 python -m pip install composeml[update_checker]
-```
-
-### `pip`
-To install from [PyPI](https://pypi.org/project/composeml/), run the command:
-
-```
-pip install composeml
-```
-
-### `conda`
-To install from [Conda-forge](https://anaconda.org/conda-forge/composeml), run the command:
-
-```
-conda install -c conda-forge composeml
 ```
 
 ## Example
