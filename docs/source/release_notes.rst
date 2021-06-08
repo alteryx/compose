@@ -7,6 +7,7 @@ Release Notes
 **Future Release**
     * Enhancements
         * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
+        * Add optional automatic update checker (:pr:`223`)
     * Fixes
     * Documentation Changes
         * Update doc tutorials to the latest API changes (:pr:`227`)
