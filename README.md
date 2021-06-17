@@ -47,7 +47,7 @@ conda install -c conda-forge composeml
 **Update checker** - Receive automatic notifications of new Compose releases
 
 ```
-python -m pip install composeml[update_checker]
+python -m pip install "composeml[update_checker]"
 ```
 
 ## Example

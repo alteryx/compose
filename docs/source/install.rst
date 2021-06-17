@@ -20,7 +20,7 @@ Add-ons
 
 .. code-block::
 
-    python -m pip install composeml[update_checker]
+    python -m pip install "composeml[update_checker]"
 
 conda
 =====
