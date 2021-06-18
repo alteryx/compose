@@ -1,4 +1,3 @@
-pip freeze | grep -v "compose.git" | grep -E 'matplotlib|pandas|seaborn|woodwork|featuretools|evalml|tqdm'
 evalml==0.25.0
 featuretools==0.25.0
 matplotlib==3.4.2
