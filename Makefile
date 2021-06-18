@@ -28,4 +28,4 @@ unit_tests:
 
 checkdeps:
 	$(eval allow_list='matplotlib|pandas|seaborn|woodwork|featuretools|evalml|tqdm')
-	pip freeze | grep -v "compose.git" | grep -E $(allow_list)
+	pip freeze | grep -v "compose.git" | grep -E $(allow_list) > $(OUTPUT_FILEPATH)
