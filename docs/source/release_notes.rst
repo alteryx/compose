@@ -18,6 +18,7 @@ Release Notes
         * Create separate worksflows for each CI job (:pr:`220`)
         * Pass token to authorize uploading of codecov reports (:pr:`226`)
         * Update minimum unit tests to run on all pull requests (:pr:`230`)
+        * Add workflow to check latest dependencies (:pr:`233`)
         
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`jeff-hernandez`
