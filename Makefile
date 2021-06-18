@@ -25,3 +25,7 @@ package_build:
 
 unit_tests:
 	pytest composeml --cache-clear --show-capture=stderr -vv ${addopts}
+
+checkdeps:
+	$(eval allow_list='matplotlib|pandas|seaborn|woodwork|featuretools|evalml')
+	pip freeze | grep -v "compose.git" | grep -E $(allow_list)

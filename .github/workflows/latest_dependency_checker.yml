@@ -1,0 +1,46 @@
+# This workflow will install dependenies and if any critical dependencies have changed a pull request
+# will be created which will trigger a CI run with the new dependencies.
+
+name: Latest Dependency Checker
+on:
+  schedule:
+    - cron: '0 * * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: Install pip and virtualenv
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install virtualenv
+    - name: Update latest core dependencies
+      run: |
+        python -m virtualenv venv_core
+        source venv_core/bin/activate
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install -r test-requirements.txt
+        python -m pip install -r docs/requirements.txt
+        file=compose/tests/requirement_files/latest_core_dependencies.txt
+        make checkdeps > $file
+        cat $file
+
+    - name: Create Pull Request
+      uses: FeatureLabs/create-pull-request@v3
+      with:
+        token: ${{ secrets.REPO_SCOPED_TOKEN }}
+        commit-message: Update latest dependencies
+        title: Automated Latest Dependency Updates
+        author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        body: "This is an auto-generated PR with **latest** dependency updates.
+               Please do not delete the `latest-dep-update` branch because it's needed by the auto-dependency bot."
+        branch: latest-dep-update
+        branch-suffix: short-commit-hash
+        base: main
+        reviewers: gsheni, jeff-hernandez
