@@ -13,6 +13,18 @@ To install from PyPI_, run this command:
 
     pip install composeml
 
+Add-ons
+-------
+
+Update checker
+~~~~~~~~~~~~~~
+
+Receive automatic notifications of new Compose releases
+
+.. code-block::
+
+    python -m pip install "composeml[update_checker]"
+
 conda
 =====
 
