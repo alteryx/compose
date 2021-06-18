@@ -27,9 +27,7 @@ jobs:
         python -m pip install -e .
         python -m pip install -r test-requirements.txt
         python -m pip install -r docs/requirements.txt
-        file=composeml/tests/requirement_files/latest_core_dependencies.txt
-        make checkdeps > $file
-        cat $file
+        make checkdeps OUTPUT_FILEPATH=composeml/tests/requirement_files/latest_core_dependencies.txt
 
     - name: Create Pull Request
       uses: FeatureLabs/create-pull-request@v3
