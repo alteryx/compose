@@ -16,7 +16,10 @@ To install from PyPI_, run this command:
 Add-ons
 -------
 
-**Update checker** - Receive automatic notifications of new Compose releases
+Update checker
+~~~~~~~~~~~~~~
+
+Receive automatic notifications of new Compose releases
 
 .. code-block::
 
