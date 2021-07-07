@@ -4,6 +4,5 @@ nbconvert==5.5.0
 nbsphinx==0.4.2
 Sphinx==3.0.3
 evalml==0.28.0
-nlp_primitives==0.3.0
 pydata-sphinx-theme==0.4.0
 graphviz==0.13
