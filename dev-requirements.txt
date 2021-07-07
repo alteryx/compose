@@ -1,5 +1,5 @@
 -r test-requirements.txt
 jupyter==1.0.0
 nbsphinx==0.8.6
-pydata-sphinx-theme==0.4.0
+pydata-sphinx-theme==0.6.3
 evalml==0.28.0
