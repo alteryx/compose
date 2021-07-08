@@ -11,6 +11,7 @@ Release Notes
     * Fixes
     * Documentation Changes
         * Update doc tutorials to the latest API changes (:pr:`227`)
+        * Pin documentation requirements to avoid warnings and breaking changes (:pr:`244`)
     * Testing Changes
         * Check if release notes were updated (:pr:`217`)
         * Add minimum dependency checker to generate minimum requirement files (:pr:`218`)
