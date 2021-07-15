@@ -1,5 +1,5 @@
 evalml==0.28.0
-featuretools==0.25.0
+featuretools==0.26.0
 matplotlib==3.4.2
 matplotlib-inline==0.1.2
 pandas==1.2.4
