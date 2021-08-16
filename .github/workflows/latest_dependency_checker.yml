@@ -40,4 +40,4 @@ jobs:
         branch: latest-dep-update
         branch-suffix: short-commit-hash
         base: main
-        reviewers: gsheni, jeff-hernandez
+        reviewers: thehomebrewnerd, tamargrey, jeff-hernandez, tuethan1999, davesque, simha104 
