@@ -1,5 +1,6 @@
 from sys import stdout
 
+from pandas import Series
 from tqdm import tqdm
 
 from composeml.data_slice import DataSliceGenerator
@@ -62,6 +63,12 @@ class LabelMaker:
         assert isinstance(value, dict), 'value type for labeling function not supported'
         self._labeling_function = value
 
+    def _check_cutoff_time(self, value):
+        if isinstance(value, Series):
+            if value.index.is_unique: return value.to_dict()
+            else: raise ValueError('more than one cutoff time exists for a target group')
+        else: return value
+
     def slice(self, df, num_examples_per_instance, minimum_data=None, maximum_data=None, gap=None, drop_empty=True):
         """Generates data slices of target entity.
 
@@ -79,24 +86,32 @@ class LabelMaker:
         """
         self._check_example_count(num_examples_per_instance, gap)
         df = self.set_index(df)
-        entity_groups = df.groupby(self.target_entity)
+        target_groups = df.groupby(self.target_entity)
         num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
 
-        generator = DataSliceGenerator(
-            window_size=self.window_size,
-            min_data=minimum_data,
-            max_data=maximum_data,
-            drop_empty=drop_empty,
-            gap=gap,
-        )
+        minimum_data = self._check_cutoff_time(minimum_data)
+        minimum_data_varies = isinstance(minimum_data, dict)
 
-        for entity_id, df in entity_groups:
+        for group_key, df in target_groups:
+            if minimum_data_varies:
+                if group_key not in minimum_data: continue
+                min_data_for_group = minimum_data[group_key]
+            else:
+                min_data_for_group = minimum_data
+
+            generator = DataSliceGenerator(
+                window_size=self.window_size,
+                min_data=min_data_for_group,
+                max_data=maximum_data,
+                drop_empty=drop_empty,
+                gap=gap,
+            )
+
             for ds in generator(df):
-                setattr(ds.context, self.target_entity, entity_id)
+                setattr(ds.context, self.target_entity, group_key)
                 yield ds
 
-                if ds.context.slice_number >= num_examples_per_instance:
-                    break
+                if ds.context.slice_number >= num_examples_per_instance: break
 
     @property
     def _bar_format(self):
@@ -106,72 +121,6 @@ class LabelMaker:
         value += "Progress: {l_bar}{bar}| "
         value += self.target_entity + ": {n}/{total} "
         return value
-
-    def _run_search(
-        self,
-        df,
-        generator,
-        search,
-        verbose=True,
-        *args,
-        **kwargs,
-    ):
-        """Search implementation to make label records.
-
-        Args:
-            df (DataFrame): Data frame to search and extract labels.
-            generator (DataSliceGenerator): The generator for data slices.
-            search (LabelSearch or ExampleSearch): The type of search to be done.
-            verbose (bool): Whether to render progress bar. Default value is True.
-            *args: Positional arguments for labeling function.
-            **kwargs: Keyword arguments for labeling function.
-
-        Returns:
-            records (list(dict)): Label Records
-        """
-        df = self.set_index(df)
-        entity_groups = df.groupby(self.target_entity)
-        multiplier = search.expected_count if search.is_finite else 1
-        total = entity_groups.ngroups * multiplier
-
-        progress_bar, records = tqdm(
-            total=total,
-            bar_format=self._bar_format,
-            disable=not verbose,
-            file=stdout,
-        ), []
-
-        def missing_examples(entity_count):
-            return entity_count * search.expected_count - progress_bar.n
-
-        for entity_count, (entity_id, df) in enumerate(entity_groups):
-            for ds in generator(df):
-                items = self.labeling_function.items()
-                labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
-                valid_labels = search.is_valid_labels(labels)
-                if not valid_labels: continue
-
-                records.append({
-                    self.target_entity: entity_id,
-                    'time': ds.context.slice_start,
-                    **labels,
-                })
-
-                search.update_count(labels)
-                # if finite search, progress bar is updated for each example found
-                if search.is_finite: progress_bar.update(n=1)
-                if search.is_complete: break
-
-            # if finite search, progress bar is updated for examples not found
-            # otherwise, progress bar is updated for each entity group
-            n = missing_examples(entity_count + 1) if search.is_finite else 1
-            progress_bar.update(n=n)
-            search.reset_count()
-
-        total -= progress_bar.n
-        progress_bar.update(n=total)
-        progress_bar.close()
-        return records
 
     def _check_example_count(self, num_examples_per_instance, gap):
         """Checks whether example count corresponds to data slices."""
@@ -212,22 +161,65 @@ class LabelMaker:
         is_label_search = isinstance(num_examples_per_instance, dict)
         search = (LabelSearch if is_label_search else ExampleSearch)(num_examples_per_instance)
 
-        generator = DataSliceGenerator(
-            window_size=self.window_size,
-            min_data=minimum_data,
-            max_data=maximum_data,
-            drop_empty=drop_empty,
-            gap=gap,
+        # check minimum data cutoff time
+        minimum_data = self._check_cutoff_time(minimum_data)
+        minimum_data_varies = isinstance(minimum_data, dict)
+
+        df = self.set_index(df)
+        total = search.expected_count if search.is_finite else 1
+        target_groups = df.groupby(self.target_entity)
+        total *= target_groups.ngroups
+
+        progress_bar = tqdm(
+            total=total,
+            file=stdout,
+            disable=not verbose,
+            bar_format=self._bar_format,
         )
 
-        records = self._run_search(
-            df=df,
-            generator=generator,
-            search=search,
-            verbose=verbose,
-            *args,
-            **kwargs,
-        )
+        records = []
+        for group_count, (group_key, df) in enumerate(target_groups, start=1):
+            if minimum_data_varies:
+                if group_key not in minimum_data: continue
+                min_data_for_group = minimum_data[group_key]
+            else:
+                min_data_for_group = minimum_data
+
+            generator = DataSliceGenerator(
+                window_size=self.window_size,
+                min_data=min_data_for_group,
+                max_data=maximum_data,
+                drop_empty=drop_empty,
+                gap=gap,
+            )
+
+            for ds in generator(df):
+                setattr(ds.context, self.target_entity, group_key)
+
+                items = self.labeling_function.items()
+                labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
+                valid_labels = search.is_valid_labels(labels)
+                if not valid_labels: continue
+
+                records.append({
+                    self.target_entity: group_key,
+                    'time': ds.context.slice_start,
+                    **labels,
+                })
+
+                search.update_count(labels)
+                # if finite search, update progress bar for the example found
+                if search.is_finite: progress_bar.update(n=1)
+                if search.is_complete: break
+
+            # if finite search, update progress bar for missing examples
+            if search.is_finite: progress_bar.update(n=group_count * search.expected_count - progress_bar.n)
+            else: progress_bar.update(n=1)  # otherwise, update progress bar once for each group
+            search.reset_count()
+
+        total -= progress_bar.n
+        progress_bar.update(n=total)
+        progress_bar.close()
 
         lt = LabelTimes(
             data=records,
@@ -235,7 +227,7 @@ class LabelMaker:
             target_entity=self.target_entity,
             search_settings={
                 'num_examples_per_instance': num_examples_per_instance,
-                'minimum_data': str(minimum_data),
+                'minimum_data': minimum_data,
                 'maximum_data': str(maximum_data),
                 'window_size': str(self.window_size),
                 'gap': str(gap),
