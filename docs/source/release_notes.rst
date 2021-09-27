@@ -8,6 +8,7 @@ Release Notes
     * Enhancements
         * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
         * Add optional automatic update checker (:pr:`223`, :pr:`229`, :pr:`232`)
+        * Varying first cutoff time for each target group (:pr:`258`)
     * Fixes
     * Documentation Changes
         * Update doc tutorials to the latest API changes (:pr:`227`)
