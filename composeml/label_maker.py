@@ -144,8 +144,9 @@ class LabelMaker:
             df (DataFrame): Data frame to search and extract labels.
             num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
                 A dictionary can be used to further specify the expected number of examples to return from each label.
-            minimum_data (str): Minimum data before starting the search. Default value is first time of index.
-            maximum_data (str): Maximum data before stopping the search. Default value is last time of index.
+            minimum_data (str or Series): Minimum data before starting the search. Defaults to the first value in the time index.
+                If a Series, minimum_data should be values and unique target groups should be the corresponding index.
+            maximum_data (str): Maximum data before stopping the search. Defaults to the laste value in the time index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
