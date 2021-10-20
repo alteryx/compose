@@ -38,7 +38,7 @@ def labels():
 def test_dfs(labels):
     target_column = labels.target_columns[0]
     es = ft.demo.load_mock_customer(return_entityset=True, random_seed=0)
-    feature_matrix, _ = ft.dfs(entityset=es, target_dataframe_name='customers', cutoff_time=labels, cutoff_time_in_index=True)
+    feature_matrix, _ = ft.dfs(entityset=es, target_entity='customers', cutoff_time=labels, cutoff_time_in_index=True)
     assert target_column in feature_matrix
 
     columns = ['customer_id', 'time', target_column]
