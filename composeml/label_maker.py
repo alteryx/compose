@@ -75,7 +75,10 @@ class LabelMaker:
         Args:
             df (DataFrame): Data frame to create slices on.
             num_examples_per_instance (int): Number of examples per unique instance of target entity.
-            minimum_data (str): Minimum data before starting the search. Default value is first time of index.
+            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.            
+                The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
+                the first cutoff time. The value can also be an integer to denote the number of rows needed before the first cutoff time.
+                If a Series, minimum_data should be datetime string or integer values with a unique set of target groups as the corresponding index.
             maximum_data (str): Maximum data before stopping the search. Default value is last time of index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
@@ -144,9 +147,11 @@ class LabelMaker:
             df (DataFrame): Data frame to search and extract labels.
             num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
                 A dictionary can be used to further specify the expected number of examples to return from each label.
-            minimum_data (str or Series): Minimum data before starting the search. Defaults to the first value in the time index.
-                If a Series, minimum_data should be values and unique target groups should be the corresponding index.
-            maximum_data (str): Maximum data before stopping the search. Defaults to the laste value in the time index.
+            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.            
+                The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
+                the first cutoff time. The value can also be an integer to denote the number of rows needed before the first cutoff time.
+                If a Series, minimum_data should be datetime string or integer values with a unique set of target groups as the corresponding index.
+            maximum_data (str): Maximum data before stopping the search. Defaults to the last value in the time index.
             gap (str or int): Time between examples. Default value is window size.
                 If an integer, search will start on the first event after the minimum data.
             drop_empty (bool): Whether to drop empty slices. Default value is True.
