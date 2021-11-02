@@ -6,7 +6,7 @@ extras_require = {
 
 setup(
     name='composeml',
-    version='0.6.0',
+    version='0.7.0.dev0',
     author='Feature Labs, Inc.',
     author_email='support@featurelabs.com',
     license='BSD 3-clause',
