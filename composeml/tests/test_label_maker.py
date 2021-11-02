@@ -547,21 +547,20 @@ def test_search_with_maximum_data(transactions):
     actual = lt.pipe(to_csv, index=False)
     assert actual == expected
 
-
-def test_minimum_data_per_group(transactions):
+@pytest.mark.parametrize("minimum_data", [{1: '2019-01-01 09:30:00', 2: '2019-01-01 11:30:00'}, {1: '30min', 2: '1h'}, {1: 1, 2: 2}])
+def test_minimum_data_per_group(transactions, minimum_data):
     lm = LabelMaker('customer_id', labeling_function=len, time_index='time', window_size='1h')
-    for minimum_data in [{1: '2019-01-01 09:30:00', 2: '2019-01-01 11:30:00'}, {1: '30min', 2: '1h'}, {1: 1, 2: 2}]:
-        for supported_type in [minimum_data, pd.Series(minimum_data)]:
-            lt = lm.search(transactions, 1, minimum_data=supported_type)
-            actual = to_csv(lt, index=False)
+    for supported_type in [minimum_data, pd.Series(minimum_data)]:
+        lt = lm.search(transactions, 1, minimum_data=supported_type)
+        actual = to_csv(lt, index=False)
 
-            expected = [
-                'customer_id,time,len',
-                '1,2019-01-01 09:30:00,2',
-                '2,2019-01-01 11:30:00,2'
-            ]
+        expected = [
+            'customer_id,time,len',
+            '1,2019-01-01 09:30:00,2',
+            '2,2019-01-01 11:30:00,2'
+        ]
 
-            assert actual == expected
+        assert actual == expected
 
 
 def test_minimum_data_per_group_error(transactions):
