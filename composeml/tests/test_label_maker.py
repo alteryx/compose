@@ -546,3 +546,29 @@ def test_search_with_maximum_data(transactions):
 
     actual = lt.pipe(to_csv, index=False)
     assert actual == expected
+
+
+@pytest.mark.parametrize("minimum_data", [{1: '2019-01-01 09:30:00', 2: '2019-01-01 11:30:00'}, {1: '30min', 2: '1h'}, {1: 1, 2: 2}])
+def test_minimum_data_per_group(transactions, minimum_data):
+    lm = LabelMaker('customer_id', labeling_function=len, time_index='time', window_size='1h')
+    for supported_type in [minimum_data, pd.Series(minimum_data)]:
+        lt = lm.search(transactions, 1, minimum_data=supported_type)
+        actual = to_csv(lt, index=False)
+
+        expected = [
+            'customer_id,time,len',
+            '1,2019-01-01 09:30:00,2',
+            '2,2019-01-01 11:30:00,2'
+        ]
+
+        assert actual == expected
+
+
+def test_minimum_data_per_group_error(transactions):
+    lm = LabelMaker('customer_id', labeling_function=len, time_index='time', window_size='1h')
+    data = ['2019-01-01 09:00:00', '2019-01-01 12:00:00']
+    minimum_data = pd.Series(data=data, index=[1, 1])
+    match = "more than one cutoff time exists for a target group"
+
+    with pytest.raises(ValueError, match=match):
+        lm.search(transactions, 1, minimum_data=minimum_data)
