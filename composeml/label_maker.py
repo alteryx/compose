@@ -75,7 +75,7 @@ class LabelMaker:
         Args:
             df (DataFrame): Data frame to create slices on.
             num_examples_per_instance (int): Number of examples per unique instance of target entity.
-            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.            
+            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.
                 The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
                 the first cutoff time. The value can also be an integer to denote the number of rows needed before the first cutoff time.
                 If a Series, minimum_data should be datetime string, timedelta string, or integer values with a unique set of target groups as the corresponding index.
@@ -147,7 +147,7 @@ class LabelMaker:
             df (DataFrame): Data frame to search and extract labels.
             num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
                 A dictionary can be used to further specify the expected number of examples to return from each label.
-            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.            
+            minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.
                 The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
                 the first cutoff time. The value can also be an integer to denote the number of rows needed before the first cutoff time.
                 If a Series, minimum_data should be datetime string, timedelta string, or integer values with a unique set of target groups as the corresponding index.
