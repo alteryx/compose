@@ -550,20 +550,18 @@ def test_search_with_maximum_data(transactions):
 
 def test_minimum_data_per_group(transactions):
     lm = LabelMaker('customer_id', labeling_function=len, time_index='time', window_size='1h')
-    minimum_data_dict = {1: '2019-01-01 09:00:00', 3: '2019-01-01 12:00:00'}
-    supported_types = minimum_data_dict, pd.Series(minimum_data_dict)
+    for minimum_data in [{1: '2019-01-01 09:30:00', 2: '2019-01-01 11:30:00'}, {1: '30min', 2: '1h'}, {1: 1, 2: 2}]:
+        for supported_type in [minimum_data, pd.Series(minimum_data)]:
+            lt = lm.search(transactions, 1, minimum_data=supported_type)
+            actual = to_csv(lt, index=False)
 
-    for minimum_data in supported_types:
-        lt = lm.search(transactions, 1, minimum_data=minimum_data)
-        actual = to_csv(lt, index=False)
+            expected = [
+                'customer_id,time,len',
+                '1,2019-01-01 09:30:00,2',
+                '2,2019-01-01 11:30:00,2'
+            ]
 
-        expected = [
-            'customer_id,time,len',
-            '1,2019-01-01 09:00:00,2',
-            '3,2019-01-01 12:00:00,1',
-        ]
-
-        assert actual == expected
+            assert actual == expected
 
 
 def test_minimum_data_per_group_error(transactions):
