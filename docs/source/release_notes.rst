@@ -6,10 +6,19 @@ Release Notes
 
 **Future Release**
     * Enhancements
+    * Fixes
+    * Documentation Changes
+    * Testing Changes
+
+    | Thanks to the following people for contributing to this release:
+
+|
+
+**v0.7.0** November 2, 2021
+    * Enhancements
         * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
         * Add optional automatic update checker (:pr:`223`, :pr:`229`, :pr:`232`)
         * Varying first cutoff time for each target group (:pr:`258`)
-    * Fixes
     * Documentation Changes
         * Update doc tutorials to the latest API changes (:pr:`227`)
         * Pin documentation requirements to avoid warnings and breaking changes (:pr:`244`)
@@ -22,7 +31,7 @@ Release Notes
         * Update minimum unit tests to run on all pull requests (:pr:`230`)
         * Add workflow to check latest dependencies (:pr:`233`)
         * Update reviewers for minimum and latest dependency checkers (:pr:`257`)
-        
+
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`jeff-hernandez`
 
