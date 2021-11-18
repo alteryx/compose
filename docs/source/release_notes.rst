@@ -2,16 +2,17 @@
 Release Notes
 =============
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
+        * Update pip to 21.3.1 for test requirements (:pr:`265`)
     * Documentation Changes
     * Testing Changes
-.. Thanks to the following people for contributing to this release:
 
-|
+    | Thanks to the following people for contributing to this release:
+    | :user:`gsheni`
 
 **v0.7.0** November 2, 2021
     * Enhancements
