@@ -7,13 +7,14 @@ version: 2
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py
+  fail_on_warning: true
 
 # Build documentation with MkDocs
 #mkdocs:
 #  configuration: mkdocs.yml
 
 # Optionally build your docs in additional formats such as PDF and ePub
-formats: all
+formats: []
 
 # Optionally set the version of Python and requirements required to build your docs
 python:
