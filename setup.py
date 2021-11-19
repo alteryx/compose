@@ -31,7 +31,7 @@ setup(
     tests_require=open('test-requirements.txt').readlines(),
     python_requires='>=3.7, <4',
     extras_require=extras_require,
-    keywords='data science machine learning typing',
+    keywords='data science machine learning',
     include_package_data=True,
     long_description=long_description,
     long_description_content_type='text/markdown'
