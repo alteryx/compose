@@ -8,7 +8,7 @@ Future Release
     * Fixes
     * Changes
         * Update pip to 21.3.1 for test requirements (:pr:`265`)
-        * Restrict to Python 3.7 or later (:pr:`265`)
+        * Restrict to Python 3.7 to 3.9 (:pr:`265`)
     * Documentation Changes
     * Testing Changes
 
