@@ -3,6 +3,7 @@ codecov==2.1.12
 flake8==3.9.2
 isort==5.9.3
 autopep8==1.5.7
+nbsphinx==0.8.7
 pydata-sphinx-theme==0.7.1
 Sphinx==4.2.0
 nbconvert==6.2.0
