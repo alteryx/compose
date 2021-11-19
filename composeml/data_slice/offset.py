@@ -12,7 +12,8 @@ class DataSliceOffset:
 
     def _check(self):
         """Checks if the value is a valid offset."""
-        if isinstance(self.value, str): self._parse_value()
+        if isinstance(self.value, str):
+            self._parse_value()
         assert self._is_valid_offset, self._invalid_offset_error
 
     @property
@@ -44,15 +45,21 @@ class DataSliceOffset:
 
     def __int__(self):
         """Typecasts offset value to an integer."""
-        if self._is_offset_position: return self.value
-        elif self._is_offset_base: return self.value.n
-        elif self._is_offset_timedelta: return self.value.value
-        else: raise TypeError('offset must be position or frequency based')
+        if self._is_offset_position:
+            return self.value
+        elif self._is_offset_base:
+            return self.value.n
+        elif self._is_offset_timedelta:
+            return self.value.value
+        else:
+            raise TypeError("offset must be position or frequency based")
 
     def __float__(self):
         """Typecasts offset value to a float."""
-        if self._is_offset_timestamp: return self.value.timestamp()
-        else: raise TypeError('offset must be a timestamp')
+        if self._is_offset_timestamp:
+            return self.value.timestamp()
+        else:
+            raise TypeError("offset must be a timestamp")
 
     @property
     def _is_positive(self):
@@ -72,9 +79,11 @@ class DataSliceOffset:
     @property
     def _invalid_offset_error(self):
         """Returns message for invalid offset."""
-        info = 'offset must be position or time based\n\n'
-        info += '\tFor information about offset aliases, visit the link below.\n'
-        info += '\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases'
+        info = "offset must be position or time based\n\n"
+        info += "\tFor information about offset aliases, visit the link below.\n"
+        info += (
+            "\thttps://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases"
+        )
         return info
 
     def _parse_offset_alias(self, alias):
@@ -85,17 +94,17 @@ class DataSliceOffset:
 
     def _parse_offset_alias_phrase(self, value):
         """Parses an alias phrase to an offset."""
-        pattern = re.compile('until start of next (?P<unit>[a-z]+)')
+        pattern = re.compile("until start of next (?P<unit>[a-z]+)")
         match = pattern.search(value.lower())
 
         if match:
             match = match.groupdict()
-            unit = match['unit']
+            unit = match["unit"]
 
-            if unit == 'month':
+            if unit == "month":
                 return pd.offsets.MonthBegin()
 
-            if unit == 'year':
+            if unit == "year":
                 return pd.offsets.YearBegin()
 
     def _parse_value(self):

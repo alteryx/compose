@@ -7,19 +7,21 @@ from composeml.tests.utils import read_csv
 
 @pytest.fixture(scope="session")
 def transactions():
-    df = read_csv(data=[
-        'time,amount,customer_id',
-        '2019-01-01 08:00:00,1,0',
-        '2019-01-01 08:30:00,1,0',
-        '2019-01-01 09:00:00,1,1',
-        '2019-01-01 09:30:00,1,1',
-        '2019-01-01 10:00:00,1,1',
-        '2019-01-01 10:30:00,1,2',
-        '2019-01-01 11:00:00,1,2',
-        '2019-01-01 11:30:00,1,2',
-        '2019-01-01 12:00:00,1,2',
-        '2019-01-01 12:30:00,1,3',
-    ])
+    df = read_csv(
+        data=[
+            "time,amount,customer_id",
+            "2019-01-01 08:00:00,1,0",
+            "2019-01-01 08:30:00,1,0",
+            "2019-01-01 09:00:00,1,1",
+            "2019-01-01 09:30:00,1,1",
+            "2019-01-01 10:00:00,1,1",
+            "2019-01-01 10:30:00,1,2",
+            "2019-01-01 11:00:00,1,2",
+            "2019-01-01 11:30:00,1,2",
+            "2019-01-01 12:00:00,1,2",
+            "2019-01-01 12:30:00,1,3",
+        ]
+    )
     return df
 
 
@@ -43,28 +45,28 @@ def unique_amounts_fn():
 @pytest.fixture
 def total_spent():
     data = [
-        'customer_id,time,total_spent',
-        '0,2019-01-01 08:00:00,9',
-        '0,2019-01-01 08:30:00,8',
-        '1,2019-01-01 09:00:00,7',
-        '1,2019-01-01 09:30:00,6',
-        '1,2019-01-01 10:00:00,5',
-        '2,2019-01-01 10:30:00,4',
-        '2,2019-01-01 11:00:00,3',
-        '2,2019-01-01 11:30:00,2',
-        '2,2019-01-01 12:00:00,1',
-        '3,2019-01-01 12:30:00,0',
+        "customer_id,time,total_spent",
+        "0,2019-01-01 08:00:00,9",
+        "0,2019-01-01 08:30:00,8",
+        "1,2019-01-01 09:00:00,7",
+        "1,2019-01-01 09:30:00,6",
+        "1,2019-01-01 10:00:00,5",
+        "2,2019-01-01 10:30:00,4",
+        "2,2019-01-01 11:00:00,3",
+        "2,2019-01-01 11:30:00,2",
+        "2,2019-01-01 12:00:00,1",
+        "3,2019-01-01 12:30:00,0",
     ]
 
-    data = read_csv(data, parse_dates=['time'])
+    data = read_csv(data, parse_dates=["time"])
 
     kwargs = {
-        'data': data,
-        'target_columns': ['total_spent'],
-        'target_entity': 'customer_id',
-        'search_settings': {
-            'num_examples_per_instance': -1,
-        }
+        "data": data,
+        "target_columns": ["total_spent"],
+        "target_entity": "customer_id",
+        "search_settings": {
+            "num_examples_per_instance": -1,
+        },
     }
 
     label_times = LabelTimes(**kwargs)
@@ -75,38 +77,40 @@ def total_spent():
 def labels():
     records = [
         {
-            'label_id': 0,
-            'customer_id': 1,
-            'time': '2014-01-01 00:45:00',
-            'my_labeling_function': 226.92999999999998
+            "label_id": 0,
+            "customer_id": 1,
+            "time": "2014-01-01 00:45:00",
+            "my_labeling_function": 226.92999999999998,
         },
         {
-            'label_id': 1,
-            'customer_id': 1,
-            'time': '2014-01-01 00:48:00',
-            'my_labeling_function': 47.95
+            "label_id": 1,
+            "customer_id": 1,
+            "time": "2014-01-01 00:48:00",
+            "my_labeling_function": 47.95,
         },
         {
-            'label_id': 2,
-            'customer_id': 2,
-            'time': '2014-01-01 00:01:00',
-            'my_labeling_function': 283.46000000000004
+            "label_id": 2,
+            "customer_id": 2,
+            "time": "2014-01-01 00:01:00",
+            "my_labeling_function": 283.46000000000004,
         },
         {
-            'label_id': 3,
-            'customer_id': 2,
-            'time': '2014-01-01 00:04:00',
-            'my_labeling_function': 31.54
+            "label_id": 3,
+            "customer_id": 2,
+            "time": "2014-01-01 00:04:00",
+            "my_labeling_function": 31.54,
         },
     ]
 
-    dtype = {'time': 'datetime64[ns]'}
-    values = pd.DataFrame(records).astype(dtype).set_index('label_id')
-    values = values[['customer_id', 'time', 'my_labeling_function']]
-    values = LabelTimes(values, target_columns=['my_labeling_function'], target_entity='customer_id')
+    dtype = {"time": "datetime64[ns]"}
+    values = pd.DataFrame(records).astype(dtype).set_index("label_id")
+    values = values[["customer_id", "time", "my_labeling_function"]]
+    values = LabelTimes(
+        values, target_columns=["my_labeling_function"], target_entity="customer_id"
+    )
     return values
 
 
 @pytest.fixture(autouse=True)
 def add_labels(doctest_namespace, labels):
-    doctest_namespace['labels'] = labels
+    doctest_namespace["labels"] = labels

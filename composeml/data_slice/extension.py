@@ -6,7 +6,9 @@ from composeml.data_slice.offset import DataSliceOffset, DataSliceStep
 class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
 
-    def __init__(self, slice_number=0, slice_start=None, slice_stop=None, next_start=None):
+    def __init__(
+        self, slice_number=0, slice_start=None, slice_stop=None, next_start=None
+    ):
         """Creates the data slice context.
 
         Args:
@@ -22,14 +24,14 @@ class DataSliceContext:
 
     def __repr__(self):
         """Represents the data slice context as a string."""
-        return self._series.fillna('').to_string()
+        return self._series.fillna("").to_string()
 
     @property
     def _series(self):
         """Represents the data slice context as a pandas series."""
         keys = reversed(list(vars(self)))
         attrs = {key: getattr(self, key) for key in keys}
-        context = pd.Series(attrs, name='context')
+        context = pd.Series(attrs, name="context")
         return context
 
     @property
@@ -50,7 +52,8 @@ class DataSliceContext:
 
 class DataSliceFrame(pd.DataFrame):
     """Subclasses pandas data frame for data slice."""
-    _metadata = ['context']
+
+    _metadata = ["context"]
 
     @property
     def _constructor(self):
@@ -88,20 +91,24 @@ class DataSliceExtension:
 
     def __getitem__(self, offset):
         """Generates data slices from a slice object."""
-        if not isinstance(offset, slice): raise TypeError('must be a slice object')
+        if not isinstance(offset, slice):
+            raise TypeError("must be a slice object")
         return self(size=offset.step, start=offset.start, stop=offset.stop)
 
     def _apply(self, size, start, stop, step, drop_empty=True):
         """Generates data slices based on the data frame."""
         df = self._apply_start(self._df, start, step)
-        if df.empty and drop_empty: return df
+        if df.empty and drop_empty:
+            return df
 
         df, slice_number = DataSliceFrame(df), 1
         while start.value and start.value <= stop.value:
-            if df.empty and drop_empty: break
+            if df.empty and drop_empty:
+                break
             ds = self._apply_size(df, start, size)
             df = self._apply_step(df, start, step)
-            if ds.empty and drop_empty: continue
+            if ds.empty and drop_empty:
+                continue
             ds.context.next_start = start.value
             ds.context.slice_number = slice_number
             slice_number += 1
@@ -112,7 +119,7 @@ class DataSliceExtension:
         if size._is_offset_position:
             index = self._get_index(df, size.value)
             stop = index or self._last_index
-            ds = df.iloc[:size.value]
+            ds = df.iloc[: size.value]
         else:
             stop = start.value + size.value
             ds = df[:stop]
@@ -134,7 +141,7 @@ class DataSliceExtension:
         """Removes data before the index calculated by the offset."""
         inplace = start.value == self._first_index
         if start._is_offset_position and not inplace:
-            df = df.iloc[start.value:]
+            df = df.iloc[start.value :]
             first_index = df.first_valid_index()
             start.value = self._first_index = first_index
 
@@ -149,12 +156,12 @@ class DataSliceExtension:
     def _apply_step(self, df, start, step):
         """Strides the first index by the offset."""
         if step._is_offset_position:
-            df = df.iloc[step.value:]
+            df = df.iloc[step.value :]
             first_index = df.first_valid_index()
             start.value = first_index
         else:
             start.value += step.value
-            df = df[start.value:]
+            df = df[start.value :]
 
         return df
 
@@ -175,7 +182,7 @@ class DataSliceExtension:
         offsets = size, start, stop, step
 
         if any(offset._is_offset_frequency for offset in offsets):
-            info = 'offset by frequency requires a time index'
+            info = "offset by frequency requires a time index"
             assert self._is_time_index, info
 
         return offsets
@@ -185,7 +192,7 @@ class DataSliceExtension:
         if not isinstance(size, DataSliceStep):
             size = DataSliceStep(size)
 
-        assert size._is_positive, 'offset must be positive'
+        assert size._is_positive, "offset must be positive"
         return size
 
     def _check_start(self, start):
@@ -203,7 +210,7 @@ class DataSliceExtension:
         if not isinstance(step, DataSliceStep):
             step = DataSliceStep(step)
 
-        assert step._is_positive, 'offset must be positive'
+        assert step._is_positive, "offset must be positive"
         return step
 
     def _check_stop(self, stop):
@@ -212,8 +219,8 @@ class DataSliceExtension:
             stop = DataSliceOffset(stop)
 
         if stop._is_offset_frequency:
-            base = 'first' if stop._is_positive else 'last'
-            value = getattr(self, f'_{base}_index')
+            base = "first" if stop._is_positive else "last"
+            value = getattr(self, f"_{base}_index")
             stop.value += value
 
         inplace = stop.value == self._last_index

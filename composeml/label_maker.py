@@ -11,7 +11,9 @@ from composeml.label_times import LabelTimes
 class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
-    def __init__(self, target_entity, time_index, labeling_function=None, window_size=None):
+    def __init__(
+        self, target_entity, time_index, labeling_function=None, window_size=None
+    ):
         """Creates an instance of label maker.
 
         Args:
@@ -29,12 +31,12 @@ class LabelMaker:
 
     def _name_labeling_function(self, function):
         """Gets the names of the labeling functions."""
-        has_name = hasattr(function, '__name__')
+        has_name = hasattr(function, "__name__")
         return function.__name__ if has_name else type(function).__name__
 
     def _check_labeling_function(self, function, name=None):
         """Checks whether the labeling function is callable."""
-        assert callable(function), 'labeling function must be callabe'
+        assert callable(function), "labeling function must be callabe"
         return function
 
     @property
@@ -52,24 +54,40 @@ class LabelMaker:
         if isinstance(value, dict):
             for name, function in value.items():
                 self._check_labeling_function(function)
-                assert isinstance(name, str), 'labeling function name must be string'
+                assert isinstance(name, str), "labeling function name must be string"
 
         if callable(value):
             value = [value]
 
         if isinstance(value, (tuple, list)):
-            value = {self._name_labeling_function(function): self._check_labeling_function(function) for function in value}
+            value = {
+                self._name_labeling_function(function): self._check_labeling_function(
+                    function
+                )
+                for function in value
+            }
 
-        assert isinstance(value, dict), 'value type for labeling function not supported'
+        assert isinstance(value, dict), "value type for labeling function not supported"
         self._labeling_function = value
 
     def _check_cutoff_time(self, value):
         if isinstance(value, Series):
-            if value.index.is_unique: return value.to_dict()
-            else: raise ValueError('more than one cutoff time exists for a target group')
-        else: return value
+            if value.index.is_unique:
+                return value.to_dict()
+            else:
+                raise ValueError("more than one cutoff time exists for a target group")
+        else:
+            return value
 
-    def slice(self, df, num_examples_per_instance, minimum_data=None, maximum_data=None, gap=None, drop_empty=True):
+    def slice(
+        self,
+        df,
+        num_examples_per_instance,
+        minimum_data=None,
+        maximum_data=None,
+        gap=None,
+        drop_empty=True,
+    ):
         """Generates data slices of target entity.
 
         Args:
@@ -90,14 +108,17 @@ class LabelMaker:
         self._check_example_count(num_examples_per_instance, gap)
         df = self.set_index(df)
         target_groups = df.groupby(self.target_entity)
-        num_examples_per_instance = ExampleSearch._check_number(num_examples_per_instance)
+        num_examples_per_instance = ExampleSearch._check_number(
+            num_examples_per_instance
+        )
 
         minimum_data = self._check_cutoff_time(minimum_data)
         minimum_data_varies = isinstance(minimum_data, dict)
 
         for group_key, df in target_groups:
             if minimum_data_varies:
-                if group_key not in minimum_data: continue
+                if group_key not in minimum_data:
+                    continue
                 min_data_for_group = minimum_data[group_key]
             else:
                 min_data_for_group = minimum_data
@@ -114,7 +135,8 @@ class LabelMaker:
                 setattr(ds.context, self.target_entity, group_key)
                 yield ds
 
-                if ds.context.slice_number >= num_examples_per_instance: break
+                if ds.context.slice_number >= num_examples_per_instance:
+                    break
 
     @property
     def _bar_format(self):
@@ -129,18 +151,22 @@ class LabelMaker:
         """Checks whether example count corresponds to data slices."""
         if self.window_size is None and gap is None:
             more_than_one = num_examples_per_instance > 1
-            assert not more_than_one, "must specify gap if num_examples > 1 and window size = none"
+            assert (
+                not more_than_one
+            ), "must specify gap if num_examples > 1 and window size = none"
 
-    def search(self,
-               df,
-               num_examples_per_instance,
-               minimum_data=None,
-               maximum_data=None,
-               gap=None,
-               drop_empty=True,
-               verbose=True,
-               *args,
-               **kwargs):
+    def search(
+        self,
+        df,
+        num_examples_per_instance,
+        minimum_data=None,
+        maximum_data=None,
+        gap=None,
+        drop_empty=True,
+        verbose=True,
+        *args,
+        **kwargs,
+    ):
         """Searches the data to calculates labels.
 
         Args:
@@ -162,10 +188,12 @@ class LabelMaker:
         Returns:
             lt (LabelTimes): Calculated labels with cutoff times.
         """
-        assert self.labeling_function, 'missing labeling function(s)'
+        assert self.labeling_function, "missing labeling function(s)"
         self._check_example_count(num_examples_per_instance, gap)
         is_label_search = isinstance(num_examples_per_instance, dict)
-        search = (LabelSearch if is_label_search else ExampleSearch)(num_examples_per_instance)
+        search = (LabelSearch if is_label_search else ExampleSearch)(
+            num_examples_per_instance
+        )
 
         # check minimum data cutoff time
         minimum_data = self._check_cutoff_time(minimum_data)
@@ -186,7 +214,8 @@ class LabelMaker:
         records = []
         for group_count, (group_key, df) in enumerate(target_groups, start=1):
             if minimum_data_varies:
-                if group_key not in minimum_data: continue
+                if group_key not in minimum_data:
+                    continue
                 min_data_for_group = minimum_data[group_key]
             else:
                 min_data_for_group = minimum_data
@@ -205,22 +234,33 @@ class LabelMaker:
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
                 valid_labels = search.is_valid_labels(labels)
-                if not valid_labels: continue
+                if not valid_labels:
+                    continue
 
-                records.append({
-                    self.target_entity: group_key,
-                    'time': ds.context.slice_start,
-                    **labels,
-                })
+                records.append(
+                    {
+                        self.target_entity: group_key,
+                        "time": ds.context.slice_start,
+                        **labels,
+                    }
+                )
 
                 search.update_count(labels)
                 # if finite search, update progress bar for the example found
-                if search.is_finite: progress_bar.update(n=1)
-                if search.is_complete: break
+                if search.is_finite:
+                    progress_bar.update(n=1)
+                if search.is_complete:
+                    break
 
             # if finite search, update progress bar for missing examples
-            if search.is_finite: progress_bar.update(n=group_count * search.expected_count - progress_bar.n)
-            else: progress_bar.update(n=1)  # otherwise, update progress bar once for each group
+            if search.is_finite:
+                progress_bar.update(
+                    n=group_count * search.expected_count - progress_bar.n
+                )
+            else:
+                progress_bar.update(
+                    n=1
+                )  # otherwise, update progress bar once for each group
             search.reset_count()
 
         total -= progress_bar.n
@@ -232,11 +272,11 @@ class LabelMaker:
             target_columns=list(self.labeling_function),
             target_entity=self.target_entity,
             search_settings={
-                'num_examples_per_instance': num_examples_per_instance,
-                'minimum_data': minimum_data,
-                'maximum_data': str(maximum_data),
-                'window_size': str(self.window_size),
-                'gap': str(gap),
+                "num_examples_per_instance": num_examples_per_instance,
+                "minimum_data": minimum_data,
+                "maximum_data": str(maximum_data),
+                "window_size": str(self.window_size),
+                "gap": str(gap),
             },
         )
 
@@ -254,7 +294,7 @@ class LabelMaker:
         if df.index.name != self.time_index:
             df = df.set_index(self.time_index)
 
-        if 'time' not in str(df.index.dtype):
-            df.index = df.index.astype('datetime64[ns]')
+        if "time" not in str(df.index.dtype):
+            df.index = df.index.astype("datetime64[ns]")
 
         return df
