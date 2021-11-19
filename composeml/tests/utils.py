@@ -13,7 +13,7 @@ def read_csv(data, **kwargs):
         DataFrame : Instance of a dataframe.
     """
     if isinstance(data, list):
-        data = '\n'.join(data)
+        data = "\n".join(data)
 
     # This creates a file-like object for reading in CSV string.
     with StringIO(data) as data:

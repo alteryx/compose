@@ -32,11 +32,12 @@ class LabelTimes(pd.DataFrame):
         self.transforms = transforms or []
         self.plot = LabelPlots(self)
 
-        if not self.empty: self._check_label_times()
+        if not self.empty:
+            self._check_label_times()
 
     def _assert_single_target(self):
         """Asserts that the label times object contains a single target."""
-        info = 'must first select an individual target'
+        info = "must first select an individual target"
         assert self._is_single_target, info
 
     def _check_target_columns(self):
@@ -58,7 +59,7 @@ class LabelTimes(pd.DataFrame):
         else:
             target_names = self.target_types.index.tolist()
             match = target_names == self.target_columns
-            assert match, 'target names in types must match target columns'
+            assert match, "target names in types must match target columns"
 
     def _check_label_times(self):
         """Validates the lables times object."""
@@ -71,9 +72,9 @@ class LabelTimes(pd.DataFrame):
         Returns:
             value (list): A list of the target names.
         """
-        not_targets = [self.target_entity, 'time']
+        not_targets = [self.target_entity, "time"]
         target_columns = self.columns.difference(not_targets)
-        assert not target_columns.empty, 'target columns not found'
+        assert not target_columns.empty, "target columns not found"
         value = target_columns.tolist()
         return value
 
@@ -85,7 +86,7 @@ class LabelTimes(pd.DataFrame):
         is_discrete = pd.api.types.is_bool_dtype(dtype)
         is_discrete |= pd.api.types.is_categorical_dtype(dtype)
         is_discrete |= pd.api.types.is_object_dtype(dtype)
-        value = 'discrete' if is_discrete else 'continuous'
+        value = "discrete" if is_discrete else "continuous"
         return value
 
     def _infer_target_types(self):
@@ -131,35 +132,36 @@ class LabelTimes(pd.DataFrame):
             2       1  2020-01-03   True
             3       1  2020-01-04  False
         """
-        assert not self._is_single_target, 'only one target exists'
-        if not isinstance(target, str): raise TypeError('target name must be string')
+        assert not self._is_single_target, "only one target exists"
+        if not isinstance(target, str):
+            raise TypeError("target name must be string")
         assert target in self.target_columns, 'target "%s" not found' % target
 
         lt = self.copy()
         lt.target_columns = [target]
         lt.target_types = lt.target_types[[target]]
-        lt = lt[[self.target_entity, 'time', target]]
+        lt = lt[[self.target_entity, "time", target]]
         return lt
 
     @property
     def settings(self):
         """Returns metadata about the label times."""
         return {
-            'compose_version': __version__,
-            'schema_version': SCHEMA_VERSION,
-            'label_times': {
-                'target_entity': self.target_entity,
-                'target_columns': self.target_columns,
-                'target_types': self.target_types.to_dict(),
-                'search_settings': self.search_settings,
-                'transforms': self.transforms,
-            }
+            "compose_version": __version__,
+            "schema_version": SCHEMA_VERSION,
+            "label_times": {
+                "target_entity": self.target_entity,
+                "target_columns": self.target_columns,
+                "target_types": self.target_types.to_dict(),
+                "search_settings": self.search_settings,
+                "transforms": self.transforms,
+            },
         }
 
     @property
     def is_discrete(self):
         """Whether labels are discrete."""
-        return self.target_types.eq('discrete')
+        return self.target_types.eq("discrete")
 
     @property
     def distribution(self):
@@ -170,7 +172,7 @@ class LabelTimes(pd.DataFrame):
         if self.is_discrete[target_column]:
             labels = self.assign(count=1)
             labels = labels.groupby(target_column)
-            distribution = labels['count'].count()
+            distribution = labels["count"].count()
             return distribution
         else:
             return self[target_column].describe()
@@ -181,7 +183,7 @@ class LabelTimes(pd.DataFrame):
         self._assert_single_target()
         count = self.groupby(self.target_entity)
         count = count[self.target_columns[0]].count()
-        count = count.to_frame('count')
+        count = count.to_frame("count")
         return count
 
     @property
@@ -191,15 +193,17 @@ class LabelTimes(pd.DataFrame):
         target_column = self.target_columns[0]
 
         if self.is_discrete[target_column]:
-            keys = ['time', target_column]
+            keys = ["time", target_column]
             value = self.groupby(keys).time.count()
             value = value.unstack(target_column).fillna(0)
         else:
-            value = self.groupby('time')
+            value = self.groupby("time")
             value = value[target_column].count()
 
-        value = value.cumsum()  # In Python 3.5, these values automatically convert to float.
-        value = value.astype('int')
+        value = (
+            value.cumsum()
+        )  # In Python 3.5, these values automatically convert to float.
+        value = value.astype("int")
         return value
 
     def describe(self):
@@ -240,9 +244,9 @@ class LabelTimes(pd.DataFrame):
         target_column = self.target_columns[0]
         labels = self if inplace else self.copy()
         labels[target_column] = labels[target_column].gt(value)
-        labels.target_types[target_column] = 'discrete'
+        labels.target_types[target_column] = "discrete"
 
-        transform = {'transform': 'threshold', 'value': value}
+        transform = {"transform": "threshold", "value": value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -259,9 +263,9 @@ class LabelTimes(pd.DataFrame):
             labels (LabelTimes) : Instance of labels.
         """
         labels = self if inplace else self.copy()
-        labels['time'] = labels['time'].sub(pd.Timedelta(value))
+        labels["time"] = labels["time"].sub(pd.Timedelta(value))
 
-        transform = {'transform': 'apply_lead', 'value': value}
+        transform = {"transform": "apply_lead", "value": value}
         labels.transforms.append(transform)
 
         if not inplace:
@@ -364,24 +368,26 @@ class LabelTimes(pd.DataFrame):
         else:
             if isinstance(bins, list):
                 for i, edge in enumerate(bins):
-                    if edge in ['-inf', 'inf']:
+                    if edge in ["-inf", "inf"]:
                         bins[i] = float(edge)
 
-            values = pd.cut(values, bins=bins, labels=labels, right=right, precision=precision)
+            values = pd.cut(
+                values, bins=bins, labels=labels, right=right, precision=precision
+            )
 
         transform = {
-            'transform': 'bin',
-            'bins': bins,
-            'quantiles': quantiles,
-            'labels': labels,
-            'right': right,
-            'precision': precision,
+            "transform": "bin",
+            "bins": bins,
+            "quantiles": quantiles,
+            "labels": labels,
+            "right": right,
+            "precision": precision,
         }
 
         lt = self.copy()
         lt[target_column] = values
         lt.transforms.append(transform)
-        lt.target_types[target_column] = 'discrete'
+        lt.target_types[target_column] = "discrete"
         return lt
 
     def _sample(self, key, value, settings, random_state=None, replace=False):
@@ -397,7 +403,9 @@ class LabelTimes(pd.DataFrame):
         Returns:
             LabelTimes : Random sample of labels.
         """
-        sample = super().sample(random_state=random_state, replace=replace, **{key: value})
+        sample = super().sample(
+            random_state=random_state, replace=replace, **{key: value}
+        )
         return sample
 
     def _sample_per_label(self, key, value, settings, random_state=None, replace=False):
@@ -416,15 +424,22 @@ class LabelTimes(pd.DataFrame):
         sample_per_label = []
         target_column = self.target_columns[0]
 
-        for label, value, in value.items():
+        for (
+            label,
+            value,
+        ) in value.items():
             label = self[self[target_column] == label]
-            sample = label._sample(key, value, settings, random_state=random_state, replace=replace)
+            sample = label._sample(
+                key, value, settings, random_state=random_state, replace=replace
+            )
             sample_per_label.append(sample)
 
         sample = pd.concat(sample_per_label, axis=0, sort=False)
         return sample
 
-    def sample(self, n=None, frac=None, random_state=None, replace=False, per_instance=False):
+    def sample(
+        self, n=None, frac=None, random_state=None, replace=False, per_instance=False
+    ):
         """Return a random sample of labels.
 
         Args:
@@ -500,19 +515,19 @@ class LabelTimes(pd.DataFrame):
         self._assert_single_target()
 
         settings = {
-            'transform': 'sample',
-            'n': n,
-            'frac': frac,
-            'random_state': random_state,
-            'replace': replace,
-            'per_instance': per_instance,
+            "transform": "sample",
+            "n": n,
+            "frac": frac,
+            "random_state": random_state,
+            "replace": replace,
+            "per_instance": per_instance,
         }
 
-        key, value = ('n', n) if n else ('frac', frac)
+        key, value = ("n", n) if n else ("frac", frac)
         assert value, "must set value for 'n' or 'frac'"
 
         per_label = isinstance(value, dict)
-        method = '_sample_per_label' if per_label else '_sample'
+        method = "_sample_per_label" if per_label else "_sample"
 
         def transform(lt):
             sample = getattr(lt, method)(
@@ -556,11 +571,11 @@ class LabelTimes(pd.DataFrame):
             path (str) : Directory on disk to write to.
         """
         settings = self.settings
-        dtypes = self.dtypes.astype('str')
-        settings['dtypes'] = dtypes.to_dict()
+        dtypes = self.dtypes.astype("str")
+        settings["dtypes"] = dtypes.to_dict()
 
-        file = os.path.join(path, 'settings.json')
-        with open(file, 'w') as file:
+        file = os.path.join(path, "settings.json")
+        with open(file, "w") as file:
             json.dump(settings, file)
 
     def to_csv(self, path, save_settings=True, **kwargs):
@@ -572,7 +587,7 @@ class LabelTimes(pd.DataFrame):
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_csv method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, 'data.csv')
+        file = os.path.join(path, "data.csv")
         super().to_csv(file, index=False, **kwargs)
 
         if save_settings:
@@ -587,8 +602,8 @@ class LabelTimes(pd.DataFrame):
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_parquet method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, 'data.parquet')
-        super().to_parquet(file, compression=None, engine='auto', **kwargs)
+        file = os.path.join(path, "data.parquet")
+        super().to_parquet(file, compression=None, engine="auto", **kwargs)
 
         if save_settings:
             self._save_settings(path)
@@ -602,7 +617,7 @@ class LabelTimes(pd.DataFrame):
             **kwargs: Keyword arguments to pass to underlying pandas.DataFrame.to_pickle method
         """
         os.makedirs(path, exist_ok=True)
-        file = os.path.join(path, 'data.pickle')
+        file = os.path.join(path, "data.pickle")
         super().to_pickle(file, **kwargs)
 
         if save_settings:
@@ -613,11 +628,11 @@ class LabelTimes(pd.DataFrame):
     # ----------------------------------------
 
     _metadata = [
-        'search_settings',
-        'target_columns',
-        'target_entity',
-        'target_types',
-        'transforms',
+        "search_settings",
+        "target_columns",
+        "target_entity",
+        "target_types",
+        "transforms",
     ]
 
     def __finalize__(self, other, method=None, **kwargs):
@@ -627,7 +642,7 @@ class LabelTimes(pd.DataFrame):
             other (LabelTimes) : The label times from which to get the attributes from.
             method (str) : A passed method name for optionally taking different types of propagation actions based on this value.
         """
-        if method == 'concat':
+        if method == "concat":
             other = other.objs[0]
 
             for key in self._metadata:

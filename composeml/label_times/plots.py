@@ -1,16 +1,14 @@
 import matplotlib as mpl  # isort:skip
-
-# Raises an import error on OSX if not included.
-# https://matplotlib.org/3.1.0/faq/osx_framework.html#working-with-matplotlib-on-osx
-mpl.use('agg')  # noqa
-
 import pandas as pd
 import seaborn as sns
 
+# Raises an import error on OSX if not included.
+# https://matplotlib.org/3.1.0/faq/osx_framework.html#working-with-matplotlib-on-osx
+mpl.use("agg")  # noqa
 pd.plotting.register_matplotlib_converters()
-sns.set_context('notebook')
-sns.set_style('darkgrid')
-COLOR = sns.color_palette("Set1", n_colors=100, desat=.75)
+sns.set_context("notebook")
+sns.set_style("darkgrid")
+COLOR = sns.color_palette("Set1", n_colors=100, desat=0.75)
 
 
 class LabelPlots:
@@ -48,20 +46,20 @@ class LabelPlots:
                 count_by_time.values.T,
                 labels=count_by_time.columns,
                 colors=COLOR,
-                alpha=.9,
+                alpha=0.9,
                 **kwargs,
             )
 
             ax.legend(
-                loc='upper left',
+                loc="upper left",
                 title=target_column,
-                facecolor='w',
-                framealpha=.9,
+                facecolor="w",
+                framealpha=0.9,
             )
 
-            ax.set_title('Label Count vs. Cutoff Times')
-            ax.set_ylabel('Count')
-            ax.set_xlabel('Time')
+            ax.set_title("Label Count vs. Cutoff Times")
+            ax.set_ylabel("Count")
+            ax.set_xlabel("Time")
 
         else:
             ax.fill_between(
@@ -70,9 +68,9 @@ class LabelPlots:
                 color=COLOR[1],
             )
 
-            ax.set_title('Label vs. Cutoff Times')
+            ax.set_title("Label vs. Cutoff Times")
             ax.set_ylabel(target_column)
-            ax.set_xlabel('Time')
+            ax.set_xlabel("Time")
 
         return ax
 
@@ -93,6 +91,6 @@ class LabelPlots:
         else:
             ax = sns.histplot(x=dist, kde=True, color=COLOR[1], **kwargs)
 
-        ax.set_title('Label Distribution')
-        ax.set_ylabel('Count')
+        ax.set_title("Label Distribution")
+        ax.set_ylabel("Count")
         return ax

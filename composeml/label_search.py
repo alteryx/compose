@@ -17,17 +17,17 @@ class ExampleSearch:
     @staticmethod
     def _check_number(n):
         """Checks and formats the expected number of examples."""
-        if n == -1 or n == 'inf':
-            return float('inf')
+        if n == -1 or n == "inf":
+            return float("inf")
         else:
-            info = 'expected count must be numeric'
+            info = "expected count must be numeric"
             assert isinstance(n, (int, float)), info
             return n
 
     @staticmethod
     def _is_finite_number(n):
         """Checks if a number if finite."""
-        return n > 0 and abs(n) != float('inf')
+        return n > 0 and abs(n) != float("inf")
 
     @property
     def is_complete(self):
@@ -62,7 +62,9 @@ class LabelSearch(ExampleSearch):
 
     def __init__(self, expected_label_counts):
         items = expected_label_counts.items()
-        self.expected_label_counts = Counter({label: self._check_number(count) for label, count in items})
+        self.expected_label_counts = Counter(
+            {label: self._check_number(count) for label, count in items}
+        )
         self.expected_count = sum(self.expected_label_counts.values())
         self.actual_label_counts = Counter()
 
@@ -73,7 +75,9 @@ class LabelSearch(ExampleSearch):
 
     def is_complete_label(self, label):
         """Whether the search has found the expected number of examples for a label."""
-        return self.actual_label_counts.get(label, 0) >= self.expected_label_counts[label]
+        return (
+            self.actual_label_counts.get(label, 0) >= self.expected_label_counts[label]
+        )
 
     def is_valid_labels(self, labels):
         """Whether label values meet the search criteria.
@@ -90,8 +94,12 @@ class LabelSearch(ExampleSearch):
         """
         label_values = labels.values()
         not_null = super().is_valid_labels(labels)
-        is_expected = not_null and any(label in self.expected_label_counts for label in label_values)
-        value = is_expected and any(not self.is_complete_label(label) for label in label_values)
+        is_expected = not_null and any(
+            label in self.expected_label_counts for label in label_values
+        )
+        value = is_expected and any(
+            not self.is_complete_label(label) for label in label_values
+        )
         return value
 
     def reset_count(self):

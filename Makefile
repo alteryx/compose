@@ -7,14 +7,16 @@ doc_tests:
 example_run:
 	jupyter nbconvert --inplace --execute docs/source/examples/*.ipynb
 
-lint_fix:
-	select="E225,E303,E302,E203,E128,E231,E251,E271,E127,E126,E301,W291,W293,E226,E306,E221"
-	autopep8 --in-place --recursive --max-line-length=100 --select=${select} composeml
-	isort --recursive composeml
-
-lint_tests:
+.PHONY: lint
+lint:
+	isort --check-only composeml
+	black composeml -t py39 --check
 	flake8 composeml
-	isort --check-only --recursive composeml
+
+.PHONY: lint-fix
+lint-fix:
+	black -t py39 composeml
+	isort composeml
 
 package_build:
 	rm -rf dist/package
