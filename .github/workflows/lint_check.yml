@@ -33,4 +33,4 @@ jobs:
           python -m pip install -r dev-requirements.txt
           python -m pip install -r test-requirements.txt
       - name: Run lint tests
-        run: cd dist/package && make lint-tests -f ../../Makefile
+        run: cd dist/package && make lint -f ../../Makefile
