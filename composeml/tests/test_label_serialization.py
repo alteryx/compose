@@ -10,14 +10,16 @@ import composeml as cp
 @pytest.fixture
 def path():
     pwd = os.path.dirname(__file__)
-    path = os.path.join(pwd, '.cache')
+    path = os.path.join(pwd, ".cache")
     yield path
     shutil.rmtree(path)
 
 
 @pytest.fixture
 def total_spent(transactions, total_spent_fn):
-    lm = cp.LabelMaker(target_entity='customer_id', time_index='time', labeling_function=total_spent_fn)
+    lm = cp.LabelMaker(
+        target_entity="customer_id", time_index="time", labeling_function=total_spent_fn
+    )
     lt = lm.search(transactions, num_examples_per_instance=1, verbose=False)
     return lt
 

@@ -4,7 +4,9 @@ from composeml.data_slice.extension import DataSliceContext, DataSliceFrame
 class DataSliceGenerator:
     """Generates data slices for the lable maker."""
 
-    def __init__(self, window_size, gap=None, min_data=None, max_data=None, drop_empty=True):
+    def __init__(
+        self, window_size, gap=None, min_data=None, max_data=None, drop_empty=True
+    ):
         self.window_size = window_size
         self.gap = gap
         self.min_data = min_data
@@ -14,8 +16,8 @@ class DataSliceGenerator:
     def __call__(self, df):
         """Applies the data slice generator to the data frame."""
         is_column = self.window_size in df
-        method = 'column' if is_column else 'time'
-        attr = f'_slice_by_{method}'
+        method = "column" if is_column else "time"
+        attr = f"_slice_by_{method}"
         return getattr(self, attr)(df)
 
     def _slice_by_column(self, df):

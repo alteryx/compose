@@ -1,6 +1,15 @@
 -r test-requirements.txt
+codecov==2.1.12
+flake8==3.9.2
+isort==5.9.3
+black==21.9b0
+nbsphinx==0.8.7
+pydata-sphinx-theme==0.7.1
+Sphinx==4.2.0
+nbconvert==6.2.0
+ipython==7.28.0
+pygments==2.10.0
 jupyter==1.0.0
-nbsphinx==0.8.6
-pydata-sphinx-theme==0.6.3
-evalml==0.28.0
+pandoc==1.1.0
+ipykernel==6.4.2
 scikit-learn>=0.24.0,<1.0

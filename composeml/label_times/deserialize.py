@@ -8,26 +8,27 @@ from .object import LabelTimes
 
 def read_config(path):
     """Reads config file from disk."""
-    file = os.path.join(path, 'settings.json')
+    file = os.path.join(path, "settings.json")
     assert os.path.exists(file), "settings not found: '%s'" % file
 
-    with open(file, 'r') as file:
+    with open(file, "r") as file:
         settings = json.load(file)
         return settings
 
 
 def read_data(path):
     """Reads data file from disk."""
-    file = ''
+    file = ""
     for file in os.listdir(path):
-        if file.startswith('data'): break
+        if file.startswith("data"):
+            break
 
-    assert file.startswith('data'), "data not found"
-    extension = os.path.splitext(file)[1].lstrip('.')
-    info = 'file extension must be csv, parquet, or pickle'
-    assert extension in ['csv', 'parquet', 'pickle'], info
+    assert file.startswith("data"), "data not found"
+    extension = os.path.splitext(file)[1].lstrip(".")
+    info = "file extension must be csv, parquet, or pickle"
+    assert extension in ["csv", "parquet", "pickle"], info
 
-    read = getattr(pd, 'read_%s' % extension)
+    read = getattr(pd, "read_%s" % extension)
     data = read(os.path.join(path, file))
     return data
 
@@ -46,8 +47,8 @@ def read_label_times(path, load_settings=True):
 
     if load_settings:
         config = read_config(path)
-        data = data.astype(config['dtypes'])
-        kwargs.update(config['label_times'])
+        data = data.astype(config["dtypes"])
+        kwargs.update(config["label_times"])
 
     lt = LabelTimes(data=data, **kwargs)
     return lt
