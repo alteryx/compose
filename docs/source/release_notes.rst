@@ -9,7 +9,7 @@ Future Release
     * Changes
         * Update pip to 21.3.1 for test requirements (:pr:`265`)
         * Restrict to Python 3.7 to 3.9 (:pr:`265`)
-        * Use black and remove autopep8 (:pr:`265`)
+        * Use black and remove autopep8 for linting (:pr:`265`)
     * Documentation Changes
         * Update install instructions to specify correct python verions (:pr:`265`)
     * Testing Changes
