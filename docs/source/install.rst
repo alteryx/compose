@@ -2,7 +2,8 @@
 Install
 =======
 
-Compose is available on PyPI and Conda-forge for Python version 3.7 or later.
+Compose is available for Python 3.7, 3.8, and 3.9. It can be installed from pip, conda, or from source.
+
 
 pip
 ===
