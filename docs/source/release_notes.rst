@@ -5,6 +5,7 @@ Release Notes
 Future Release
 ==============
     * Enhancements
+        * Add issue templates for bugs, feature requests and documentation improvements (:pr:`271`)
     * Fixes
     * Changes
         * Update pip to 21.3.1 for test requirements (:pr:`265`)
