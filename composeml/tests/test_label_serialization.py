@@ -18,7 +18,9 @@ def path():
 @pytest.fixture
 def total_spent(transactions, total_spent_fn):
     lm = cp.LabelMaker(
-        target_entity="customer_id", time_index="time", labeling_function=total_spent_fn
+        target_dataframe_name="customer_id",
+        time_index="time",
+        labeling_function=total_spent_fn,
     )
     lt = lm.search(transactions, num_examples_per_instance=1, verbose=False)
     return lt

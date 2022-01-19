@@ -63,7 +63,7 @@ def total_spent():
     kwargs = {
         "data": data,
         "target_columns": ["total_spent"],
-        "target_entity": "customer_id",
+        "target_dataframe_name": "customer_id",
         "search_settings": {
             "num_examples_per_instance": -1,
         },
@@ -106,7 +106,9 @@ def labels():
     values = pd.DataFrame(records).astype(dtype).set_index("label_id")
     values = values[["customer_id", "time", "my_labeling_function"]]
     values = LabelTimes(
-        values, target_columns=["my_labeling_function"], target_entity="customer_id"
+        values,
+        target_columns=["my_labeling_function"],
+        target_dataframe_name="customer_id",
     )
     return values
 
