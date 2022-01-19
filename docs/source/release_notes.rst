@@ -12,11 +12,12 @@ Future Release
         * Use black and remove autopep8 for linting (:pr:`265`)
         * Update minimum dependency checker with the correct reviewers (:pr:`267`)
     * Documentation Changes
-        * Update install instructions to specify correct python verions (:pr:`265`)
+        * Update install instructions to specify correct python versions (:pr:`265`)
+        * Update example notebooks to use latest Featuretools and EvalML APIs (:pr:`275`)
     * Testing Changes
 
     | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`
+    | :user:`gsheni`, :user:`thehomebrewnerd`
 
 **v0.7.0** November 2, 2021
     * Enhancements
