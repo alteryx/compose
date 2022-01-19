@@ -17,9 +17,10 @@ Future Release
         * Update install instructions to specify correct python versions (:pr:`265`)
         * Update example notebooks to use latest Featuretools and EvalML APIs (:pr:`275`)
     * Testing Changes
+        * Add unit test for dropping empty data slices (:pr:`280`)
 
     | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`thehomebrewnerd`
+    | :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
 
 .. warning::
 
