@@ -12,12 +12,16 @@ class LabelMaker:
     """Automatically makes labels for prediction problems."""
 
     def __init__(
-        self, target_entity, time_index, labeling_function=None, window_size=None
+        self,
+        target_dataframe_name,
+        time_index,
+        labeling_function=None,
+        window_size=None,
     ):
         """Creates an instance of label maker.
 
         Args:
-            target_entity (str): Entity on which to make labels.
+            target_dataframe_name (str): Dataframe on which to make labels.
             time_index (str): Name of time column in the data frame.
             labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
                 When set as a dictionary, the key is used as the name of the labeling function.
@@ -25,7 +29,7 @@ class LabelMaker:
                 As an integer, the value can be the number of rows. Default value is all future data.
         """
         self.labeling_function = labeling_function or {}
-        self.target_entity = target_entity
+        self.target_dataframe_name = target_dataframe_name
         self.time_index = time_index
         self.window_size = window_size
 
@@ -88,11 +92,11 @@ class LabelMaker:
         gap=None,
         drop_empty=True,
     ):
-        """Generates data slices of target entity.
+        """Generates data slices of target dataframe.
 
         Args:
             df (DataFrame): Data frame to create slices on.
-            num_examples_per_instance (int): Number of examples per unique instance of target entity.
+            num_examples_per_instance (int): Number of examples per unique instance of target dataframe.
             minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.
                 The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
                 the first cutoff time. The value can also be an integer to denote the number of rows needed before the first cutoff time.
@@ -107,7 +111,7 @@ class LabelMaker:
         """
         self._check_example_count(num_examples_per_instance, gap)
         df = self.set_index(df)
-        target_groups = df.groupby(self.target_entity)
+        target_groups = df.groupby(self.target_dataframe_name)
         num_examples_per_instance = ExampleSearch._check_number(
             num_examples_per_instance
         )
@@ -132,7 +136,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_entity, group_key)
+                setattr(ds.context, self.target_dataframe_name, group_key)
                 yield ds
 
                 if ds.context.slice_number >= num_examples_per_instance:
@@ -144,7 +148,7 @@ class LabelMaker:
         value = "Elapsed: {elapsed} | "
         value += "Remaining: {remaining} | "
         value += "Progress: {l_bar}{bar}| "
-        value += self.target_entity + ": {n}/{total} "
+        value += self.target_dataframe_name + ": {n}/{total} "
         return value
 
     def _check_example_count(self, num_examples_per_instance, gap):
@@ -171,7 +175,7 @@ class LabelMaker:
 
         Args:
             df (DataFrame): Data frame to search and extract labels.
-            num_examples_per_instance (int or dict): The expected number of examples to return from each entity group.
+            num_examples_per_instance (int or dict): The expected number of examples to return from each dataframe group.
                 A dictionary can be used to further specify the expected number of examples to return from each label.
             minimum_data (int or str or Series): The amount of data needed before starting the search. Defaults to the first value in the time index.
                 The value can be a datetime string to directly set the first cutoff time or a timedelta string to denote the amount of data needed before
@@ -201,7 +205,7 @@ class LabelMaker:
 
         df = self.set_index(df)
         total = search.expected_count if search.is_finite else 1
-        target_groups = df.groupby(self.target_entity)
+        target_groups = df.groupby(self.target_dataframe_name)
         total *= target_groups.ngroups
 
         progress_bar = tqdm(
@@ -229,7 +233,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_entity, group_key)
+                setattr(ds.context, self.target_dataframe_name, group_key)
 
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
@@ -239,7 +243,7 @@ class LabelMaker:
 
                 records.append(
                     {
-                        self.target_entity: group_key,
+                        self.target_dataframe_name: group_key,
                         "time": ds.context.slice_start,
                         **labels,
                     }
@@ -270,7 +274,7 @@ class LabelMaker:
         lt = LabelTimes(
             data=records,
             target_columns=list(self.labeling_function),
-            target_entity=self.target_entity,
+            target_dataframe_name=self.target_dataframe_name,
             search_settings={
                 "num_examples_per_instance": num_examples_per_instance,
                 "minimum_data": minimum_data,

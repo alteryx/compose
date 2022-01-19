@@ -7,7 +7,9 @@ from composeml.tests.utils import to_csv
 
 def test_search_default(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id", time_index="time", labeling_function=total_spent_fn
+        target_dataframe_name="customer_id",
+        time_index="time",
+        labeling_function=total_spent_fn,
     )
 
     given_labels = lm.search(transactions, num_examples_per_instance=1)
@@ -29,7 +31,9 @@ def test_search_examples_per_label(transactions, total_spent_fn):
         return total_spent_fn(ds) > 2
 
     lm = LabelMaker(
-        target_entity="customer_id", time_index="time", labeling_function=total_spent
+        target_dataframe_name="customer_id",
+        time_index="time",
+        labeling_function=total_spent,
     )
 
     n_examples = {True: -1, False: 1}
@@ -55,7 +59,9 @@ def test_search_with_undefined_labels(transactions, total_spent_fn):
         return total_spent_fn(ds) % 3
 
     lm = LabelMaker(
-        target_entity="customer_id", time_index="time", labeling_function=total_spent
+        target_dataframe_name="customer_id",
+        time_index="time",
+        labeling_function=total_spent,
     )
 
     n_examples = {1: 1, 2: 1}
@@ -78,7 +84,7 @@ def test_search_with_undefined_labels(transactions, total_spent_fn):
 
 def test_search_with_multiple_targets(transactions, total_spent_fn, unique_amounts_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         window_size=2,
         labeling_function={
@@ -123,7 +129,7 @@ def test_search_offset_mix_0(transactions, total_spent_fn):
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size="2h",
@@ -154,7 +160,7 @@ def test_search_offset_mix_1(transactions, total_spent_fn):
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (absolute).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size=4,
@@ -184,7 +190,7 @@ def test_search_offset_mix_2(transactions, total_spent_fn):
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size="30min",
@@ -213,7 +219,7 @@ def test_search_offset_mix_3(transactions, total_spent_fn):
     Test offset mix with window_size (absolute), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size="8h",
@@ -250,7 +256,7 @@ def test_search_offset_mix_4(transactions, total_spent_fn):
     Test offset mix with window_size (relative), minimum_data (relative), and gap (absolute).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size=1,
@@ -283,7 +289,7 @@ def test_search_offset_mix_5(transactions, total_spent_fn):
     Test offset mix with window_size (relative), minimum_data (absolute), and gap (relative).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size=2,
@@ -312,7 +318,7 @@ def test_search_offset_mix_6(transactions, total_spent_fn):
     Test offset mix with window_size (absolute), minimum_data (relative), and gap (relative).
     """
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size="1h",
@@ -341,7 +347,7 @@ def test_search_offset_mix_7(transactions, total_spent_fn):
     """
 
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size=10,
@@ -367,7 +373,7 @@ def test_search_offset_mix_7(transactions, total_spent_fn):
 
 def test_search_offset_negative_0(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=lambda: None,
         window_size=2,
@@ -385,7 +391,7 @@ def test_search_offset_negative_0(transactions, total_spent_fn):
 
 def test_search_offset_negative_1(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=lambda: None,
         window_size=2,
@@ -403,7 +409,7 @@ def test_search_offset_negative_1(transactions, total_spent_fn):
 
 def test_search_invalid_n_examples(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
     )
@@ -420,7 +426,7 @@ def test_column_based_windows(transactions, total_spent_fn):
     df = transactions.assign(session_id=session_id)
 
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         window_size="session_id",
         labeling_function=total_spent_fn,
@@ -444,7 +450,7 @@ def test_column_based_windows(transactions, total_spent_fn):
 
 def test_search_with_invalid_index(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=lambda df: None,
         window_size=2,
@@ -463,7 +469,7 @@ def test_search_with_invalid_index(transactions, total_spent_fn):
 
 def test_search_on_empty_labels(transactions):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=lambda ds: None,
         window_size=2,
@@ -481,7 +487,7 @@ def test_search_on_empty_labels(transactions):
 
 def test_data_slice_overlap(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=total_spent_fn,
         window_size="1h",
@@ -494,7 +500,9 @@ def test_data_slice_overlap(transactions, total_spent_fn):
 
 def test_label_type(transactions, total_spent_fn):
     lm = LabelMaker(
-        target_entity="customer_id", time_index="time", labeling_function=total_spent_fn
+        target_dataframe_name="customer_id",
+        time_index="time",
+        labeling_function=total_spent_fn,
     )
     lt = lm.search(transactions, num_examples_per_instance=1)
     assert lt.target_types["total_spent"] == "continuous"
@@ -503,7 +511,7 @@ def test_label_type(transactions, total_spent_fn):
 
 def test_search_with_maximum_data(transactions):
     lm = LabelMaker(
-        target_entity="customer_id",
+        target_dataframe_name="customer_id",
         time_index="time",
         labeling_function=len,
         window_size="1h",
