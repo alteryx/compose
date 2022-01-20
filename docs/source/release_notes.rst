@@ -28,8 +28,8 @@ Release Notes
         * Add unit test for dropping empty data slices (:pr:`280`)
         * Add auto approve workflow for dependency updates (:pr:`281`)
 
-    Thanks to the following people for contributing to this release:
-    :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
+    | Thanks to the following people for contributing to this release:
+    | :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
 
 .. warning::
 
