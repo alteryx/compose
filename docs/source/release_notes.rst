@@ -18,6 +18,7 @@ Future Release
         * Update example notebooks to use latest Featuretools and EvalML APIs (:pr:`275`)
     * Testing Changes
         * Add unit test for dropping empty data slices (:pr:`280`)
+        * Add auto approve workflow for dependency updates (:pr:`281`)
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
