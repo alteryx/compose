@@ -2,11 +2,19 @@
 Release Notes
 =============
 
-Future Release
-==============
+.. Future Release
+  ==============
+    * Enhancements
+    * Fixes
+    * Changes
+    * Documentation Changes
+    * Testing Changes
+
+.. Thanks to the following people for contributing to this release:
+
+**v0.8.0** January 20, 2022
     * Enhancements
         * Add issue templates for bugs, feature requests and documentation improvements (:pr:`271`)
-    * Fixes
     * Changes
         * Update pip to 21.3.1 for test requirements (:pr:`265`)
         * Restrict to Python 3.7 to 3.9 (:pr:`265`)
