@@ -75,3 +75,18 @@ def test_minimum_data_per_group(transactions):
     minimum_data = {1: "2019-01-01 09:00:00", 3: "2019-01-01 12:00:00"}
     lengths = [len(ds) for ds in lm.slice(transactions, 1, minimum_data=minimum_data)]
     assert lengths == [2, 1]
+
+
+def test_drop_empty(transactions):
+    df = transactions.astype({"time": "datetime64[ns]"})
+    df.set_index("time", inplace=True)
+    df.sort_index(inplace=True)
+
+    ds = df.slice(
+        size="1h",
+        drop_empty=True,
+        stop="2019-01-01 15:00:00",
+        start="2019-01-01 08:00:00",
+    )
+
+    assert len(list(ds)) == 5
