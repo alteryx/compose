@@ -48,7 +48,7 @@ jobs:
         run: |
           printf "${{ steps.min_dep_gen_core.outputs.min_reqs }}" > composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Create Pull Request
-        uses: FeatureLabs/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.REPO_SCOPED_TOKEN }}
           commit-message: Update minimum dependencies
@@ -59,4 +59,5 @@ jobs:
           branch: min-dep-update
           branch-suffix: short-commit-hash
           base: main
-          reviewers: thehomebrewnerd, tamargrey, jeff-hernandez, tuethan1999, davesque
+          assignees: machineFL
+          reviewers: machineAYX
