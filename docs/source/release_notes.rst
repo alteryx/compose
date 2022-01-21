@@ -2,15 +2,17 @@
 Release Notes
 =============
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
+        * Update ipython to 7.31.1 (:pr:`286`)
     * Documentation Changes
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    | Thanks to the following people for contributing to this release:
+    | :user:`gsheni`
 
 **v0.8.0** January 20, 2022
     * Enhancements
