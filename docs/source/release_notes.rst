@@ -9,7 +9,7 @@ Future Release
     * Changes
         * Update ipython to 7.31.1 (:pr:`286`)
     * Documentation Changes
-        * Update README.md with Alteryx link (:pr:`289`)
+        * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
     * Testing Changes
 
     | Thanks to the following people for contributing to this release:
