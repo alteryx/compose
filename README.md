@@ -198,6 +198,7 @@ The Innovation Labs open source community is happy to provide support to users o
 1. For usage questions, use [Stack Overflow](https://stackoverflow.com/questions/tagged/compose-ml) with the `composeml` tag.
 2. For bugs, issues, or feature requests start a Github [issue](https://github.com/alteryx/compose/issues/new).
 3. For discussion regarding development on the core library, use [Slack](https://join.slack.com/t/featuretools/shared_invite/enQtNTEwODEzOTEwMjg4LTQ1MjZlOWFmZDk2YzAwMjEzNTkwZTZkN2NmOGFjOGI4YzE5OGMyMGM5NGIxNTE4NjkzYWI3OWEwZjkyZGExYmQ).
+4. For everything else, the core developers can be reached by email at open_source_support@alteryx.com
 
 ## Citing Compose
 Compose is built upon a newly defined part of the machine learning process — prediction engineering. If you use Compose, please consider citing this paper:
@@ -221,6 +222,8 @@ BibTeX entry:
 The open source development has been supported in part by DARPA's Data driven discovery of models program (D3M). 
 
 ## Innovation Labs
+
+**Compose** is an open source project maintained by [Alteryx](https://www.alteryx.com). To see the other open source projects we’re working on visit [Alteryx Open Source](https://www.alteryx.com/open-source). If building impactful data science pipelines is important to you or your business, please get in touch.
 
 <a href="https://www.alteryx.com/innovation-labs" target="_blank">
     <p align="left"><img width=40% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
