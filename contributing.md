@@ -7,7 +7,7 @@ Whether you are a novice or experienced software developer, all contributions an
 There are many ways to contribute to Compose, with the most common ones being contribution of code or documentation to the project.
 
 **To contribute, you can:**
-1. Help users on our [Slack channel](https://join.slack.com/t/alteryx-oss/shared_invite/zt-6inxevps-RSbpr9lsACE1kObXz4rIuA). Answer questions under the compose tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/compose)
+1. Help users on our [Slack channel](https://join.slack.com/t/alteryx-oss/shared_invite/zt-6inxevps-RSbpr9lsACE1kObXz4rIuA). Answer questions under the compose tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml)
 
 2. Submit a pull request for one of [Good First Issues](https://github.com/alteryx/compose/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22)
 
