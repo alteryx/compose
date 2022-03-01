@@ -44,6 +44,9 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
+    'sphinx_inline_tabs',
+    'sphinx_copybutton',
+    "myst_parser",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -177,6 +180,18 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
+
+# -- Options for Markdown files ----------------------------------------------
+
+myst_admonition_enable = True
+myst_deflist_enable = True
+myst_heading_anchors = 3
+
+# -- Options for Sphinx Copy Button ------------------------------------------
+
+copybutton_prompt_text = "myinputprompt"
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
 
 
 # -- Extension configuration -------------------------------------------------
