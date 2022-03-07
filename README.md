@@ -223,7 +223,7 @@ The open source development has been supported in part by DARPA's Data driven di
 
 ## Innovation Labs
 
-**Compose** is an open source project maintained by [Alteryx](https://www.alteryx.com). To see the other open source projects we’re working on visit [Alteryx Open Source](https://www.alteryx.com/open-source). If building impactful data science pipelines is important to you or your business, please get in touch.
+**Compose** is an open source project maintained by [Alteryx](https://www.alteryx.com). We developed Compose to enable flexible definition of the machine learning task. To see the other open source projects we’re working on visit [Alteryx Open Source](https://www.alteryx.com/open-source). If building impactful data science pipelines is important to you or your business, please get in touch.
 
 <a href="https://www.alteryx.com/innovation-labs" target="_blank">
     <p align="left"><img width=40% src="https://raw.githubusercontent.com/alteryx/compose/main/docs/source/images/innovation_labs.png" alt="Innovation Labs" /></p>
