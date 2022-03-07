@@ -10,10 +10,11 @@ Future Release
         * Update ipython to 7.31.1 (:pr:`286`)
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
+        * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
     * Testing Changes
 
     | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`
+    | :user:`gsheni`, :user:`mingdavidqi`
 
 **v0.8.0** January 20, 2022
     * Enhancements
