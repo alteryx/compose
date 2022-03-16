@@ -2,7 +2,7 @@ pip==21.3.1
 pytest==6.0.1
 pytest-cov==2.10.1
 wheel==0.33.1
-fastparquet==0.6.3
+fastparquet==0.5.0
 featuretools==1.4.0
 evalml==0.45.0
 woodwork==0.12.0
