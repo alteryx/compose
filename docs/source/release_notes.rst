@@ -12,9 +12,10 @@ Future Release
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
     * Testing Changes
+        * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
 
     | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`mingdavidqi`
+    | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
 
 **v0.8.0** January 20, 2022
     * Enhancements
