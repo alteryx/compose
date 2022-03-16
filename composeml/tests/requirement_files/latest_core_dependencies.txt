@@ -1,4 +1,4 @@
-evalml==0.41.0
+evalml==0.46.0
 featuretools==1.7.0
 matplotlib==3.5.1
 matplotlib-inline==0.1.3
