@@ -1,8 +1,8 @@
 evalml==0.41.0
-featuretools==1.6.0
+featuretools==1.7.0
 matplotlib==3.5.1
 matplotlib-inline==0.1.3
 pandas==1.4.1
 seaborn==0.11.2
 tqdm==4.63.0
-woodwork==0.13.0
+woodwork==0.14.0
