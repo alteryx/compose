@@ -8,6 +8,7 @@ Future Release
     * Fixes
     * Changes
         * Update ipython to 7.31.1 (:pr:`286`)
+        * Drop Python 3.7 support (:pr:`299`)
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
