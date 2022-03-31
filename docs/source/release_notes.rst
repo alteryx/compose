@@ -11,6 +11,7 @@ Future Release
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
+        * Update nbconvert to version 6.4.5 to fix docs build issue (:pr:`305`)
     * Testing Changes
         * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
 
