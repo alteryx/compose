@@ -36,4 +36,4 @@ jobs:
         run: |
           python -m pip install -r composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Run unit tests (no code coverage)
-        run: cd dist/package && make unit_tests -f ../../Makefile
+        run: cd dist/package && make test -f ../../Makefile

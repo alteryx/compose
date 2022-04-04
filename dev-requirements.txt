@@ -2,14 +2,14 @@
 codecov==2.1.12
 flake8==3.9.2
 isort==5.9.3
-black==21.9b0
+black==22.3.0
 nbsphinx==0.8.7
 pydata-sphinx-theme==0.7.1
 Sphinx==4.2.0
 sphinx-inline-tabs==2022.1.2b11
 sphinx-copybutton==0.4.0
 myst-parser==0.16.1
-nbconvert==6.2.0
+nbconvert==6.4.5
 ipython==7.31.1
 pygments==2.10.0
 jupyter==1.0.0
