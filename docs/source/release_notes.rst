@@ -14,6 +14,7 @@ Future Release
         * Update nbconvert to version 6.4.5 to fix docs build issue (:pr:`305`)
     * Testing Changes
         * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
+        * Upgrade black version to 22.3.0 to fix linting issue (:pr:`309`)
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
