@@ -33,10 +33,10 @@ jobs:
           python -m pip install -r dist/package/test-requirements.txt
       - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests (no code coverage)
-        run: cd dist/package && make unit_tests -f ../../Makefile
+        run: cd dist/package && make test -f ../../Makefile
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
-        run: cd dist/package && make unit_tests addopts="--cov=composeml" -f ../../Makefile
+        run: cd dist/package && make test addopts="--cov=composeml" -f ../../Makefile
       - if: ${{ matrix.python-version == 3.8 }}
         name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

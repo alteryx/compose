@@ -25,9 +25,18 @@ package_build:
 	tar -zxvf "dist/${package}.tar.gz" 
 	mv ${package} dist/package
 
-unit_tests:
+test:
 	pytest composeml --cache-clear --show-capture=stderr -vv ${addopts}
 
 checkdeps:
 	$(eval allow_list='matplotlib|pandas|seaborn|woodwork|featuretools|evalml|tqdm')
 	pip freeze | grep -v "compose.git" | grep -E $(allow_list) > $(OUTPUT_FILEPATH)
+
+.PHONY: installdeps
+installdeps: upgradepip
+	pip install -e .
+	pip install -r dev-requirements.txt
+
+.PHONY: upgradepip
+upgradepip:
+	python -m pip install --upgrade pip
