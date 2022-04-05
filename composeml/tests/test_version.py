@@ -1,4 +1,4 @@
-from compose import __version__
+from composeml import __version__
 
 
 def test_version():
