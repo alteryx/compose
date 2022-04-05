@@ -38,7 +38,7 @@ jobs:
           cd unpacked_sdist/
           pytest composeml/ -n 2 --cov=composeml --cov-config=../.coveragerc
       - if: ${{ matrix.python-version != 3.8 }}
-        name: Run unit tests with code coverage
+        name: Run unit tests with no code coverage
         run: |
           cd unpacked_sdist/
           pytest composeml/ -n 2
