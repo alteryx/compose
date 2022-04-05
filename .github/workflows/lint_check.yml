@@ -7,30 +7,29 @@ on:
 
 name: Lint Check
 jobs:
-  lint_tests:
-    name: Lint Tests / Python ${{ matrix.python-version }}
+  lint_test:
+    name: ${{ matrix.python_version }} lint check
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.9"]
+        python_version: ["3.10"]
     steps:
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up python ${{ matrix.python_version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python_version }}
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Build source distribution
-        run: make package_build
-      - name: Install package with test requirements
+      - name: Build compose package
+        run: make package_compose
+      - name: Install compose with dev, and test requirements
         run: |
           pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install dist/package/
-          python -m pip install -r dev-requirements.txt
-          python -m pip install -r test-requirements.txt
-      - name: Run lint tests
-        run: cd dist/package && make lint -f ../../Makefile
+          python -m pip install .[dev]
+      - name: Run lint test
+        run: make lint

@@ -24,19 +24,23 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_build
+        run: make package_compose
       - name: Install package with test requirements
         run: |
           python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install dist/package/
-          python -m pip install -r dist/package/test-requirements.txt
-      - if: ${{ matrix.python-version != 3.8 }}
-        name: Run unit tests (no code coverage)
-        run: cd dist/package && make test -f ../../Makefile
+          python -m pip install unpacked_sdist/[test]
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
-        run: cd dist/package && make test addopts="--cov=composeml" -f ../../Makefile
+        run: |
+          coverage erase
+          cd unpacked_sdist/
+          pytest composeml/ -n 2 --cov=composeml --cov-config=../.coveragerc
+      - if: ${{ matrix.python-version != 3.8 }}
+        name: Run unit tests with no code coverage
+        run: |
+          cd unpacked_sdist/
+          pytest composeml/ -n 2
       - if: ${{ matrix.python-version == 3.8 }}
         name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
