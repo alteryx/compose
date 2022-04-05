@@ -45,6 +45,6 @@ upgradebuild:
 .PHONY: package_compose
 package_compose: upgradepip upgradebuild
 	python -m build
-	$(eval FT_VERSION := $(shell grep '__version__\s=' compose/version.py | grep -o '[^ ]*$$'))
-	tar -zxvf "dist/compose-${FT_VERSION}.tar.gz"
-	mv "compose-${FT_VERSION}" unpacked_sdist
+	$(eval FT_VERSION := $(shell grep '__version__\s=' composeml/version.py | grep -o '[^ ]*$$'))
+	tar -zxvf "dist/composeml-${FT_VERSION}.tar.gz"
+	mv "composeml-${FT_VERSION}" unpacked_sdist
