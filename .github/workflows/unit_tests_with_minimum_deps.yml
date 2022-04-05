@@ -23,7 +23,7 @@ jobs:
         run: make package_compose
       - name: Config pip, upgrade pip
         run: |
-          pip config --site set global.progress_bar off
+          python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
           python -m pip install "$(cat composeml/tests/requirement_files/minimum_test_requirements.txt | grep wheel)"
       - name: Install composeml, test reqs, core reqs
@@ -33,4 +33,4 @@ jobs:
           python -m pip install -r composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Run unit tests (no code coverage)
         run: |
-          pytest -x -n 2 composeml/tests/
+          pytest composeml/
