@@ -27,6 +27,7 @@ jobs:
           python -m pip config --site set global.progress_bar off
           python -m pip install unpacked_sdist/
           python -m pip install unpacked_sdist/[dev]
+          python -m pip install unpacked_sdist/[docs]
           python -m pip check
           sudo apt install -q -y pandoc
           sudo apt install -q -y graphviz

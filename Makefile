@@ -32,7 +32,7 @@ installdeps: upgradepip
 .PHONY: checkdeps
 checkdeps:
 	$(eval allow_list='matplotlib|pandas|seaborn|woodwork|featuretools|evalml|tqdm')
-	pip freeze | grep -v "alteryx/composeml.git" | grep -E $(allow_list) > $(OUTPUT_PATH)
+	pip freeze | grep -v "alteryx/compose.git" | grep -E $(allow_list) > $(OUTPUT_PATH)
 
 .PHONY: upgradepip
 upgradepip:
