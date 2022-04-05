@@ -6,9 +6,12 @@ on:
     branches:
       - main
 jobs:
-  py36_unit_tests_minimum_dependencies:
+  py37_unit_tests_minimum_dependencies:
     name: Unit Tests - 3.7 Minimum Dependencies
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        libraries: ["core", "spark"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -23,17 +26,14 @@ jobs:
         run: make package_compose
       - name: Config pip, upgrade pip
         run: |
-          python -m pip config --site set global.progress_bar off
+          pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
           python -m pip install "$(cat composeml/tests/requirement_files/minimum_test_requirements.txt | grep wheel)"
-      - name: Install composeml with no dependencies
+      - name: Install composeml
         run: |
           python -m pip install -e . --no-dependencies
-      - name: Install composeml - minimum tests requirements
-        run: |
           python -m pip install -r composeml/tests/requirement_files/minimum_test_requirements.txt
-      - name: Install composeml - minimum core requirements
-        run: |
           python -m pip install -r composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Run unit tests (no code coverage)
-        run: cd dist/package && make test -f ../../Makefile
+        run: |
+          python -m pytest -x -n 2 featuretools/tests/
