@@ -7,8 +7,8 @@ on:
 
 name: Install Test
 jobs:
-  install_ft_complete:
-    name: ${{ matrix.os }} - ${{ matrix.python_version }} install compose complete
+  install_cm_complete:
+    name: ${{ matrix.os }} - ${{ matrix.python_version }} install compose
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Build compose package
         run: make package_compose
-      - name: Install complete version of compose from sdist
+      - name: Install compose complete from sdist
         run: |
           pip config --site set global.progress_bar off
           python -m pip install "unpacked_sdist/[complete]"
