@@ -31,12 +31,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e unpacked_sdist/
           python -m pip install -e unpacked_sdist/[test]
-      - if: ${{ matrix.python-version != 3.8 }}
-        name: Run unit tests (no code coverage)
-        run: cd dist/package && make test -f ../../Makefile
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
-        run: cd dist/package && make test addopts="--cov=composeml" -f ../../Makefile
+        run: |
+          coverage erase
+          cd unpacked_sdist/
+          pytest composeml/ -n 2 --cov=composeml --cov-config=../.coveragerc
+      - if: ${{ matrix.python-version != 3.8 }}
+        name: Run unit tests with code coverage
+        run: |
+          cd unpacked_sdist/
+          pytest composeml/ -n 2
       - if: ${{ matrix.python-version == 3.8 }}
         name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
