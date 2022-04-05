@@ -24,13 +24,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_build
+        run: make package_compose
       - name: Install package with test requirements
         run: |
           python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install dist/package/
-          python -m pip install -r dist/package/test-requirements.txt
+          python -m pip install -e unpacked_sdist/
+          python -m pip install -e unpacked_sdist/[test]
       - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests (no code coverage)
         run: cd dist/package && make test -f ../../Makefile

@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Build source distribution
-        run: make package_build
+        run: make package_compose
       - name: Config pip, upgrade pip
         run: |
           python -m pip config --site set global.progress_bar off
