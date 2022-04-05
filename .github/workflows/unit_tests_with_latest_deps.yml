@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install -e unpacked_sdist/[test]
+          python -m pip install unpacked_sdist/[test]
       - if: ${{ matrix.python-version == 3.8 }}
         name: Run unit tests with code coverage
         run: |
