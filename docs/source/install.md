@@ -1,6 +1,6 @@
 # Install
 
-Compose is available for Python 3.7, 3.8, and 3.9. It can be installed from [PyPI](https://pypi.org/project/composeml/), [conda-forge](https://anaconda.org/conda-forge/composeml), or from [source](https://github.com/alteryx/compose).
+Compose is available for Python 3.7, 3.8, 3.9 and 3.10. It can be installed from [PyPI](https://pypi.org/project/composeml/), [conda-forge](https://anaconda.org/conda-forge/composeml), or from [source](https://github.com/alteryx/compose).
 
 ## pip
 

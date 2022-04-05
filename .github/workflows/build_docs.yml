@@ -21,14 +21,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_build
+        run: make package_compose
       - name: Install package with doc requirements
         run: |
-          pip config --site set global.progress_bar off
-          pip install --upgrade pip
-          pip install dist/package/
-          pip install -r dev-requirements.txt
+          python -m pip config --site set global.progress_bar off
+          python -m pip install unpacked_sdist/
+          python -m pip install unpacked_sdist/[dev]
+          python -m pip check
           sudo apt install -q -y pandoc
           sudo apt install -q -y graphviz
       - name: Run doc tests
-        run: make doc_tests
+        run: make -C docs/ -e "SPHINXOPTS=-W" clean html
