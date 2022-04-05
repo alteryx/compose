@@ -4,5 +4,5 @@ pytest-cov==2.10.1
 pytest-xdist==1.26.1
 wheel==0.33.1
 featuretools==1.4.0
-evalml==0.41.0
 woodwork==0.11.0
+pyarrow==3.0.0
