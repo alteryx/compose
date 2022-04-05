@@ -33,4 +33,4 @@ jobs:
           python -m pip install -r composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Run unit tests (no code coverage)
         run: |
-          python -m pytest -x -n 2 composeml/tests/
+          pytest -x -n 2 composeml/tests/
