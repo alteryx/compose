@@ -8,7 +8,7 @@ Future Release
     * Fixes
     * Changes
         * Update ipython to 7.31.1 (:pr:`286`)
-        * Transition to pyproject.toml and setup.cfg (:pr:`310`)
+        * Transition to pyproject.toml and setup.cfg (:pr:`310`, :pr:`313`)
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
