@@ -10,7 +10,7 @@ Future Release
         * Update ipython to 7.31.1 (:pr:`286`)
         * Transition to pyproject.toml and setup.cfg (:pr:`310`, :pr:`313`)
     * Documentation Changes
-        * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
+        * Update README.md with Alteryx link (:pr:`289`, :pr:`290`, :pr:`314`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
         * Update nbconvert to version 6.4.5 to fix docs build issue (:pr:`305`)
     * Testing Changes
