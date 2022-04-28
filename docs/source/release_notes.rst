@@ -6,7 +6,7 @@ Future Release
 ==============
 
     .. warning::
-        Featuretools will not support Python 3.7 in this release.
+        Compose will no longer support Python 3.7.
         
     * Enhancements
     * Fixes
