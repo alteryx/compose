@@ -4,11 +4,16 @@ Release Notes
 
 Future Release
 ==============
+
+    .. warning::
+        Featuretools will not support Python 3.7 in next release.
+        
     * Enhancements
     * Fixes
     * Changes
         * Update ipython to 7.31.1 (:pr:`286`)
         * Transition to pyproject.toml and setup.cfg (:pr:`310`, :pr:`313`)
+        * Add support for python 3.10 (:pr:`318`)
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`, :pr:`314`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
@@ -20,6 +25,12 @@ Future Release
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
+
+
+.. warning::
+
+    **Breaking Changes**
+        * We are dropping support for Python 3.7 in the upcoming release.
 
 **v0.8.0** January 20, 2022
     * Enhancements
