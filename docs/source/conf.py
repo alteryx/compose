@@ -87,10 +87,29 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "images/compose_nav2.png"
 html_favicon = "images/favicon.ico"
 html_theme_options = {
-  "github_url": "https://github.com/alteryx/compose",
-  "twitter_url": "https://twitter.com/AlteryxOSS",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/alteryx/compose",
+            "icon": "fab fa-github-square",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Twitter",
+            "url": "https://twitter.com/AlteryxOSS",
+            "icon": "fab fa-twitter-square",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Slack",
+            "url": "https://join.slack.com/t/alteryx-oss/shared_invite/zt-182tyvuxv-NzIn6eiCEf8TBziuKp0bNA",
+            "icon": "fab fa-slack",
+            "type": "fontawesome",
+        },
+    ],
+    "collapse_navigation": False,
+    "navigation_depth": 2,
 }
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
