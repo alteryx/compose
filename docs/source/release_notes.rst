@@ -14,6 +14,7 @@ Future Release
         * Update ipython to 7.31.1 (:pr:`286`)
         * Transition to pyproject.toml and setup.cfg (:pr:`310`, :pr:`313`)
         * Add support for python 3.10 (:pr:`318`)
+        * Fix Makefile output filepath (:pr:`320`)
     * Documentation Changes
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`, :pr:`314`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
