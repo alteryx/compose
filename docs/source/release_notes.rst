@@ -6,7 +6,7 @@ Future Release
 ==============
 
     .. warning::
-        Featuretools will not support Python 3.7 in next release.
+        Featuretools will not support Python 3.7 in this release.
         
     * Enhancements
     * Fixes
@@ -25,12 +25,6 @@ Future Release
 
     | Thanks to the following people for contributing to this release:
     | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
-
-
-.. warning::
-
-    **Breaking Changes**
-        * We are dropping support for Python 3.7 in the upcoming release.
 
 **v0.8.0** January 20, 2022
     * Enhancements
