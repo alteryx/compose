@@ -13,6 +13,7 @@ Future Release
         * Update README.md with Alteryx link (:pr:`289`, :pr:`290`)
         * Add in-line tabs and copy-paste functionality to docs (:pr:`293`)
         * Update nbconvert to version 6.4.5 to fix docs build issue (:pr:`305`)
+        * Update slack invite link to new (:pr:`316`)
     * Testing Changes
         * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
         * Upgrade black version to 22.3.0 to fix linting issue (:pr:`309`)
