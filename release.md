@@ -1,10 +1,10 @@
 # Release Process
 ## Prerequisites
-The environment variables `PYPI_USERNAME` and `PYPI_PASSWORD` must be already set in the repository as secrets. To add these variables, go to Secrets in the Settings of the repostiory.
+The environment variables `PYPI_USERNAME` and `PYPI_PASSWORD` must be already set in the repository as secrets. To add these variables, go to Secrets in the Settings of the repository.
 
 ## Create Release Branch
 1. Branch off of main and name the branch the release version number (e.g. v0.1.2)
-2. Bump verison number in `setup.py`, and `composeml/__init__.py`.
+2. Bump version number in ``composeml/version.py`, and `composeml/tests/test_version.py`.
 
 ## Create Release PR
 A release PR should have the version number as the title and the changelog updates as the PR body text. The contributors line is not necessary.
