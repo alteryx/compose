@@ -2,14 +2,21 @@
 Release Notes
 =============
 
-Future Release
-==============
+.. Future Release
+  ==============
+    * Enhancements
+    * Fixes
+    * Changes
+    * Documentation Changes
+    * Testing Changes
+
+.. Thanks to the following people for contributing to this release:
+
+**v0.9.0** May 12, 2022
 
     .. warning::
         Compose will no longer support Python 3.7.
-        
-    * Enhancements
-    * Fixes
+
     * Changes
         * Update ipython to 7.31.1 (:pr:`286`)
         * Transition to pyproject.toml and setup.cfg (:pr:`310`, :pr:`313`)
