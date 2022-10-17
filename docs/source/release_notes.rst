@@ -2,15 +2,17 @@
 Release Notes
 =============
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
     * Documentation Changes
+        * Fix docs build and clean up release notes (:pr:`336`)
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`thehomebrewnerd`
 
 **v0.9.0** May 12, 2022
 
@@ -32,8 +34,8 @@ Release Notes
         * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
         * Upgrade black version to 22.3.0 to fix linting issue (:pr:`309`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
 
 **v0.8.0** January 20, 2022
     * Enhancements
@@ -51,8 +53,8 @@ Release Notes
         * Add unit test for dropping empty data slices (:pr:`280`)
         * Add auto approve workflow for dependency updates (:pr:`281`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
 
 .. warning::
 
@@ -77,10 +79,8 @@ Release Notes
         * Add workflow to check latest dependencies (:pr:`233`)
         * Update reviewers for minimum and latest dependency checkers (:pr:`257`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`jeff-hernandez`
-
-|
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`jeff-hernandez`
 
 **v0.6.0** February 11, 2021
     * Enhancements
@@ -99,10 +99,8 @@ Release Notes
         * Migrated CI tests to Github Actions (:pr:`184`, :pr:`189`)
         * Updated tests to trigger on pull request events (:pr:`199`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`flowersw`, :user:`jeff-hernandez`, :user:`rwedge`
-
-|
+    Thanks to the following people for contributing to this release:
+    :user:`flowersw`, :user:`jeff-hernandez`, :user:`rwedge`
 
 **v0.5.1** September 22, 2020
     * Documentation Changes
@@ -111,8 +109,6 @@ Release Notes
         * Add Chicago Bike Tutorial (:pr:`157`).
     * Testing Changes
         * Test Doc Builds (:pr:`165`)
-
-|
 
 **v0.5.0** August 28, 2020
     * Enhancements
@@ -129,8 +125,6 @@ Release Notes
     **Breaking Changes**
         * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
 
-|
-
 **v0.4.0** July 2, 2020
     * Enhancements
         * Target values can be sampled from each group (:pr:`138`).
@@ -143,8 +137,6 @@ Release Notes
 
     **Breaking Changes**
         * Loading label times from previous versions will result in an error.
-
-|
 
 **v0.3.0** June 1, 2020
     * Enhancements
@@ -166,8 +158,6 @@ Release Notes
 
     **Breaking Changes**
         * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
-
-|
 
 **v0.1.8** March 11, 2020
     * Fixes
@@ -227,6 +217,3 @@ Release Notes
 
 **v0.1.1** May 31, 2019
     * Initial Release
-
-|
-|
