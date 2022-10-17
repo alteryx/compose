@@ -57,10 +57,10 @@ v0.8.0 Jan 20, 2022
     Thanks to the following people for contributing to this release:
     :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_dataframe_name``.
+        **Breaking Changes**
+            * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_dataframe_name``.
 
 v0.7.0 Nov 2, 2021
 ==================
@@ -125,10 +125,10 @@ v0.5.0 Aug 28, 2020
         * Updated Predict Next Purchase Demo (:pr:`154`).
         * Updated Predict Turbofan Degradation Demo (:pr:`154`).
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
+        **Breaking Changes**
+            * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
 
 v0.4.0 Jul 2, 2020
 ==================
@@ -139,10 +139,10 @@ v0.4.0 Jul 2, 2020
     * Changes
         * The label times object was refactored to improve design and structure (:pr:`135`).
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * Loading label times from previous versions will result in an error.
+        **Breaking Changes**
+            * Loading label times from previous versions will result in an error.
 
 v0.3.0 Jun 1, 2020
 ==================
@@ -162,10 +162,10 @@ v0.2.0 Apr 23, 2020
     * Testing Changes
         * Added tests that use Python 3.8 in CirlceCI (:pr:`128`)
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
+        **Breaking Changes**
+            * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
 
 v0.1.8 Mar 11, 2020
 ===================
