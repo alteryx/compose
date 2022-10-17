@@ -1,19 +1,20 @@
-=============
 Release Notes
-=============
+-------------
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
     * Documentation Changes
+        * Fix docs build and clean up release notes (:pr:`336`)
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`thehomebrewnerd`
 
-**v0.9.0** May 12, 2022
-
+v0.9.0 May 12, 2022
+===================
     .. warning::
         Compose will no longer support Python 3.7.
 
@@ -32,10 +33,11 @@ Release Notes
         * Add woodwork to ``test-requirements.txt`` (:pr:`296`)
         * Upgrade black version to 22.3.0 to fix linting issue (:pr:`309`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`mingdavidqi`, :user:`thehomebrewnerd`
 
-**v0.8.0** January 20, 2022
+v0.8.0 Jan 20, 2022
+===================
     * Enhancements
         * Add issue templates for bugs, feature requests and documentation improvements (:pr:`271`)
     * Changes
@@ -51,15 +53,16 @@ Release Notes
         * Add unit test for dropping empty data slices (:pr:`280`)
         * Add auto approve workflow for dependency updates (:pr:`281`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`jeff-hernandez`, :user:`thehomebrewnerd`
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_dataframe_name``.
+        **Breaking Changes**
+            * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_dataframe_name``.
 
-**v0.7.0** November 2, 2021
+v0.7.0 Nov 2, 2021
+==================
     * Enhancements
         * Add ``maximum_data`` parameter to control when a search should stop (:pr:`216`)
         * Add optional automatic update checker (:pr:`223`, :pr:`229`, :pr:`232`)
@@ -77,12 +80,11 @@ Release Notes
         * Add workflow to check latest dependencies (:pr:`233`)
         * Update reviewers for minimum and latest dependency checkers (:pr:`257`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`gsheni`, :user:`jeff-hernandez`
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`, :user:`jeff-hernandez`
 
-|
-
-**v0.6.0** February 11, 2021
+v0.6.0 Feb 11, 2021
+===================
     * Enhancements
         * Added description for continuous target distributions (:pr:`187`)
     * Fixes
@@ -99,12 +101,11 @@ Release Notes
         * Migrated CI tests to Github Actions (:pr:`184`, :pr:`189`)
         * Updated tests to trigger on pull request events (:pr:`199`)
 
-    | Thanks to the following people for contributing to this release:
-    | :user:`flowersw`, :user:`jeff-hernandez`, :user:`rwedge`
+    Thanks to the following people for contributing to this release:
+    :user:`flowersw`, :user:`jeff-hernandez`, :user:`rwedge`
 
-|
-
-**v0.5.1** September 22, 2020
+v0.5.1 Sep 22, 2020
+===================
     * Documentation Changes
         * Update F1 Macro in Turbofan Degradation Tutorial (:pr:`180`).
         * Apply Pandas Docs Theme (:pr:`172`).
@@ -112,9 +113,8 @@ Release Notes
     * Testing Changes
         * Test Doc Builds (:pr:`165`)
 
-|
-
-**v0.5.0** August 28, 2020
+v0.5.0 Aug 28, 2020
+===================
     * Enhancements
         * Added Column-Based Windows (:pr:`151`).
     * Changes
@@ -124,14 +124,13 @@ Release Notes
         * Updated Predict Next Purchase Demo (:pr:`154`).
         * Updated Predict Turbofan Degradation Demo (:pr:`154`).
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
+        **Breaking Changes**
+            * Attributes of the data slice context have changed. Inside a labeling function, the timestamps of a data slice can be referenced by :code:`ds.context.slice_start` and :code:`ds.context.slice_stop`. For more details, see :ref:`Data Slice Context <data-slice-context>`.
 
-|
-
-**v0.4.0** July 2, 2020
+v0.4.0 Jul 2, 2020
+==================
     * Enhancements
         * Target values can be sampled from each group (:pr:`138`).
         * One of multiple targets can be selected (:pr:`147`).
@@ -139,20 +138,20 @@ Release Notes
     * Changes
         * The label times object was refactored to improve design and structure (:pr:`135`).
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * Loading label times from previous versions will result in an error.
+        **Breaking Changes**
+            * Loading label times from previous versions will result in an error.
 
-|
-
-**v0.3.0** June 1, 2020
+v0.3.0 Jun 1, 2020
+==================
     * Enhancements
         * Label Search for Multiple Targets (:pr:`130`)
     * Changes
         * Column renamed from :code:`cutoff_time` to :code:`time` (:pr:`139`)
 
-**v0.2.0** April 23, 2020
+v0.2.0 Apr 23, 2020
+===================
     * Changes
         * Dropped Support for Python 3.5 (:pr:`128`)
         * Rename LabelTimes.name to LabelTimes.label_name (:pr:`126`)
@@ -162,18 +161,18 @@ Release Notes
     * Testing Changes
         * Added tests that use Python 3.8 in CirlceCI (:pr:`128`)
 
-.. warning::
+    .. warning::
 
-    **Breaking Changes**
-        * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
+        **Breaking Changes**
+            * ``LabelTimes.name`` has been renamed to ``LabelTimes.label_name``
 
-|
-
-**v0.1.8** March 11, 2020
+v0.1.8 Mar 11, 2020
+===================
     * Fixes
         * Support for Pandas 1.0
 
-**v0.1.7** January 31, 2020
+v0.1.7 Jan 31, 2020
+===================
     * Enhancements
         * Added higher-level mappings to offsets.
         * Track settings for sample transforms.
@@ -182,7 +181,8 @@ Release Notes
     * Testing Changes
         * Moved Featuretools to test requirements.
 
-**v0.1.6** October 22, 2019
+v0.1.6 Oct 22, 2019
+===================
     * Enhancements
         * Serialization for Label Times
     * Fixes
@@ -193,7 +193,8 @@ Release Notes
     * Testing Changes
         * Integration Tests for Python Versions 3.6 and 3.7
 
-**v0.1.5** September 16, 2019
+v0.1.5 Sep 16, 2019
+===================
     * Enhancements
         * Added Slice Generator
         * Added Seaborn Plots
@@ -204,13 +205,15 @@ Release Notes
         * Added Example: Predict Next Purchase
         * Added Example: Predict RUL
 
-**v0.1.4** August 7, 2019
+v0.1.4 Aug 7, 2019
+==================
     * Enhancements
         * Added Sample Transform
         * Improved Progress Bar
         * Improved Label Times description
 
-**v0.1.3** July 9, 2019
+v0.1.3 Jul 9, 2019
+==================
     * Enhancements
         * Improved documentation
         * Added testing for Featuretools compatibility
@@ -218,15 +221,14 @@ Release Notes
         * Refactored search in Label Maker
         * Improved testing for Label Transforms
 
-**v0.1.2** June 19, 2019
+v0.1.2 Jun 19, 2019
+===================
     * Enhancements
         * Add dynamic progress bar
         * Add label transform for binning labels
         * Improve code coverage
         * Update documentation
 
-**v0.1.1** May 31, 2019
+v0.1.1 May 31, 2019
+===================
     * Initial Release
-
-|
-|
