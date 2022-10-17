@@ -52,7 +52,7 @@ class LabelTimes(pd.DataFrame):
     def _check_target_types(self):
         """Validates the target types."""
         if isinstance(self.target_types, dict):
-            self.target_types = pd.Series(self.target_types)
+            self.target_types = pd.Series(self.target_types, dtype="object")
 
         if self.target_types.empty:
             self.target_types = self._infer_target_types()
