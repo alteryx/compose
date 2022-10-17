@@ -6,6 +6,7 @@ Future Release
     * Enhancements
     * Fixes
     * Changes
+        * Explicitly set series dtype for ``LabelTimes.target_types`` (:pr:`337`)
     * Documentation Changes
         * Fix docs build and clean up release notes (:pr:`336`)
     * Testing Changes
