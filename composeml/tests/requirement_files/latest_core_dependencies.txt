@@ -1,4 +1,4 @@
-featuretools==1.16.0
+featuretools==1.17.0
 matplotlib==3.6.0
 pandas==1.5.1
 seaborn==0.12.1
