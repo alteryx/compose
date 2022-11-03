@@ -1,5 +1,5 @@
 featuretools==1.17.0
-matplotlib==3.6.0
+matplotlib==3.6.2
 pandas==1.5.1
 seaborn==0.12.1
 tqdm==4.64.1
