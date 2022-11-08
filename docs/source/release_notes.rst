@@ -4,11 +4,11 @@ Release Notes
 Future Release
 ==============
     * Enhancements
-        * Add create feedstock PR workflow (:pr:`346`)
     * Fixes
     * Changes
     * Documentation Changes
     * Testing Changes
+        * Add create feedstock PR workflow (:pr:`346`)
 
     Thanks to the following people for contributing to this release:
     :user:`gsheni`
