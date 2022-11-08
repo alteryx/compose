@@ -34,7 +34,7 @@ jobs:
         with:
           project: "compose"
           pypi_version: ${{ github.event.inputs.version }}
-          project_metadata_filepath: "composeml/pyproject.toml"
+          project_metadata_filepath: "compose/pyproject.toml"
           meta_yaml_filepath: "composeml-feedstock/recipe/meta.yaml"
       - name: View updated meta yaml
         run: cat composeml-feedstock/recipe/meta.yaml
