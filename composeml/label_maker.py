@@ -1,6 +1,7 @@
 from sys import stdout
 
 from pandas import Series
+from pandas.api.types import is_categorical_dtype
 from tqdm import tqdm
 
 from composeml.data_slice import DataSliceGenerator
@@ -205,6 +206,11 @@ class LabelMaker:
 
         df = self.set_index(df)
         total = search.expected_count if search.is_finite else 1
+        # If the target is categorical, make sure there are no unused categories
+        if is_categorical_dtype(df[self.target_dataframe_name]):
+            df[self.target_dataframe_name] = df[
+                self.target_dataframe_name
+            ].cat.remove_unused_categories()
         target_groups = df.groupby(self.target_dataframe_name)
         total *= target_groups.ngroups
 
