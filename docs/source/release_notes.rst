@@ -5,13 +5,14 @@ Future Release
 ==============
     * Enhancements
     * Fixes
+        * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
     * Documentation Changes
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
 
     Thanks to the following people for contributing to this release:
-    :user:`gsheni`
+    :user:`gsheni`, :user:`thehomebrewnerd`
     
 v0.9.1 Nov 2, 2022
 ==================
