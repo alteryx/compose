@@ -1,6 +1,149 @@
+[project]
+name = "composeml"
+readme = "README.md"
+description = "a framework for automated prediction engineering"
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent",
+]
+authors = [
+    {name="Alteryx, Inc.", email="open_source_support@alteryx.com"}
+]
+maintainers = [
+    {name="Alteryx, Inc.", email="open_source_support@alteryx.com"}
+]
+keywords = ["prediction engineering", "data science", "machine learning"]
+license = {text = "BSD 3-clause"}
+requires-python = ">=3.8,<4"
+dependencies = [
+    "pandas >= 1.3.0",
+    "tqdm >= 4.32.0",
+    "matplotlib >= 3.3.3",
+    "seaborn >= 0.11.0",
+]
+
+[project.urls]
+"Documentation" = "https://compose.alteryx.com"
+"Source Code"= "https://github.com/alteryx/compose/"
+"Changes" = "https://compose.alteryx.com/en/latest/release_notes.html"
+"Issue Tracker" = "https://github.com/alteryx/compose/issues"
+"Twitter" = "https://twitter.com/alteryxoss"
+"Chat" = "https://join.slack.com/t/alteryx-oss/shared_invite/zt-182tyvuxv-NzIn6eiCEf8TBziuKp0bNA"
+
+[project.optional-dependencies]
+test = [
+    "pip >= 21.3.1",
+    "pytest-cov == 3.0.0",
+    "pytest-xdist >= 2.5.0",
+    "wheel >= 0.33.1",
+    "featuretools >= 1.4.0",
+    "woodwork >= 0.11.0",
+    "pyarrow >= 3.0.0",
+]
+updater = [
+    "alteryx-open-src-update-checker >= 2.1.0"
+]
+docs = [
+    "evalml >= 0.45.0"
+]
+dev = [
+    "codecov == 2.1.12",
+    "flake8 == 4.0.1",
+    "isort == 5.9.3",
+    "black == 22.3.0",
+    "nbsphinx == 0.8.7",
+    "pydata-sphinx-theme == 0.7.1",
+    "Sphinx == 4.2.0",
+    "sphinx-inline-tabs == 2022.1.2b11",
+    "sphinx-copybutton == 0.4.0",
+    "myst-parser == 0.16.1",
+    "nbconvert == 6.4.5",
+    "ipython == 7.31.1",
+    "pygments == 2.10.0",
+    "jupyter == 1.0.0",
+    "pandoc == 1.1.0",
+    "ipykernel == 6.4.2",
+    "scikit-learn >= 0.20.0, !=0.22",
+]
+complete = [
+    "featuretools[updater]",
+]
+
+[tool.setuptools]
+include-package-data = true
+license-files = [
+    "LICENSE",
+]
+
+[tool.setuptools.packages.find]
+namespaces = true
+
+[tool.setuptools.package-data]
+"*" = [
+    "*.txt",
+    "README.md",
+]
+
+[tool.setuptools.exclude-package-data]
+"*" = [
+    "* __pycache__",
+    "*.py[co]",
+    "docs/*"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "composeml.version.__version__"}
+
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+testpaths = [
+    "composeml/tests/*"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.isort]
+profile = "black"
+forced_separate = "composeml"
+known_first_party = "composeml"
+skip = "__init__.py"
+filter_files = true
+multi_line_output = 3
+
+[tool.black]
+target-version = ['py310']
+
+[tool.coverage.run]
+source = ["composeml"]
+
+[tool.coverage.report]
+exclude_lines =[
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if self._verbose:",
+    "if verbose:",
+    "if profile:",
+    "pytest.skip"
+]
 [build-system]
 requires = [
-    "setuptools >= 47",
+    "setuptools >= 61.0.0",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
