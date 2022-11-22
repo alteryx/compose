@@ -599,3 +599,16 @@ def test_minimum_data_per_group_error(transactions):
 
     with pytest.raises(ValueError, match=match):
         lm.search(transactions, 1, minimum_data=minimum_data)
+
+
+def test_label_maker_categorical_target_with_missing_data(transactions, total_spent_fn):
+    transactions = transactions.copy()
+    transactions["customer_id"] = transactions["customer_id"].astype("category")
+    lm = LabelMaker(
+        target_dataframe_name="customer_id",
+        time_index="time",
+        window_size=3,
+        labeling_function=total_spent_fn,
+    )
+    # use on only the first 8 rows so the df will not contain data for customer 3
+    lm.search(transactions.head(8), -1)
