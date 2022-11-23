@@ -7,6 +7,7 @@ Future Release
     * Fixes
         * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
+        * Transition to pure pyproject.toml for project metadata (:pr:`351`)
     * Documentation Changes
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
