@@ -77,7 +77,7 @@ dev = [
     "scikit-learn >= 0.20.0, !=0.22",
 ]
 complete = [
-    "featuretools[updater]",
+    "composeml[updater]",
 ]
 
 [tool.setuptools]
