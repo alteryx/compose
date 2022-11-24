@@ -115,7 +115,7 @@ def test_describe_no_transforms(capsys):
             "",
         ]
     )
-    
+
     assert captured.out == out
 
 
