@@ -20,11 +20,11 @@ def describe_label_times(label_times):
     metadata = label_times.settings
     target_column = metadata["label_times"]["target_columns"][0]
     target_type = metadata["label_times"]["target_types"][target_column]
-    target_dataframe_name = metadata["label_times"]["target_dataframe_name"]
+    target_column_name = metadata["label_times"]["target_column_name"]
 
     settings = {
         "target_column": target_column,
-        "target_dataframe_name": target_dataframe_name,
+        "target_column_name": target_column_name,
         "target_type": target_type,
     }
 

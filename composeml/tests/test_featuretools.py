@@ -16,7 +16,7 @@ def labels():
     df.sort_values("transaction_time", inplace=True)
 
     lm = LabelMaker(
-        target_dataframe_name="customer_id",
+        target_column_name="customer_id",
         time_index="transaction_time",
         labeling_function=total_spent,
         window_size="1h",
@@ -40,7 +40,7 @@ def test_dfs(labels):
     es = ft.demo.load_mock_customer(return_entityset=True, random_seed=0)
     feature_matrix, _ = ft.dfs(
         entityset=es,
-        target_dataframe_name="customers",
+        target_column_name="customers",
         cutoff_time=labels,
         cutoff_time_in_index=True,
     )

@@ -130,7 +130,7 @@ def total_spent(ds):
     return ds['amount'].sum()
 
 label_maker = cp.LabelMaker(
-    target_dataframe_name="customer_id",
+    target_column_name="customer_id",
     time_index="transaction_time",
     labeling_function=total_spent,
     window_size="1h",
