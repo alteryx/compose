@@ -62,7 +62,7 @@ v0.8.0 Jan 20, 2022
         * Restrict to Python 3.7 to 3.9 (:pr:`265`)
         * Use black and remove autopep8 for linting (:pr:`265`)
         * Update minimum dependency checker with the correct reviewers (:pr:`267`)
-        * Rename ``LabelMaker.target_entity`` to ``LabelMaker.target_column_name`` (:pr:`276`)
+        * Rename ``LabelMaker.target_entity`` to ``LabelMaker.target_dataframe_name`` (:pr:`276`)
     * Documentation Changes
         * Update install instructions to specify correct python versions (:pr:`265`)
         * Update example notebooks to use latest Featuretools and EvalML APIs (:pr:`275`)
@@ -76,7 +76,7 @@ v0.8.0 Jan 20, 2022
     .. warning::
 
         **Breaking Changes**
-            * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_column_name``.
+            * The ``target_entity`` attribute of ``LabelMaker`` has been renamed to ``target_dataframe_name``.
 
 v0.7.0 Nov 2, 2021
 ==================
