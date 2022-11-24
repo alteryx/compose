@@ -125,7 +125,7 @@ filter_files = true
 multi_line_output = 3
 
 [tool.black]
-target-version = ['py310']
+target-version = ['py311']
 
 [tool.coverage.run]
 source = ["composeml"]
