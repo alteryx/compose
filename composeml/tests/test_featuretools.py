@@ -40,7 +40,7 @@ def test_dfs(labels):
     es = ft.demo.load_mock_customer(return_entityset=True, random_seed=0)
     feature_matrix, _ = ft.dfs(
         entityset=es,
-        target_column_name="customers",
+        target_dataframe_name="customers",
         cutoff_time=labels,
         cutoff_time_in_index=True,
     )

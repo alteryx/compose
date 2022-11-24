@@ -65,7 +65,6 @@ def test_sorted_distribution(capsys, total_spent):
             "--------",
             "num_examples_per_instance             -1",
             "target_column                total_spent",
-            "target_column_name        customer_id",
             "target_type                     discrete",
             "",
             "",
@@ -105,9 +104,8 @@ def test_describe_no_transforms(capsys):
             "",
             "Settings",
             "--------",
-            "target_column                target",
-            "target_column_name          None",
-            "target_type              continuous",
+            "target_column        target",
+            "target_type      continuous",
             "",
             "",
             "Transforms",
@@ -117,7 +115,7 @@ def test_describe_no_transforms(capsys):
             "",
         ]
     )
-
+    
     assert captured.out == out
 
 
