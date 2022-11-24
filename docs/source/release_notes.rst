@@ -15,7 +15,11 @@ Future Release
 
     Thanks to the following people for contributing to this release:
     :user:`gsheni`, :user:`thehomebrewnerd`
-    
+
+Breaking Changes
+++++++++++++++++
+* The parameter `target_dataframe_name` has been changed to `target_column_name` in ``LabelMaker``.
+
 v0.9.1 Nov 2, 2022
 ==================
     * Changes
