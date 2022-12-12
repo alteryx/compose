@@ -20,14 +20,16 @@ def describe_label_times(label_times):
     metadata = label_times.settings
     target_column = metadata["label_times"]["target_columns"][0]
     target_type = metadata["label_times"]["target_types"][target_column]
-    target_dataframe_name = metadata["label_times"]["search_settings"].get("target_dataframe_name", None)
+    target_dataframe_name = metadata["label_times"]["search_settings"].get(
+        "target_dataframe_name", None
+    )
 
     settings = {
         "target_column": target_column,
         "target_type": target_type,
     }
     if target_dataframe_name:
-        settings['target_dataframe_name'] = target_dataframe_name
+        settings["target_dataframe_name"] = target_dataframe_name
 
     settings.update(metadata["label_times"]["search_settings"])
     settings = pd.Series(settings)

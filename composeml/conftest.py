@@ -112,7 +112,7 @@ def labels():
         target_column_name="customer_id",
         search_settings={
             "target_dataframe_name": "customers",
-        }
+        },
     )
     return values
 
