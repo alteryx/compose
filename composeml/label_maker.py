@@ -22,7 +22,7 @@ class LabelMaker:
         """Creates an instance of label maker.
 
         Args:
-            target_dataframe_index (str): Column on which to make labels.
+            target_dataframe_index (str): The index of the target dataframe, from which labels will be created.
             time_index (str): Name of time column in the data frame.
             labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
                 When set as a dictionary, the key is used as the name of the labeling function.
