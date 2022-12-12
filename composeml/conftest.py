@@ -66,6 +66,7 @@ def total_spent():
         "target_column_name": "customer_id",
         "search_settings": {
             "num_examples_per_instance": -1,
+            "target_dataframe_name": "customers",
         },
     }
 
@@ -109,6 +110,9 @@ def labels():
         values,
         target_columns=["my_labeling_function"],
         target_column_name="customer_id",
+        search_settings={
+            "target_dataframe_name": "customers",
+        }
     )
     return values
 
