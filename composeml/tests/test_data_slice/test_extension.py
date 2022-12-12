@@ -6,7 +6,7 @@ from composeml import LabelMaker
 @fixture
 def data_slice(transactions):
     lm = LabelMaker(
-        target_dataframe_name="customer_id", time_index="time", window_size="1h"
+        target_dataframe_index="customer_id", time_index="time", window_size="1h"
     )
     ds = next(lm.slice(transactions, num_examples_per_instance=1))
     return ds

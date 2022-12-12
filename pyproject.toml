@@ -61,7 +61,7 @@ dev = [
     "codecov == 2.1.12",
     "flake8 == 4.0.1",
     "isort == 5.9.3",
-    "black == 22.3.0",
+    "black == 22.10.0",
     "nbsphinx == 0.8.7",
     "pydata-sphinx-theme == 0.7.1",
     "Sphinx == 4.2.0",
@@ -125,7 +125,7 @@ filter_files = true
 multi_line_output = 3
 
 [tool.black]
-target-version = ['py310']
+target-version = ['py311']
 
 [tool.coverage.run]
 source = ["composeml"]

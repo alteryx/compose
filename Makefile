@@ -9,12 +9,12 @@ clean:
 .PHONY: lint
 lint:
 	isort --check-only composeml/
-	black composeml/ -t py310 --check
+	black composeml/ -t py311 --check
 	flake8 composeml/
 
 .PHONY: lint-fix
 lint-fix:
-	black -t py310 composeml/
+	black -t py311 composeml/
 	isort composeml/
 
 .PHONY: test

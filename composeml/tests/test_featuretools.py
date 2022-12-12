@@ -16,7 +16,7 @@ def labels():
     df.sort_values("transaction_time", inplace=True)
 
     lm = LabelMaker(
-        target_dataframe_name="customer_id",
+        target_dataframe_index="customer_id",
         time_index="transaction_time",
         labeling_function=total_spent,
         window_size="1h",
