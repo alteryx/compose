@@ -65,7 +65,6 @@ def test_sorted_distribution(capsys, total_spent):
             "--------",
             "num_examples_per_instance             -1",
             "target_column                total_spent",
-            "target_dataframe_name          customers",
             "target_type                     discrete",
             "",
             "",
