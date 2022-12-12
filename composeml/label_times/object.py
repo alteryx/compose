@@ -16,7 +16,7 @@ class LabelTimes(pd.DataFrame):
     def __init__(
         self,
         data=None,
-        target_column_name=None,
+        target_dataframe_index=None,
         target_types=None,
         target_columns=None,
         search_settings=None,
@@ -25,7 +25,7 @@ class LabelTimes(pd.DataFrame):
         **kwargs,
     ):
         super().__init__(data=data, *args, **kwargs)
-        self.target_column_name = target_column_name
+        self.target_dataframe_index = target_dataframe_index
         self.target_columns = target_columns or []
         self.target_types = target_types or {}
         self.search_settings = search_settings or {}
@@ -72,7 +72,7 @@ class LabelTimes(pd.DataFrame):
         Returns:
             value (list): A list of the target names.
         """
-        not_targets = [self.target_column_name, "time"]
+        not_targets = [self.target_dataframe_index, "time"]
         target_columns = self.columns.difference(not_targets)
         assert not target_columns.empty, "target columns not found"
         value = target_columns.tolist()
@@ -115,7 +115,7 @@ class LabelTimes(pd.DataFrame):
             >>> labels = [True, False, True, False]
             >>> time = ['2020-01-01', '2020-01-02', '2020-01-03', '2020-01-04']
             >>> data = {'entity': entity, 'time': time, 'A': labels, 'B': labels}
-            >>> lt = LabelTimes(data=data, target_column_name='entity', target_columns=['A', 'B'])
+            >>> lt = LabelTimes(data=data, target_dataframe_index='entity', target_columns=['A', 'B'])
             >>> lt
                entity        time      A      B
             0       0  2020-01-01   True   True
@@ -140,7 +140,7 @@ class LabelTimes(pd.DataFrame):
         lt = self.copy()
         lt.target_columns = [target]
         lt.target_types = lt.target_types[[target]]
-        lt = lt[[self.target_column_name, "time", target]]
+        lt = lt[[self.target_dataframe_index, "time", target]]
         return lt
 
     @property
@@ -150,7 +150,7 @@ class LabelTimes(pd.DataFrame):
             "compose_version": __version__,
             "schema_version": SCHEMA_VERSION,
             "label_times": {
-                "target_column_name": self.target_column_name,
+                "target_dataframe_index": self.target_dataframe_index,
                 "target_columns": self.target_columns,
                 "target_types": self.target_types.to_dict(),
                 "search_settings": self.search_settings,
@@ -181,7 +181,7 @@ class LabelTimes(pd.DataFrame):
     def count(self):
         """Returns label count per instance."""
         self._assert_single_target()
-        count = self.groupby(self.target_column_name)
+        count = self.groupby(self.target_dataframe_index)
         count = count[self.target_columns[0]].count()
         count = count.to_frame("count")
         return count
@@ -223,7 +223,7 @@ class LabelTimes(pd.DataFrame):
             lt (LabelTimes): A copy of the label times object.
         """
         lt = super().copy(deep=deep)
-        lt.target_column_name = self.target_column_name
+        lt.target_dataframe_index = self.target_dataframe_index
         lt.target_columns = self.target_columns
         lt.target_types = self.target_types.copy()
         lt.search_settings = self.search_settings.copy()
@@ -460,7 +460,7 @@ class LabelTimes(pd.DataFrame):
             >>> entity = [0, 0, 1, 1]
             >>> labels = [True, False, True, False]
             >>> data = {'entity': entity, 'labels': labels}
-            >>> lt = LabelTimes(data=data, target_column_name='entity', target_columns=['labels'])
+            >>> lt = LabelTimes(data=data, target_dataframe_index='entity', target_columns=['labels'])
             >>> lt
                entity  labels
             0       0    True
@@ -540,7 +540,7 @@ class LabelTimes(pd.DataFrame):
             return sample
 
         if per_instance:
-            groupby = self.groupby(self.target_column_name, group_keys=False)
+            groupby = self.groupby(self.target_dataframe_index, group_keys=False)
             sample = groupby.apply(transform)
         else:
             sample = transform(self)
@@ -630,7 +630,7 @@ class LabelTimes(pd.DataFrame):
     _metadata = [
         "search_settings",
         "target_columns",
-        "target_column_name",
+        "target_dataframe_index",
         "target_types",
         "transforms",
     ]

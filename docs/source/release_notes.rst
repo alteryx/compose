@@ -8,7 +8,7 @@ Future Release
         * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
         * Transition to pure pyproject.toml for project metadata (:pr:`351`)
-        * Change `target_dataframe_name` parameter name to `target_column_name` (:pr:`353`)
+        * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
     * Documentation Changes
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
@@ -18,7 +18,7 @@ Future Release
 
 Breaking Changes
 ++++++++++++++++
-* The parameter `target_dataframe_name` has been changed to `target_column_name` in ``LabelMaker``.
+* The parameter `target_dataframe_name` has been changed to `target_dataframe_index` in ``LabelMaker``.
 
 v0.9.1 Nov 2, 2022
 ==================

@@ -14,7 +14,7 @@ class LabelMaker:
 
     def __init__(
         self,
-        target_column_name,
+        target_dataframe_index,
         time_index,
         labeling_function=None,
         window_size=None,
@@ -22,7 +22,7 @@ class LabelMaker:
         """Creates an instance of label maker.
 
         Args:
-            target_column_name (str): Column on which to make labels.
+            target_dataframe_index (str): Column on which to make labels.
             time_index (str): Name of time column in the data frame.
             labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
                 When set as a dictionary, the key is used as the name of the labeling function.
@@ -30,7 +30,7 @@ class LabelMaker:
                 As an integer, the value can be the number of rows. Default value is all future data.
         """
         self.labeling_function = labeling_function or {}
-        self.target_column_name = target_column_name
+        self.target_dataframe_index = target_dataframe_index
         self.time_index = time_index
         self.window_size = window_size
 
@@ -112,7 +112,7 @@ class LabelMaker:
         """
         self._check_example_count(num_examples_per_instance, gap)
         df = self.set_index(df)
-        target_groups = df.groupby(self.target_column_name)
+        target_groups = df.groupby(self.target_dataframe_index)
         num_examples_per_instance = ExampleSearch._check_number(
             num_examples_per_instance
         )
@@ -137,7 +137,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_column_name, group_key)
+                setattr(ds.context, self.target_dataframe_index, group_key)
                 yield ds
 
                 if ds.context.slice_number >= num_examples_per_instance:
@@ -149,7 +149,7 @@ class LabelMaker:
         value = "Elapsed: {elapsed} | "
         value += "Remaining: {remaining} | "
         value += "Progress: {l_bar}{bar}| "
-        value += self.target_column_name + ": {n}/{total} "
+        value += self.target_dataframe_index + ": {n}/{total} "
         return value
 
     def _check_example_count(self, num_examples_per_instance, gap):
@@ -207,11 +207,11 @@ class LabelMaker:
         df = self.set_index(df)
         total = search.expected_count if search.is_finite else 1
         # If the target is categorical, make sure there are no unused categories
-        if is_categorical_dtype(df[self.target_column_name]):
-            df[self.target_column_name] = df[
-                self.target_column_name
+        if is_categorical_dtype(df[self.target_dataframe_index]):
+            df[self.target_dataframe_index] = df[
+                self.target_dataframe_index
             ].cat.remove_unused_categories()
-        target_groups = df.groupby(self.target_column_name)
+        target_groups = df.groupby(self.target_dataframe_index)
         total *= target_groups.ngroups
 
         progress_bar = tqdm(
@@ -239,7 +239,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_column_name, group_key)
+                setattr(ds.context, self.target_dataframe_index, group_key)
 
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
@@ -249,7 +249,7 @@ class LabelMaker:
 
                 records.append(
                     {
-                        self.target_column_name: group_key,
+                        self.target_dataframe_index: group_key,
                         "time": ds.context.slice_start,
                         **labels,
                     }
@@ -280,7 +280,7 @@ class LabelMaker:
         lt = LabelTimes(
             data=records,
             target_columns=list(self.labeling_function),
-            target_column_name=self.target_column_name,
+            target_dataframe_index=self.target_dataframe_index,
             search_settings={
                 "num_examples_per_instance": num_examples_per_instance,
                 "minimum_data": minimum_data,
