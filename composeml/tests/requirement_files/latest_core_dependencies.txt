@@ -1,6 +1,6 @@
 featuretools==1.19.0
 matplotlib==3.6.2
 pandas==1.5.2
-seaborn==0.12.1
+seaborn==0.12.2
 tqdm==4.64.1
 woodwork==0.21.1
