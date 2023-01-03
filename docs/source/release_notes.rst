@@ -9,7 +9,7 @@ Future Release
     * Changes
         * Transition to pure pyproject.toml for project metadata (:pr:`351`)
         * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
-        * Delete MANIFEST.in from root directory (:pr:`359`)
+        * Delete MANIFEST.in and .coveragerc from root directory (:pr:`359`)
     * Documentation Changes
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
