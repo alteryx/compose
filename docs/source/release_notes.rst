@@ -8,9 +8,9 @@ Future Release
         * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
         * Transition to pure pyproject.toml for project metadata (:pr:`351`)
-        * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
-        * Temporarily restrict scikit-learn version to ``<1.2.0`` (:pr:`361`)
+        * Change ``target_dataframe_name`` parameter name to ``target_dataframe_index`` (:pr:`353`)
     * Documentation Changes
+        * Temporarily restrict scikit-learn version to ``<1.2.0`` in dev requirements to allow docs to build (:pr:`361`)
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
 
@@ -19,7 +19,7 @@ Future Release
 
 Breaking Changes
 ++++++++++++++++
-* The parameter `target_dataframe_name` has been changed to `target_dataframe_index` in ``LabelMaker``.
+* The parameter ``target_dataframe_name`` has been changed to ``target_dataframe_index`` in ``LabelMaker``.
 
 v0.9.1 Nov 2, 2022
 ==================
