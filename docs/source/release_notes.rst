@@ -9,6 +9,7 @@ Future Release
     * Changes
         * Transition to pure pyproject.toml for project metadata (:pr:`351`)
         * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
+        * Temporarily restrict scikit-learn version to ``<1.2.0`` (:pr:`361`)
     * Documentation Changes
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
