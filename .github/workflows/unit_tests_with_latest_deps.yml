@@ -35,7 +35,7 @@ jobs:
         run: |
           coverage erase
           cd unpacked_sdist/
-          pytest composeml/ -n 2 --cov=composeml --cov-config=../pyproject.toml --cov-report=xml:../coverage.xml
+          pytest composeml/ -n auto --cov=composeml --cov-config=../pyproject.toml --cov-report=xml:../coverage.xml
       - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests with no code coverage
         run: |
