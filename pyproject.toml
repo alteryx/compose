@@ -112,7 +112,7 @@ version = {attr = "composeml.version.__version__"}
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
 testpaths = [
-    "composeml/tests/*"
+    "tests/*"
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",
