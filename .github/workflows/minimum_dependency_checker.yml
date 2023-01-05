@@ -22,14 +22,14 @@ jobs:
           paths: 'setup.cfg'
           options: 'install_requires'
           extras_require: 'test'
-          output_filepath: tests/requirement_files/minimum_test_requirements.txt
+          output_filepath: composeml/tests/requirement_files/minimum_test_requirements.txt
       - name: Run min dep generator - core reqs
         id: min_dep_gen_core
         uses: alteryx/minimum-dependency-generator@v3.2
         with:
           paths: 'setup.cfg'
           options: 'install_requires'
-          output_filepath: tests/requirement_files/minimum_core_requirements.txt
+          output_filepath: composeml/tests/requirement_files/minimum_core_requirements.txt
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
