@@ -4,7 +4,7 @@ The environment variables `PYPI_USERNAME` and `PYPI_PASSWORD` must be already se
 
 ## Create Release Branch
 1. Branch off of main and name the branch the release version number (e.g. `release_v0.1.2`)
-2. Bump version number in `composeml/version.py`, and `tests/test_version.py`.
+2. Bump version number in `composeml/version.py`, and `composeml/tests/test_version.py`.
 
 ## Create Release PR
 A release PR should have the version number as the title and the changelog updates as the PR body text. The contributors line is not necessary.
