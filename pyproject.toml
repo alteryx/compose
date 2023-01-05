@@ -96,7 +96,6 @@ namespaces = true
 ]
 "composeml.demos" = [
     "*.csv",
-    "*.txt",
 ]
 
 [tool.setuptools.exclude-package-data]
