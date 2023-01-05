@@ -25,12 +25,12 @@ jobs:
         run: |
           python -m pip config --site set global.progress_bar off
           python -m pip install --upgrade pip
-          python -m pip install "$(cat composeml/tests/requirement_files/minimum_test_requirements.txt | grep wheel)"
+          python -m pip install "$(cat tests/requirement_files/minimum_test_requirements.txt | grep wheel)"
       - name: Install composeml, test reqs, core reqs
         run: |
           python -m pip install -e . --no-dependencies
-          python -m pip install -r composeml/tests/requirement_files/minimum_test_requirements.txt
-          python -m pip install -r composeml/tests/requirement_files/minimum_core_requirements.txt
+          python -m pip install -r tests/requirement_files/minimum_test_requirements.txt
+          python -m pip install -r tests/requirement_files/minimum_core_requirements.txt
       - name: Run unit tests (no code coverage)
         run: |
           pytest composeml/
