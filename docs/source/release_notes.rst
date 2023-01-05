@@ -11,6 +11,7 @@ Future Release
         * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
         * Delete MANIFEST.in and .coveragerc from root directory (:pr:`359`)
     * Documentation Changes
+        * Temporarily restrict scikit-learn version to ``<1.2.0`` in dev requirements to allow docs to build (:pr:`361`)
     * Testing Changes
         * Add create feedstock PR workflow (:pr:`346`)
 
@@ -19,7 +20,7 @@ Future Release
 
 Breaking Changes
 ++++++++++++++++
-* The parameter `target_dataframe_name` has been changed to `target_dataframe_index` in ``LabelMaker``.
+* The parameter ``target_dataframe_name`` has been changed to ``target_dataframe_index`` in ``LabelMaker``.
 
 v0.9.1 Nov 2, 2022
 ==================
