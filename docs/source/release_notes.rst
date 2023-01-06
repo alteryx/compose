@@ -1,9 +1,18 @@
 Release Notes
 -------------
 
-Future Release
-==============
+.. Future Release
+  ==============
     * Enhancements
+    * Fixes
+    * Changes
+    * Documentation Changes
+    * Testing Changes
+
+.. Thanks to the following people for contributing to this release:
+
+v0.10.0 Jan 6, 2023
+===================
     * Fixes
         * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
