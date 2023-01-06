@@ -24,7 +24,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_compose
+        run: make package
       - name: Install package with test requirements
         run: |
           python -m pip config --site set global.progress_bar off
@@ -35,15 +35,17 @@ jobs:
         run: |
           coverage erase
           cd unpacked_sdist/
-          pytest composeml/ -n 2 --cov=composeml --cov-config=../.coveragerc
+          pytest composeml/ -n auto --cov=composeml --cov-config=../pyproject.toml --cov-report=xml:../coverage.xml
       - if: ${{ matrix.python-version != 3.8 }}
         name: Run unit tests with no code coverage
         run: |
           cd unpacked_sdist/
-          pytest composeml/ -n 2
+          pytest composeml/ -n auto
       - if: ${{ matrix.python-version == 3.8 }}
         name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ${{ github.workspace }}/coverage.xml
+          verbose: true

@@ -94,6 +94,9 @@ namespaces = true
     "*.txt",
     "README.md",
 ]
+"composeml.demos" = [
+    "*.csv",
+]
 
 [tool.setuptools.exclude-package-data]
 "*" = [
@@ -104,7 +107,6 @@ namespaces = true
 
 [tool.setuptools.dynamic]
 version = {attr = "composeml.version.__version__"}
-
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"

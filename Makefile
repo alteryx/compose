@@ -42,8 +42,12 @@ upgradepip:
 upgradebuild:
 	python -m pip install --upgrade build
 
-.PHONY: package_compose
-package_compose: upgradepip upgradebuild
+.PHONY: upgradesetuptools
+upgradesetuptools:
+	python -m pip install --upgrade setuptools
+
+.PHONY: package
+package: upgradepip upgradebuild upgradesetuptools
 	python -m build
 	$(eval COMPOSE_VERSION := $(shell grep '__version__\s=' composeml/version.py | grep -o '[^ ]*$$'))
 	tar -zxvf "dist/composeml-${COMPOSE_VERSION}.tar.gz"

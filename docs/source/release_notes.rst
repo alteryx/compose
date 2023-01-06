@@ -8,7 +8,8 @@ Future Release
         * Update to avoid error with a categorical target with unused categories (:pr:`349`)
     * Changes
         * Transition to pure pyproject.toml for project metadata (:pr:`351`)
-        * Change ``target_dataframe_name`` parameter name to ``target_dataframe_index`` (:pr:`353`)
+        * Change `target_dataframe_name` parameter name to `target_dataframe_index` (:pr:`353`)
+        * Delete MANIFEST.in and .coveragerc from root directory (:pr:`359`)
     * Documentation Changes
         * Temporarily restrict scikit-learn version to ``<1.2.0`` in dev requirements to allow docs to build (:pr:`361`)
     * Testing Changes

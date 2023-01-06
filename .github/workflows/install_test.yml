@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build compose package
-        run: make package_compose
+        run: make package
       - name: Install compose complete from sdist
         run: |
           pip config --site set global.progress_bar off

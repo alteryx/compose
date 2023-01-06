@@ -21,7 +21,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build source distribution
-        run: make package_compose
+        run: make package
       - name: Install package with doc requirements
         run: |
           python -m pip config --site set global.progress_bar off

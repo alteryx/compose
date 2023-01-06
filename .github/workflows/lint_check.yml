@@ -25,7 +25,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Build compose package
-        run: make package_compose
+        run: make package
       - name: Install compose with dev, and test requirements
         run: |
           pip config --site set global.progress_bar off
