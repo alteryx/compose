@@ -12,7 +12,6 @@ jobs:
     - name: Remove docs and tests before release
       run: |
         rm -rf docs/
-        rm -rf composeml/tests/
     - name: Upload to PyPI
       uses: FeatureLabs/gh-action-pypi-upload@v2
       env:
