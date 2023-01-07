@@ -1,15 +1,17 @@
 Release Notes
 -------------
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
+        * Update create feedstock pull request workflow (:pr:`364`)
     * Documentation Changes
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`
 
 v0.10.0 Jan 6, 2023
 ===================
