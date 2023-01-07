@@ -32,7 +32,7 @@ jobs:
         id: create-feedstock-meta
         uses: alteryx/create-feedstock-meta-yaml@v4
         with:
-          project: "compose"
+          project: "composeml"
           pypi_version: ${{ github.event.inputs.version }}
           project_metadata_filepath: "compose/pyproject.toml"
           meta_yaml_filepath: "composeml-feedstock/recipe/meta.yaml"
