@@ -7,7 +7,11 @@ class DataSliceContext:
     """Tracks contextual attributes about a data slice."""
 
     def __init__(
-        self, slice_number=0, slice_start=None, slice_stop=None, next_start=None
+        self,
+        slice_number=0,
+        slice_start=None,
+        slice_stop=None,
+        next_start=None,
     ):
         """Creates the data slice context.
 

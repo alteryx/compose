@@ -58,10 +58,9 @@ docs = [
     "evalml >= 0.45.0"
 ]
 dev = [
+    "ruff == 0.0.216",
     "codecov == 2.1.12",
-    "flake8 == 4.0.1",
-    "isort == 5.9.3",
-    "black == 22.10.0",
+    "black[jupyter] == 22.10.0",
     "nbsphinx == 0.8.7",
     "pydata-sphinx-theme == 0.7.1",
     "Sphinx == 4.2.0",
@@ -118,16 +117,21 @@ filterwarnings = [
     "ignore::PendingDeprecationWarning"
 ]
 
-[tool.isort]
-profile = "black"
-forced_separate = "composeml"
-known_first_party = "composeml"
-skip = "__init__.py"
-filter_files = true
-multi_line_output = 3
+[tool.ruff]
+ignore = ["E501"]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001"
+]
+src = ["composeml"]
 
-[tool.black]
-target-version = ['py311']
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F401", "I001", "E501"]
 
 [tool.coverage.run]
 source = ["composeml"]

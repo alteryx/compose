@@ -63,14 +63,15 @@ class LabelSearch(ExampleSearch):
     def __init__(self, expected_label_counts):
         items = expected_label_counts.items()
         self.expected_label_counts = Counter(
-            {label: self._check_number(count) for label, count in items}
+            {label: self._check_number(count) for label, count in items},
         )
         self.expected_count = sum(self.expected_label_counts.values())
         self.actual_label_counts = Counter()
 
     @property
     def is_complete(self):
-        """Whether the search has found the expected number of examples for each label."""
+        """Whether the search has found the expected number of examples for each label.
+        """
         return len(self.expected_label_counts - self.actual_label_counts) == 0
 
     def is_complete_label(self, label):

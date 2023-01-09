@@ -6,7 +6,9 @@ from composeml import LabelMaker
 @fixture
 def data_slice(transactions):
     lm = LabelMaker(
-        target_dataframe_index="customer_id", time_index="time", window_size="1h"
+        target_dataframe_index="customer_id",
+        time_index="time",
+        window_size="1h",
     )
     ds = next(lm.slice(transactions, num_examples_per_instance=1))
     return ds
@@ -70,7 +72,10 @@ def test_time_index_error(transactions):
 
 def test_minimum_data_per_group(transactions):
     lm = LabelMaker(
-        "customer_id", labeling_function=len, time_index="time", window_size="1h"
+        "customer_id",
+        labeling_function=len,
+        time_index="time",
+        window_size="1h",
     )
     minimum_data = {1: "2019-01-01 09:00:00", 3: "2019-01-01 12:00:00"}
     lengths = [len(ds) for ds in lm.slice(transactions, 1, minimum_data=minimum_data)]

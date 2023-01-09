@@ -1,15 +1,17 @@
 Release Notes
 -------------
 
-.. Future Release
-  ==============
+Future Release
+==============
     * Enhancements
     * Fixes
     * Changes
+        * Remove isort, add pre-commit-config.yaml, and run on all files (:pr:`366`)
     * Documentation Changes
     * Testing Changes
 
-.. Thanks to the following people for contributing to this release:
+    Thanks to the following people for contributing to this release:
+    :user:`gsheni`:
 
 v0.10.1 Jan 6, 2023
 ===================
@@ -45,7 +47,7 @@ v0.9.1 Nov 2, 2022
         * Explicitly set series dtype for ``LabelTimes.target_types`` (:pr:`337`)
     * Documentation Changes
         * Fix docs build and clean up release notes (:pr:`336`)
-    
+
     Thanks to the following people for contributing to this release:
     :user:`thehomebrewnerd`
 

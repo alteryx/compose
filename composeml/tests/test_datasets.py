@@ -1,6 +1,6 @@
 import pytest
 
-from .. import demos
+from composeml import demos
 
 
 @pytest.fixture
