@@ -58,6 +58,7 @@ docs = [
     "evalml >= 0.45.0"
 ]
 dev = [
+    "ruff == 0.0.216",
     "codecov == 2.1.12",
     "black[jupyter] == 22.10.0",
     "nbsphinx == 0.8.7",
