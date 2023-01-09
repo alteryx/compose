@@ -79,7 +79,7 @@ def test_sorted_distribution(capsys, total_spent):
             "  - right:                  True",
             "",
             "",
-        ]
+        ],
     )
 
     assert captured.out == out
@@ -115,7 +115,7 @@ def test_describe_no_transforms(capsys):
             "No transforms applied",
             "",
             "",
-        ]
+        ],
     )
 
     assert captured.out == out

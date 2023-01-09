@@ -1,2 +1,2 @@
 # flake8:noqa
-from .generator import DataSliceGenerator
+from composeml.data_slice.generator import DataSliceGenerator

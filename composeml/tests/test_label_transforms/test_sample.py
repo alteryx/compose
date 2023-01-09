@@ -108,7 +108,7 @@ def test_sample_n_per_instance():
             "0,b",
             "1,a",
             "1,b",
-        ]
+        ],
     )
 
     lt = LabelTimes(data=data, target_dataframe_index="target_dataframe_index")
@@ -134,7 +134,7 @@ def test_sample_frac_per_instance():
             "0,a",
             "1,a",
             "1,a",
-        ]
+        ],
     )
 
     lt = LabelTimes(data=data, target_dataframe_index="target_dataframe_index")

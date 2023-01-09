@@ -45,7 +45,7 @@ v0.9.1 Nov 2, 2022
         * Explicitly set series dtype for ``LabelTimes.target_types`` (:pr:`337`)
     * Documentation Changes
         * Fix docs build and clean up release notes (:pr:`336`)
-    
+
     Thanks to the following people for contributing to this release:
     :user:`thehomebrewnerd`
 

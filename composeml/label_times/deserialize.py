@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from .object import LabelTimes
+from composeml.label_times.object import LabelTimes
 
 
 def read_config(path):

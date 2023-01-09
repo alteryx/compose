@@ -54,4 +54,4 @@ Plotting Methods
     :nosignatures:
 
     LabelPlots.count_by_time
-    LabelPlots.distribution 
+    LabelPlots.distribution

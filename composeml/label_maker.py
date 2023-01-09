@@ -67,7 +67,7 @@ class LabelMaker:
         if isinstance(value, (tuple, list)):
             value = {
                 self._name_labeling_function(function): self._check_labeling_function(
-                    function
+                    function,
                 )
                 for function in value
             }
@@ -114,7 +114,7 @@ class LabelMaker:
         df = self.set_index(df)
         target_groups = df.groupby(self.target_dataframe_index)
         num_examples_per_instance = ExampleSearch._check_number(
-            num_examples_per_instance
+            num_examples_per_instance,
         )
 
         minimum_data = self._check_cutoff_time(minimum_data)
@@ -197,7 +197,7 @@ class LabelMaker:
         self._check_example_count(num_examples_per_instance, gap)
         is_label_search = isinstance(num_examples_per_instance, dict)
         search = (LabelSearch if is_label_search else ExampleSearch)(
-            num_examples_per_instance
+            num_examples_per_instance,
         )
 
         # check minimum data cutoff time
@@ -252,7 +252,7 @@ class LabelMaker:
                         self.target_dataframe_index: group_key,
                         "time": ds.context.slice_start,
                         **labels,
-                    }
+                    },
                 )
 
                 search.update_count(labels)
@@ -265,11 +265,11 @@ class LabelMaker:
             # if finite search, update progress bar for missing examples
             if search.is_finite:
                 progress_bar.update(
-                    n=group_count * search.expected_count - progress_bar.n
+                    n=group_count * search.expected_count - progress_bar.n,
                 )
             else:
                 progress_bar.update(
-                    n=1
+                    n=1,
                 )  # otherwise, update progress bar once for each group
             search.reset_count()
 

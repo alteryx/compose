@@ -1,3 +1,3 @@
 # flake8:noqa
-from .deserialize import read_label_times
-from .object import LabelTimes
+from composeml.label_times.deserialize import read_label_times
+from composeml.label_times.object import LabelTimes

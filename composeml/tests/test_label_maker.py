@@ -574,7 +574,10 @@ def test_search_with_maximum_data(transactions):
 )
 def test_minimum_data_per_group(transactions, minimum_data):
     lm = LabelMaker(
-        "customer_id", labeling_function=len, time_index="time", window_size="1h"
+        "customer_id",
+        labeling_function=len,
+        time_index="time",
+        window_size="1h",
     )
     for supported_type in [minimum_data, pd.Series(minimum_data)]:
         lt = lm.search(transactions, 1, minimum_data=supported_type)
@@ -591,7 +594,10 @@ def test_minimum_data_per_group(transactions, minimum_data):
 
 def test_minimum_data_per_group_error(transactions):
     lm = LabelMaker(
-        "customer_id", labeling_function=len, time_index="time", window_size="1h"
+        "customer_id",
+        labeling_function=len,
+        time_index="time",
+        window_size="1h",
     )
     data = ["2019-01-01 09:00:00", "2019-01-01 12:00:00"]
     minimum_data = pd.Series(data=data, index=[1, 1])

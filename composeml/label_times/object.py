@@ -3,9 +3,9 @@ import os
 
 import pandas as pd
 
-from ..version import __version__
-from .description import describe_label_times
-from .plots import LabelPlots
+from composeml.label_times.description import describe_label_times
+from composeml.label_times.plots import LabelPlots
+from composeml.version import __version__
 
 SCHEMA_VERSION = "0.1.0"
 
@@ -372,7 +372,11 @@ class LabelTimes(pd.DataFrame):
                         bins[i] = float(edge)
 
             values = pd.cut(
-                values, bins=bins, labels=labels, right=right, precision=precision
+                values,
+                bins=bins,
+                labels=labels,
+                right=right,
+                precision=precision,
             )
 
         transform = {
@@ -430,7 +434,11 @@ class LabelTimes(pd.DataFrame):
         ) in value.items():
             label = self[self[target_column] == label]
             sample = label._sample(
-                key, value, settings, random_state=random_state, replace=replace
+                key,
+                value,
+                settings,
+                random_state=random_state,
+                replace=replace,
             )
             sample_per_label.append(sample)
 
@@ -438,7 +446,12 @@ class LabelTimes(pd.DataFrame):
         return sample
 
     def sample(
-        self, n=None, frac=None, random_state=None, replace=False, per_instance=False
+        self,
+        n=None,
+        frac=None,
+        random_state=None,
+        replace=False,
+        per_instance=False,
     ):
         """Return a random sample of labels.
 
