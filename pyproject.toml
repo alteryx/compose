@@ -59,9 +59,7 @@ docs = [
 ]
 dev = [
     "codecov == 2.1.12",
-    "flake8 == 4.0.1",
-    "isort == 5.9.3",
-    "black == 22.10.0",
+    "black[jupyter] == 22.10.0",
     "nbsphinx == 0.8.7",
     "pydata-sphinx-theme == 0.7.1",
     "Sphinx == 4.2.0",

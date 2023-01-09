@@ -31,4 +31,5 @@ repos:
     hooks:
       - id: black
         args: [--preview]
-        types_or: [python]
+        additional_dependencies: [".[jupyter]"]
+        types_or: [python, jupyter]
