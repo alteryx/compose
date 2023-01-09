@@ -8,13 +8,13 @@ clean:
 
 .PHONY: lint
 lint:
-	black . --check --preview
-	ruff .
+	black composeml/ --check --preview
+	ruff composeml/
 
 .PHONY: lint-fix
 lint-fix:
-	black . --preview
-	ruff . --fix
+	black composeml/ --preview
+	ruff composeml/ --fix
 
 .PHONY: test
 test:
