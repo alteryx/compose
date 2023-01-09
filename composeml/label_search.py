@@ -70,7 +70,8 @@ class LabelSearch(ExampleSearch):
 
     @property
     def is_complete(self):
-        """Whether the search has found the expected number of examples for each label."""
+        """Whether the search has found the expected number of examples for each label.
+        """
         return len(self.expected_label_counts - self.actual_label_counts) == 0
 
     def is_complete_label(self, label):
