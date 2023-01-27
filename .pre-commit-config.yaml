@@ -1,4 +1,7 @@
-exclude: ^LICENSE/|\.(html|csv|svg|md|txt|json|xml)$
+exclude: |
+  (?x)
+  .html$|.csv$|.svg$|.md$|.txt$|.json$|.xml$|.pickle$|^.github/|
+  (LICENSE.*|README.*)
 default_stages: [commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
