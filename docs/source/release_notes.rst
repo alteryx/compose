@@ -7,6 +7,7 @@ Future Release
     * Fixes
     * Changes
         * Remove isort, add pre-commit-config.yaml, and run on all files (:pr:`366`)
+        * Specify black and ruff config arguments in pre-commit-config (:pr:`371`)
     * Documentation Changes
     * Testing Changes
 
