@@ -118,6 +118,7 @@ filterwarnings = [
 ]
 
 [tool.ruff]
+line-length = 88
 ignore = ["E501"]
 select = [
     # Pyflakes
