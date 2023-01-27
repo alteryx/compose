@@ -1,4 +1,7 @@
-exclude: ^LICENSE/|\.(html|csv|svg|md|txt|json|xml)$
+exclude: |
+  (?x)
+  .html$|.csv$|.svg$|.md$|.txt$|.json$|.xml$|.pickle$|^.github/|
+  (LICENSE.*|README.*)
 default_stages: [commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -7,29 +10,35 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: 'v0.10.1'
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.5.0
     hooks:
-      - id: validate-pyproject
+      - id: nbstripout
+        entry: nbstripout
+        language: python
+        types: [jupyter]
   - repo: https://github.com/MarcoGorelli/absolufy-imports
     rev: 'v0.3.1'
     hooks:
       - id: absolufy-imports
         files: ^composeml/
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: 'v2.2.3'
+    rev: v2.2.3
     hooks:
       - id: add-trailing-comma
         name: Add trailing comma
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.0.191'
-    hooks:
-      - id: ruff
-        args: ["--fix"]
   - repo: https://github.com/python/black
     rev: 22.12.0
     hooks:
       - id: black
-        args: [--preview]
+        args:
+          - --config=./pyproject.toml
         additional_dependencies: [".[jupyter]"]
         types_or: [python, jupyter]
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: 'v0.0.231'
+    hooks:
+      - id: ruff
+        args:
+          - --config=./pyproject.toml
+          - --fix

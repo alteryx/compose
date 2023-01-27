@@ -8,21 +8,21 @@ clean:
 
 .PHONY: lint
 lint:
-	black composeml/ --check --preview
-	ruff composeml/
+	black . --check --config=./pyproject.toml
+	ruff . --config=./pyproject.toml
 
 .PHONY: lint-fix
 lint-fix:
-	black composeml/ --preview
-	ruff composeml/ --fix
+	black . --config=./pyproject.toml
+	ruff . --fix --config=./pyproject.toml
 
 .PHONY: test
 test:
-	pytest composeml/
+	python -m pytest composeml/ -n auto
 
 .PHONY: testcoverage
 testcoverage:
-	pytest composeml/ --cov=composeml
+	python -m pytest composeml/ --cov=composeml -n auto
 
 .PHONY: installdeps
 installdeps: upgradepip
@@ -48,6 +48,6 @@ upgradesetuptools:
 .PHONY: package
 package: upgradepip upgradebuild upgradesetuptools
 	python -m build
-	$(eval COMPOSE_VERSION := $(shell grep '__version__\s=' composeml/version.py | grep -o '[^ ]*$$'))
-	tar -zxvf "dist/composeml-${COMPOSE_VERSION}.tar.gz"
-	mv "composeml-${COMPOSE_VERSION}" unpacked_sdist
+	$(eval PACKAGE=$(shell python -c 'import setuptools; setuptools.setup()' --version))
+	tar -zxvf "dist/composeml-${PACKAGE}.tar.gz"
+	mv "composeml-${PACKAGE}" unpacked_sdist
