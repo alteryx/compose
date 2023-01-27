@@ -58,8 +58,8 @@ docs = [
     "evalml >= 0.45.0"
 ]
 dev = [
-    "ruff == 0.0.216",
-    "codecov == 2.1.12",
+    "ruff >= 0.0.231",
+    "pre-commit >= 2.20.0",
     "black[jupyter] == 22.10.0",
     "nbsphinx == 0.8.7",
     "pydata-sphinx-theme == 0.7.1",
