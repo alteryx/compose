@@ -49,5 +49,5 @@ upgradesetuptools:
 package: upgradepip upgradebuild upgradesetuptools
 	python -m build
 	$(eval PACKAGE=$(shell python -c 'import setuptools; setuptools.setup()' --version))
-	tar -zxvf "dist/composeml-${COMPOSE_VERSION}.tar.gz"
-	mv "composeml-${COMPOSE_VERSION}" unpacked_sdist
+	tar -zxvf "dist/composeml-${PACKAGE}.tar.gz"
+	mv "composeml-${PACKAGE}" unpacked_sdist
