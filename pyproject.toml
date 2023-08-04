@@ -27,7 +27,7 @@ keywords = ["prediction engineering", "data science", "machine learning"]
 license = {text = "BSD 3-clause"}
 requires-python = ">=3.8,<4"
 dependencies = [
-    "pandas >= 1.3.0",
+    "pandas >= 2.0.0",
     "tqdm >= 4.32.0",
     "matplotlib >= 3.3.3",
     "seaborn >= 0.11.0",
