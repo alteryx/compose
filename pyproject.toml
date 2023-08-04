@@ -57,6 +57,7 @@ updater = [
 ]
 docs = [
     "evalml >= 0.45.0"
+    "dask[distributed]"
 ]
 dev = [
     "ruff >= 0.0.231",
