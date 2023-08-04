@@ -56,7 +56,7 @@ updater = [
     "alteryx-open-src-update-checker >= 2.1.0"
 ]
 docs = [
-    "evalml >= 0.45.0"
+    "evalml >= 0.45.0",
     "dask[distributed]"
 ]
 dev = [
