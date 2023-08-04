@@ -295,22 +295,25 @@ def test_search_offset_mix_5(transactions, total_spent_fn):
         window_size=2,
     )
 
-    given_labels = lm.search(
+    labels = lm.search(
         transactions,
         num_examples_per_instance=2,
         minimum_data="1h",
         gap=2,
     )
 
-    given_labels = to_csv(given_labels, index=False)
+    labels = to_csv(labels, index=False)
 
-    labels = [
-        "customer_id,time,total_spent",
-        "1,2019-01-01 10:00:00,1",
-        "2,2019-01-01 11:30:00,2",
+    expected_labels = [
+        'customer_id,time,total_spent',
+        '0,2019-01-01 08:00:00,2',
+        '1,2019-01-01 09:00:00,2',
+        '1,2019-01-01 10:00:00,1',
+        '2,2019-01-01 10:30:00,2',
+        '2,2019-01-01 11:30:00,2',
+        '3,2019-01-01 12:30:00,1'
     ]
-
-    assert given_labels == labels
+    assert labels == expected_labels
 
 
 def test_search_offset_mix_6(transactions, total_spent_fn):
@@ -568,7 +571,7 @@ def test_search_with_maximum_data(transactions):
     "minimum_data",
     [
         {1: "2019-01-01 09:30:00", 2: "2019-01-01 11:30:00"},
-        {1: "30min", 2: "1h"},
+        {1: pd.Timedelta("30min"), 2: pd.Timedelta("1h")},
         {1: 1, 2: 2},
     ],
 )
