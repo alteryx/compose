@@ -9,4 +9,4 @@ pytest==7.1.2
 seaborn==0.11.0
 tqdm==4.32.0
 wheel==0.33.1
-woodwork==0.11.0
+woodwork==0.23.0
