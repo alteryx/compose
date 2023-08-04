@@ -305,13 +305,13 @@ def test_search_offset_mix_5(transactions, total_spent_fn):
     labels = to_csv(labels, index=False)
 
     expected_labels = [
-        'customer_id,time,total_spent',
-        '0,2019-01-01 08:00:00,2',
-        '1,2019-01-01 09:00:00,2',
-        '1,2019-01-01 10:00:00,1',
-        '2,2019-01-01 10:30:00,2',
-        '2,2019-01-01 11:30:00,2',
-        '3,2019-01-01 12:30:00,1'
+        "customer_id,time,total_spent",
+        "0,2019-01-01 08:00:00,2",
+        "1,2019-01-01 09:00:00,2",
+        "1,2019-01-01 10:00:00,1",
+        "2,2019-01-01 10:30:00,2",
+        "2,2019-01-01 11:30:00,2",
+        "3,2019-01-01 12:30:00,1",
     ]
     assert labels == expected_labels
 

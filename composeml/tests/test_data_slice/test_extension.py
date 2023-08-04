@@ -1,5 +1,5 @@
-from pytest import fixture, mark, raises
 import pandas as pd
+from pytest import fixture, mark, raises
 
 from composeml import LabelMaker
 
