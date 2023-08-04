@@ -30,7 +30,7 @@ dependencies = [
     "pandas >= 2.0.0",
     "tqdm >= 4.32.0",
     "matplotlib >= 3.3.3",
-    "seaborn >= 0.11.0",
+    "seaborn >= 0.12.2",
 ]
 
 [project.urls]
@@ -49,7 +49,7 @@ test = [
     "pytest-xdist >= 2.5.0",
     "wheel >= 0.33.1",
     "featuretools >= 1.27.0",
-    "woodwork >= 0.23.0",
+    "woodwork >= 0.25.1",
     "pyarrow >= 3.0.0",
 ]
 updater = [
