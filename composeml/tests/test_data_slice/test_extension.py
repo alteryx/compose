@@ -1,4 +1,5 @@
 from pytest import fixture, mark, raises
+import pandas as pd
 
 from composeml import LabelMaker
 
@@ -42,9 +43,9 @@ def test_context_aliases(data_slice):
     argvalues=[
         [False, (2, 4, 2)],
         [False, (2, -6, 2)],
-        [True, ("1h", "2h", "1h")],
-        [True, ("1h", "-2h30min", "1h")],
-        [True, ("2019-01-01 09:00:00", "2019-01-01 10:00:00", "1h")],
+        [True, (pd.Timedelta("1h"), pd.Timedelta("2h"), pd.Timedelta("1h"))],
+        [True, (pd.Timedelta("1h"), pd.Timedelta("-2h30min"), pd.Timedelta("1h"))],
+        [True, ("2019-01-01 09:00:00", "2019-01-01 10:00:00", pd.Timedelta("1h"))],
     ],
 )
 def test_subscriptable_slices(transactions, time_based, offsets):
