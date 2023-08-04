@@ -2,7 +2,7 @@ featuretools==1.27.0
 matplotlib==3.3.3
 pandas==2.0.0
 pip==21.3.1
-pyarrow==3.0.0
+pyarrow==7.0.0
 pytest-cov==3.0.0
 pytest-xdist==2.5.0
 pytest==7.1.2
