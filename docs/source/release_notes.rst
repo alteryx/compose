@@ -8,6 +8,7 @@ Future Release
     * Changes
         * Remove isort, add pre-commit-config.yaml, and run on all files (:pr:`366`)
         * Specify black and ruff config arguments in pre-commit-config (:pr:`371`)
+        * Update s3 bucket for docs image (:pr:`383`)
     * Documentation Changes
     * Testing Changes
 
