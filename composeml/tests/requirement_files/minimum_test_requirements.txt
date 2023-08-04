@@ -1,4 +1,4 @@
-featuretools==1.4.0
+featuretools==1.27.0
 matplotlib==3.3.3
 pandas==2.0.0
 pip==21.3.1
