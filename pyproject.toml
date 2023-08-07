@@ -27,10 +27,10 @@ keywords = ["prediction engineering", "data science", "machine learning"]
 license = {text = "BSD 3-clause"}
 requires-python = ">=3.8,<4"
 dependencies = [
-    "pandas >= 1.3.0",
+    "pandas >= 2.0.0",
     "tqdm >= 4.32.0",
     "matplotlib >= 3.3.3",
-    "seaborn >= 0.11.0",
+    "seaborn >= 0.12.2",
 ]
 
 [project.urls]
@@ -48,15 +48,16 @@ test = [
     "pytest-cov >= 3.0.0",
     "pytest-xdist >= 2.5.0",
     "wheel >= 0.33.1",
-    "featuretools >= 1.4.0",
-    "woodwork >= 0.11.0",
-    "pyarrow >= 3.0.0",
+    "featuretools >= 1.27.0",
+    "woodwork >= 0.25.1",
+    "pyarrow >= 7.0.0",
 ]
 updater = [
     "alteryx-open-src-update-checker >= 2.1.0"
 ]
 docs = [
-    "evalml >= 0.45.0"
+    "evalml >= 0.45.0",
+    "dask[distributed]"
 ]
 dev = [
     "ruff >= 0.0.231",
