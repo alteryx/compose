@@ -2,5 +2,5 @@ featuretools==1.27.0
 matplotlib==3.7.2
 pandas==2.0.3
 seaborn==0.12.2
-tqdm==4.65.0
+tqdm==4.65.1
 woodwork==0.25.1
